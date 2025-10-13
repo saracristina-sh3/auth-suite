@@ -1,0 +1,77 @@
+x-backend-common:
+  &backend-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  env_file:
+    - .env
+  volumes:
+    - ./backend:/api
+    - ./frontend/dist:/public
+  working_dir: /api
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:13
+    container_name: gestao_frota_db_${APP_ENV}
+    env_file:
+      - .env
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PUBLIC_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      
+
+  build-backend:
+    <<: *backend-common
+    container_name: gestao_frota_init_${APP_ENV}
+    command: bash -c 
+      "cd /api &&
+      composer install && 
+      php artisan migrate --force && 
+      php artisan optimize"
+    
+
+  build-frontend:
+    image: node:18
+    container_name: gestao_frota_frontend_${APP_ENV}
+    working_dir: /tmp/build
+    volumes:
+      - ./frontend:/src:ro
+      - ./frontend/dist:/tmp/build/dist
+    command: >
+      bash -c "apt-get update && apt-get install -y rsync &&
+              rsync -a --exclude=dist /src/ /tmp/build/ &&
+              npm ci --ignore-scripts --legacy-peer-deps &&
+              npm run build"
+
+
+
+  app:
+    <<: *backend-common
+    container_name: gestao_frota_app_${APP_ENV}
+    ports:
+      - "${APP_PORT}:80"
+    depends_on:
+      build-backend:
+        condition: service_completed_successfully
+      build-frontend:
+        condition: service_completed_successfully
+    
+volumes:
+  db_data:
+    driver: local
+  mongo_data:
+    driver: local
