@@ -15,7 +15,7 @@ x-backend-common:
 
 services:
   db:
-    image: postgres:13
+    image: postgres:17
     container_name: gestao_frota_db_${APP_ENV}
     env_file:
       - .env
@@ -41,11 +41,12 @@ services:
       "cd /api &&
       composer install && 
       php artisan migrate --force && 
+      php artisan db:seed --force &&
       php artisan optimize"
     
 
   build-frontend:
-    image: node:18
+    image: node:22-bullseye
     container_name: gestao_frota_frontend_${APP_ENV}
     working_dir: /tmp/build
     volumes:
