@@ -114,7 +114,7 @@ async function onLogin() {
   justify-content: space-between;
   padding: 3rem;
   color: white;
-  position: relative;
+  position:fixed;
   overflow: hidden;
 }
 

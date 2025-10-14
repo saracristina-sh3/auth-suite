@@ -1,68 +1,39 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import SuiteItems from './SuiteItems.vue'
-import ComprasIcon from './icons/IconCompras.vue'
-import AlmoxarifadoIcon from './icons/IconAlmoxarifado.vue'
-import ContabilidadeIcon from './icons/IconContabilidade.vue'
-import DepartamentoPessoalIcon from './icons/IconDepartamentoPessoal.vue'
-import FrotaIcon from './icons/IconFrota.vue'
+import { useModulos } from '@/composables/useModulos'
+import UsuarioCard from './usuario/UsuarioCard.vue'
+import AutarquiaSelect from './select/AutarquiaSelect.vue'
 
+const { modulos } = useModulos()
 const router = useRouter()
 
-const goToFrota = () => {
-  console.log('Clicou em Frota')
-  router.push('/frota')
-}
-
-const handleItemClick = (item: string) => {
-  console.log('Clicou no item:', item)
-  if (item === 'frota') {
-    goToFrota()
-  }
+const handleItemClick = (route: string) => {
+  router.push(route)
 }
 </script>
 
 <template>
   <div class="suite-container">
+    <div class="user-info">
+      <UsuarioCard />
+    </div>
+
+    <div class="autarquia-select">
+      <AutarquiaSelect />
+    </div>
+
     <div class="suite-grid">
-      <SuiteItems @click="handleItemClick('frota')">
+      <SuiteItems
+        v-for="modulo in modulos"
+        :key="modulo.key"
+        @click="handleItemClick(modulo.route)"
+      >
         <template #icon>
-          <FrotaIcon />
+          <component :is="modulo.icon" />
         </template>
-        <template #heading>Frota</template>
-        Gerencie sua frota de veículos
-      </SuiteItems>
-
-      <SuiteItems @click="handleItemClick('compras')">
-        <template #icon>
-          <ComprasIcon />
-        </template>
-        <template #heading>Compras</template>
-        Sistema de compras e licitações
-      </SuiteItems>
-
-      <SuiteItems @click="handleItemClick('almoxarifado')">
-        <template #icon>
-          <AlmoxarifadoIcon />
-        </template>
-        <template #heading>Almoxarifado</template>
-        Controle de estoque e materiais
-      </SuiteItems>
-
-      <SuiteItems @click="handleItemClick('contabilidade')">
-        <template #icon>
-          <ContabilidadeIcon />
-        </template>
-        <template #heading>Contabilidade</template>
-        Gestão contábil e fiscal
-      </SuiteItems>
-
-      <SuiteItems @click="handleItemClick('dp')">
-        <template #icon>
-          <DepartamentoPessoalIcon />
-        </template>
-        <template #heading>Departamento Pessoal</template>
-        Gestão de recursos humanos
+        <template #heading>{{ modulo.title }}</template>
+        {{ modulo.description }}
       </SuiteItems>
     </div>
   </div>
@@ -70,28 +41,35 @@ const handleItemClick = (item: string) => {
 
 <style scoped>
 .suite-container {
-  padding: 2rem;
-  min-height: 80vh;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--color-background, #f9fafc);
+  min-height: 90vh;
+}
+
+.user-info {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-background);
+}
+
+.autarquia-select {
+  margin-top: 1rem;
 }
 
 .suite-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  max-width: 900px;
   width: 100%;
+  margin-top: 2rem;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
-  .suite-container {
-    padding: 1rem;
-  }
-
   .suite-grid {
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1.5rem;

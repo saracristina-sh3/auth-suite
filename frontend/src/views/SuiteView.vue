@@ -7,3 +7,4 @@ import SuiteHome from "@/components/SuiteHome.vue"
     <SuiteHome/>
   </main>
 </template>
+
