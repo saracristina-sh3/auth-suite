@@ -3,6 +3,9 @@ x-backend-common:
   build:
     context: .
     dockerfile: Dockerfile
+    args:
+      USER_ID: 1000
+      GROUP_ID: 1000
   env_file:
     - .env
   volumes:
@@ -32,22 +35,22 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      
 
   build-backend:
     <<: *backend-common
     container_name: gestao_frota_init_${APP_ENV}
-    command: bash -c 
-      "cd /api &&
-      composer install && 
-      php artisan migrate --force && 
-      php artisan db:seed --force &&
-      php artisan optimize"
-    
+    command: >
+      bash -c "cd /api &&
+              chown -R appuser:appuser /api/storage /api/bootstrap/cache &&
+              chmod -R 775 /api/storage /api/bootstrap/cache &&
+              composer install && 
+              php artisan migrate --force && 
+              php artisan db:seed --force &&
+              php artisan optimize"
 
   build-frontend:
     image: node:22-bullseye
-    container_name: gestao_frota_frontend_${APP_ENV}
+    container_name: gestao_frota_build_frontend_${APP_ENV}  # 🔥 NOME ALTERADO
     working_dir: /tmp/build
     volumes:
       - ./frontend:/src:ro
@@ -58,7 +61,17 @@ services:
               npm ci --ignore-scripts --legacy-peer-deps &&
               npm run build"
 
-
+  # 🔥 NOVO SERVIÇO - FRONTEND
+  frontend:
+    image: nginx:alpine
+    container_name: gestao_frota_frontend_${APP_ENV}
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html
+    depends_on:
+      build-frontend:
+        condition: service_completed_successfully
 
   app:
     <<: *backend-common
@@ -70,9 +83,7 @@ services:
         condition: service_completed_successfully
       build-frontend:
         condition: service_completed_successfully
-    
+
 volumes:
   db_data:
-    driver: local
-  mongo_data:
     driver: local

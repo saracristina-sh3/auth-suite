@@ -61,8 +61,13 @@
             <label for="manterLogado" class="checkbox-label">Manter logado</label>
           </div>
 
-          <button type="submit" class="login-button">
-            Entrar
+          <button
+            type="submit"
+            class="login-button"
+            :disabled="isLoading"
+          >
+            <span v-if="isLoading">Entrando...</span>
+            <span v-else>Entrar</span>
           </button>
 
           <p v-if="error" class="error-message">{{ error }}</p>
@@ -80,20 +85,43 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '@/services/auth.service';
+import { authService } from '@/services/auth.service'; // ✅ Importe o authService
 
 const email = ref('');
 const password = ref('');
 const keepLogged = ref(false);
 const error = ref('');
+const isLoading = ref(false);
 const router = useRouter();
 
 async function onLogin() {
+  error.value = '';
+  isLoading.value = true;
+
   try {
-    await login(email.value, password.value);
-    router.push('/');
-  } catch (e: any) {
-    error.value = e.response?.data?.message || 'Falha ao autenticar.';
+    // Validação básica
+    if (!email.value || !password.value) {
+      error.value = 'Por favor, preencha todos os campos.';
+      return;
+    }
+
+    // Faz o login
+    await authService.login({
+      email: email.value,
+      password: password.value
+    });
+
+    // ✅ CORREÇÃO: Use replace em vez de push para evitar loop de navegação
+    router.replace('/');
+
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      error.value = e.message || 'Falha ao autenticar. Tente novamente.';
+    } else {
+      error.value = 'Falha ao autenticar. Tente novamente.';
+    }
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>
@@ -114,7 +142,7 @@ async function onLogin() {
   justify-content: space-between;
   padding: 3rem;
   color: white;
-  position:fixed;
+  position: fixed;
   overflow: hidden;
 }
 
@@ -206,6 +234,7 @@ async function onLogin() {
   justify-content: center;
   background: var(--color-background-soft);
   padding: 2rem;
+  margin-left: 50%; /* ✅ Adicionado para compensar o fixed do lado esquerdo */
 }
 
 .form-container {
@@ -309,10 +338,15 @@ async function onLogin() {
   margin-top: 0.5rem;
 }
 
-.login-button:hover {
+.login-button:hover:not(:disabled) {
   background: var(--color-primary-soft);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .error-message {
@@ -352,8 +386,14 @@ async function onLogin() {
   }
 
   .login-left {
+    position: relative;
     padding: 2rem 1rem;
     min-height: 30vh;
+  }
+
+  .login-right {
+    margin-left: 0;
+    padding: 1.5rem;
   }
 
   .system-name {
