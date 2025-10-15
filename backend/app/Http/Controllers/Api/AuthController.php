@@ -27,15 +27,16 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            \Log::warning('❌ Login falhou - credenciais incorretas', [
-                'email' => $request->email,
-                'user_found' => !is_null($user)
-            ]);
+    \Log::warning('❌ Login falhou - credenciais incorretas', [
+        'email' => $request->email,
+        'user_found' => !is_null($user)
+    ]);
 
-            return response()->json([
-                'error' => 'The provided credentials are incorrect.'
-            ], 401);
-        }
+    return response()->json([
+        'success' => false,
+        'message' => 'Credenciais inválidas. Verifique seu email e senha.'
+    ], 401);
+}
 
         // Create real Sanctum token
         $token = $user->createToken('auth-token')->plainTextToken;

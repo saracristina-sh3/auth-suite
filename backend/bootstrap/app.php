@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->use([
         \Illuminate\Http\Middleware\HandleCors::class,
         \App\Http\Middleware\Cors::class,
+        'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
 
     ]);
     })

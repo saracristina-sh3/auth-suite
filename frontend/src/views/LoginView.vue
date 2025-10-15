@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { authService } from '@/services/auth.service'; // ✅ Importe o authService
+import { authService } from '@/services/auth.service'; 
 
 const email = ref('');
 const password = ref('');
@@ -111,7 +111,6 @@ async function onLogin() {
       password: password.value
     });
 
-    // ✅ CORREÇÃO: Use replace em vez de push para evitar loop de navegação
     router.replace('/');
 
   } catch (e: unknown) {
