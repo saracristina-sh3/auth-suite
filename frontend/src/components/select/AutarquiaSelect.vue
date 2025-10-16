@@ -1,26 +1,47 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import Select from 'primevue/select'
-
-const autarquias = [
-  { name: 'Prefeitura Municipal', code: 'pref' },
-  { name: 'Câmara Municipal', code: 'cam' },
-  { name: 'Instituto de Previdência', code: 'inst' }
-]
-
-const selectedAutarquia = ref()
-</script>
-
+<!-- src/components/select/AutarquiaSelect.vue -->
 <template>
-  <Select
-    v-model="selectedAutarquia"
-    :options="autarquias"
-    optionLabel="name"
-    placeholder="Selecione a autarquia"
-    class="w-full md:w-56"
+  <Dropdown
+    v-model="selectedValue"
+    :options="options"
+    optionLabel="label"
+    optionValue="value"
+    :placeholder="placeholder"
+    class="w-full"
   />
 </template>
 
-<style scoped>
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import Dropdown from 'primevue/dropdown'
 
-</style>
+interface Option {
+  label: string
+  value: string | number
+}
+
+interface Props {
+  modelValue?: string | number | null
+  options: Option[]
+  placeholder?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  placeholder: 'Selecione...',
+  modelValue: null
+})
+
+const emit = defineEmits<{
+  'update:modelValue': [value: string | number | null]
+}>()
+
+const selectedValue = ref<string | number | null>(props.modelValue ?? null)
+
+watch(selectedValue, (newValue) => {
+  // Garantir que não enviamos undefined
+  emit('update:modelValue', newValue ?? null)
+})
+
+watch(() => props.modelValue, (newValue) => {
+  selectedValue.value = newValue ?? null
+})
+</script>

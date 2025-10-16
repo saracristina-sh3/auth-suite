@@ -7,14 +7,14 @@
     <!-- Botão fixo de Dark Theme -->
     <ThemeSwitcher />
 
-    <button
+    <Button
       type="button"
       class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700
              text-white transition-colors"
       @click="toggleAll"
     >
       Toggle All
-    </button>
+    </Button>
 
     <PanelMenu
       v-model:expandedKeys="expandedKeys"
@@ -28,7 +28,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import ThemeSwitcher from './theme/ThemeSwitcher.vue'
-import { PanelMenu } from 'primevue'
+import Button from 'primevue/button'
+import PanelMenu from 'primevue/panelmenu'
+
 
 // Estado dos menus
 const expandedKeys = ref<Record<string, boolean>>({})

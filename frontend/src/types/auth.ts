@@ -1,9 +1,33 @@
 // src/types/auth.ts
+export interface Autarquia {
+  id: number;
+  nome: string;
+  ativo: boolean;
+}
+
+export interface Modulo {
+  id: number;
+  nome: string;
+  descricao?: string;
+  icone?: string;
+  ativo: boolean;
+  // Legacy fields for compatibility with existing UI
+  key?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  route?: string;
+}
+
 export interface User {
   id: number;
   name: string;
   email: string;
+  cpf: string;
   role: string;
+  autarquia_id: number;
+  autarquia?: Autarquia;
+  is_active: boolean;
   is_superadmin: boolean;
 }
 

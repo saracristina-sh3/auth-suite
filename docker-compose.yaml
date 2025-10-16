@@ -50,7 +50,7 @@ services:
 
   build-frontend:
     image: node:22-bullseye
-    container_name: gestao_frota_build_frontend_${APP_ENV}  # 🔥 NOME ALTERADO
+    container_name: gestao_frota_build_frontend_${APP_ENV} 
     working_dir: /tmp/build
     volumes:
       - ./frontend:/src:ro
@@ -61,7 +61,6 @@ services:
               npm ci --ignore-scripts --legacy-peer-deps &&
               npm run build"
 
-  # 🔥 NOVO SERVIÇO - FRONTEND
   frontend:
     image: nginx:alpine
     container_name: gestao_frota_frontend_${APP_ENV}

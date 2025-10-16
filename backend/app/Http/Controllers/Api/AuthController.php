@@ -29,7 +29,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
     \Log::warning('❌ Login falhou - credenciais incorretas', [
         'email' => $request->email,
-        'user_found' => !is_null($user)
+        'user_found' => $user !== null
     ]);
 
     return response()->json([
@@ -41,9 +41,14 @@ class AuthController extends Controller
         // Create real Sanctum token
         $token = $user->createToken('auth-token')->plainTextToken;
 
+        // Load autarquia relationship
+        $user->load('autarquia');
+
         \Log::info('✅ Login bem-sucedido', [
             'user_id' => $user->id,
-            'email' => $user->email
+            'email' => $user->email,
+            'autarquia_id' => $user->autarquia_id,
+            'autarquia_nome' => $user->autarquia?->nome
         ]);
 
         return response()->json([
@@ -51,7 +56,15 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'cpf' => $user->cpf,
                 'role' => $user->role,
+                'autarquia_id' => $user->autarquia_id,
+                'autarquia' => $user->autarquia ? [
+                    'id' => $user->autarquia->id,
+                    'nome' => $user->autarquia->nome,
+                    'ativo' => $user->autarquia->ativo,
+                ] : null,
+                'is_active' => $user->is_active,
                 'is_superadmin' => $user->is_superadmin,
             ],
             'token' => $token,

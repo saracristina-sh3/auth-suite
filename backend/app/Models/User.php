@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,14 +14,16 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role',
-        'is_active',
-        'is_superadmin'
-    ];
+   protected $fillable = [
+    'name',
+    'email',
+    'password',
+    'role',
+    'cpf',
+    'autarquia_id',
+    'is_active',
+    'is_superadmin'
+];
 
     protected $hidden = [
         'password',
@@ -32,18 +37,53 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_superadmin' => 'boolean',
+            'autarquia_id' => 'integer',
         ];
+    }
+
+    /**
+     * Relacionamento: Usuário pertence a uma autarquia
+     */
+    public function autarquia(): BelongsTo
+    {
+        return $this->belongsTo(Autarquia::class, 'autarquia_id');
+    }
+
+    /**
+     * Relacionamento: Usuário possui muitas permissões em módulos
+     */
+    public function permissoes(): HasMany
+    {
+        return $this->hasMany(UsuarioModuloPermissao::class, 'user_id');
+    }
+
+    /**
+     * Relacionamento: Usuário possui muitas permissões ativas
+     */
+    public function permissoesAtivas(): HasMany
+    {
+        return $this->permissoes()->where('ativo', true);
+    }
+
+    /**
+     * Relacionamento: Módulos que o usuário tem acesso
+     */
+    public function modulos(): BelongsToMany
+    {
+        return $this->belongsToMany(Modulo::class, 'usuario_modulo_permissao', 'user_id', 'modulo_id')
+            ->withPivot('autarquia_id', 'permissao_leitura', 'permissao_escrita', 'permissao_exclusao', 'permissao_admin', 'data_concessao', 'ativo')
+            ->withTimestamps();
     }
 
     // Métodos de autorização
     public function isAdmin(): bool
     {
-        return $this->role === 'admin' || $this->is_superadmin;
+        return $this->role === 'suporteAdmin' || $this->is_superadmin;
     }
 
     public function isManager(): bool
     {
-        return $this->role === 'manager' || $this->isAdmin();
+        return $this->role === 'clientAdmin' ;
     }
 
     public function canAccess(string $permission): bool
@@ -60,10 +100,99 @@ class User extends Authenticatable
         // Definir permissões baseadas no role
         $permissions = [
             'user' => ['view_dashboard'],
-            'manager' => ['view_dashboard', 'manage_users', 'view_reports'],
-            'admin' => ['view_dashboard', 'manage_users', 'manage_system', 'view_reports']
+            'clientAdmin' => ['view_dashboard', 'manage_users', 'view_reports'],
+            'suporteAdmin' => ['view_dashboard', 'manage_users', 'manage_system', 'view_reports']
         ];
 
         return $permissions[$this->role] ?? [];
+    }
+
+    /**
+     * Verifica se o usuário tem permissão de leitura no módulo
+     */
+    public function podeLerModulo(int $moduloId, ?int $autarquiaId = null): bool
+    {
+        if ($this->is_superadmin) {
+            return true;
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+
+        return $this->permissoesAtivas()
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_id', $autarquiaId)
+            ->where('permissao_leitura', true)
+            ->exists();
+    }
+
+    /**
+     * Verifica se o usuário tem permissão de escrita no módulo
+     */
+    public function podeEscreverModulo(int $moduloId, ?int $autarquiaId = null): bool
+    {
+        if ($this->is_superadmin) {
+            return true;
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+
+        return $this->permissoesAtivas()
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_id', $autarquiaId)
+            ->where('permissao_escrita', true)
+            ->exists();
+    }
+
+    /**
+     * Verifica se o usuário tem permissão de exclusão no módulo
+     */
+    public function podeExcluirModulo(int $moduloId, ?int $autarquiaId = null): bool
+    {
+        if ($this->is_superadmin) {
+            return true;
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+
+        return $this->permissoesAtivas()
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_id', $autarquiaId)
+            ->where('permissao_exclusao', true)
+            ->exists();
+    }
+
+    /**
+     * Verifica se o usuário é admin do módulo
+     */
+    public function eAdminModulo(int $moduloId, ?int $autarquiaId = null): bool
+    {
+        if ($this->is_superadmin) {
+            return true;
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+
+        return $this->permissoesAtivas()
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_id', $autarquiaId)
+            ->where('permissao_admin', true)
+            ->exists();
+    }
+
+    /**
+     * Retorna todos os módulos que o usuário tem acesso
+     */
+    public function getModulosDisponiveis(?int $autarquiaId = null)
+    {
+        if ($this->is_superadmin) {
+            return Modulo::ativos()->get();
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+
+        return $this->modulos()
+            ->wherePivot('autarquia_id', $autarquiaId)
+            ->wherePivot('ativo', true)
+            ->get();
     }
 }

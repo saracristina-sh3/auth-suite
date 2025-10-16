@@ -109,8 +109,9 @@ async function onLogin() {
     const user = response.user
 
     // Redireciona conforme o tipo de usuário
-    if (user?.is_superadmin) {
-      router.replace('/users')
+    // SH3 superadmin sempre vai para AdminManagementView
+    if (user?.is_superadmin && user?.autarquia?.nome === 'SH3 - Suporte') {
+      router.replace('/suporteSH3')
     } else {
       router.replace('/')
     }
