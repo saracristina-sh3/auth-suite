@@ -51,6 +51,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'role' => $user->role,
+                'is_superadmin' => $user->is_superadmin,
             ],
             'token' => $token,
             'message' => 'Login successful'
