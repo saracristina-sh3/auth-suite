@@ -61,11 +61,7 @@
             <label for="manterLogado" class="checkbox-label">Manter logado</label>
           </div>
 
-          <button
-            type="submit"
-            class="login-button"
-            :disabled="isLoading"
-          >
+          <button type="submit" class="login-button" :disabled="isLoading">
             <span v-if="isLoading">Entrando...</span>
             <span v-else>Entrar</span>
           </button>
@@ -83,47 +79,57 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { authService } from '@/services/auth.service'; 
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { authService } from '@/services/auth.service'
 
-const email = ref('');
-const password = ref('');
-const keepLogged = ref(false);
-const error = ref('');
-const isLoading = ref(false);
-const router = useRouter();
+const email = ref('')
+const password = ref('')
+const keepLogged = ref(false)
+const error = ref('')
+const isLoading = ref(false)
+const router = useRouter()
 
 async function onLogin() {
-  error.value = '';
-  isLoading.value = true;
+  error.value = ''
+  isLoading.value = true
 
   try {
-    // Validação básica
     if (!email.value || !password.value) {
-      error.value = 'Por favor, preencha todos os campos.';
-      return;
+      error.value = 'Por favor, preencha todos os campos.'
+      return
     }
 
-    // Faz o login
-    await authService.login({
+    // Faz o login e recebe a resposta com o usuário
+    const response = await authService.login({
       email: email.value,
       password: password.value
-    });
+    })
 
-    router.replace('/');
+    const user = response.user
 
+    // Redireciona conforme o tipo de usuário
+    if (user?.is_superadmin) {
+      router.replace('/users')
+    } else {
+      router.replace('/')
+    }
   } catch (e: unknown) {
     if (e instanceof Error) {
-      error.value = e.message || 'Falha ao autenticar. Tente novamente.';
+      error.value = e.message || 'Falha ao autenticar. Tente novamente.'
     } else {
-      error.value = 'Falha ao autenticar. Tente novamente.';
+      error.value = 'Falha ao autenticar. Tente novamente.'
     }
   } finally {
-    isLoading.value = false;
+    isLoading.value = false
   }
 }
 </script>
+
+<style scoped>
+/* (mantém todo o seu CSS original, está ótimo) */
+</style>
+
 
 <style scoped>
 .login-container {

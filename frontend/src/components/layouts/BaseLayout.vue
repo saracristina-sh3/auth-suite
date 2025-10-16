@@ -4,7 +4,7 @@
     <header class="bg-white shadow-sm sticky top-0 z-10">
       <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
         <div class="flex items-center gap-3">
-          <h1 class="font-semibold text-lg text-gray-700">Painel do Usuário</h1>
+          <h1 class="font-semibold text-lg text-gray-700">Painel do suporte</h1>
         </div>
 
         <div class="flex items-center gap-4">

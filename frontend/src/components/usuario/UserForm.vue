@@ -15,7 +15,7 @@
       </div>
       <div class="field">
         <label>Função</label>
-        <Dropdown v-model="form.role" :options="roles" optionLabel="label" optionValue="value" />
+        <Select v-model="form.role" :options="roles" optionLabel="label" optionValue="value" />
       </div>
     </div>
     <template #footer>
@@ -29,7 +29,7 @@
 import { ref, defineEmits } from 'vue';
 import  Dialog  from 'primevue/dialog';
 import  InputText  from 'primevue/inputtext';
-import  Dropdown  from 'primevue/dropdown';
+import  Select  from 'primevue/select';
 import  Button  from 'primevue/button';
 import  Password  from 'primevue/password';
 

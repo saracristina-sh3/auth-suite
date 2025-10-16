@@ -14,7 +14,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/register', [AuthController::class, 'register']);
 
 //Route::middleware(['auth:sanctum', 'superadmin'])->group(function () {
-        Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::put('/users/{user}', [UserController::class, 'update']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
