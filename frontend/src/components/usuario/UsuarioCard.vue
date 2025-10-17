@@ -1,15 +1,32 @@
 <template>
   <div class="usuario-card">
-    <div class="avatar">
-      <span>F</span>
-    </div>
+    <Avatar 
+              :label="userInitials" 
+              shape="circle" 
+              size="large" 
+              class="bg-primary text-white" 
+            />
     <div class="greeting">
-      <h2>Olá, <span class="username">Fernando</span>!</h2>
+      <h2>Olá, <span class="username">{{ user.name }}</span>!</h2>
     </div>
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { computed } from 'vue'
+import Avatar from 'primevue/avatar'
+const user = JSON.parse(localStorage.getItem('user_data') || '{}')
+
+const userInitials = computed(() => {
+  if (!user?.name) return '?'
+  return user.name
+    .split(' ')
+    .map((n: string) => n[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase()
+})
+</script>
 
 <style scoped>
 .usuario-card {

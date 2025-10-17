@@ -3,7 +3,7 @@
     <div class="admin-container">
       <div class="admin-header">
         <div>
-          <h2 class="admin-title">Gerenciamento do Sistema</h2>
+          <h2 class="admin-title">Painel do suporte</h2>
           <p class="admin-subtitle">Área restrita - SH3 Suporte</p>
         </div>
         <!-- Botão de criar apenas para Usuários e Autarquias -->
@@ -12,77 +12,11 @@
           class="btn-primary"
           @click="onNew"
         >
-          <span class="btn-icon">+</span>
           Novo {{ activeTabLabel }}
         </Button>
       </div>
 
-      <!-- Painel de seleção de contexto de autarquia -->
-      <Card v-if="!supportContext" class="mb-4">
-        <template #title>
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-building"></i>
-            <span>Modo Suporte - Selecione uma Autarquia</span>
-          </div>
-        </template>
-        <template #content>
-          <p class="mb-3">
-            Escolha uma autarquia para acessar como administrador com todas as permissões
-          </p>
-          <div class="flex gap-3">
-            <Dropdown
-              v-model="selectedAutarquiaId"
-              :options="autarquias"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Selecione uma autarquia"
-              class="flex-1"
-              showClear
-            >
-              <template #option="slotProps">
-                <div class="flex align-items-center justify-content-between w-full">
-                  <span>{{ slotProps.option.nome }}</span>
-                  <Tag
-                    :value="slotProps.option.ativo ? 'Ativa' : 'Inativa'"
-                    :severity="slotProps.option.ativo ? 'success' : 'danger'"
-                  />
-                </div>
-              </template>
-            </Dropdown>
-            <Button
-              label="Acessar"
-              icon="pi pi-sign-in"
-              @click="handleAssumeContext"
-              :disabled="!selectedAutarquiaId"
-            />
-          </div>
-        </template>
-      </Card>
-
-      <!-- Barra de contexto ativo -->
-      <Message v-else severity="warn" :closable="false" class="mb-4">
-        <div class="flex align-items-center justify-content-between w-full">
-          <div class="flex align-items-center gap-3">
-            <i class="pi pi-shield" style="font-size: 1.5rem"></i>
-            <div>
-              <strong>Modo Suporte Ativo:</strong>
-              <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
-            </div>
-          </div>
-          <Button
-            label="Sair do Modo Suporte"
-            icon="pi pi-sign-out"
-            @click="exitContext"
-            severity="warning"
-            outlined
-          />
-        </div>
-      </Message>
-
-      <!-- Mensagem de feedback -->
-      <div v-if="message" :class="['message', messageClass]">
-        {{ message }}
-      </div>
+ 
 
       <!-- Abas -->
       <TabView v-model:activeIndex="activeTab" @tab-change="onTabChange">
@@ -185,6 +119,74 @@
               </p>
             </template>
           </Card>
+        </TabPanel>
+        <TabPanel header="Modo Suporte">
+               <!-- Painel de seleção de contexto de autarquia -->
+      <Card v-if="!supportContext" class="mb-4">
+        <template #title>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-building"></i>
+            <span>Modo Suporte - Selecione uma Autarquia</span>
+          </div>
+        </template>
+        <template #content>
+          <p class="mb-3">
+            Escolha uma autarquia para acessar como administrador com todas as permissões
+          </p>
+          <div class="flex gap-3">
+            <Dropdown
+              v-model="selectedAutarquiaId"
+              :options="autarquias"
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione uma autarquia"
+              class="flex-1"
+              showClear
+            >
+              <template #option="slotProps">
+                <div class="flex align-items-center justify-content-between w-full">
+                  <span>{{ slotProps.option.nome }}</span>
+                  <Tag
+                    :value="slotProps.option.ativo ? 'Ativa' : 'Inativa'"
+                    :severity="slotProps.option.ativo ? 'success' : 'danger'"
+                  />
+                </div>
+              </template>
+            </Dropdown>
+            <Button
+              label="Acessar"
+              icon="pi pi-sign-in"
+              @click="handleAssumeContext"
+              :disabled="!selectedAutarquiaId"
+            />
+          </div>
+        </template>
+      </Card>
+
+      <!-- Barra de contexto ativo -->
+      <Message v-else severity="warn" :closable="false" class="mb-4">
+        <div class="flex align-items-center justify-content-between w-full">
+          <div class="flex align-items-center gap-3">
+            <i class="pi pi-shield" style="font-size: 1.5rem"></i>
+            <div>
+              <strong>Modo Suporte Ativo:</strong>
+              <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
+            </div>
+          </div>
+          <Button
+            label="Sair do Modo Suporte"
+            icon="pi pi-sign-out"
+            @click="exitContext"
+            severity="warning"
+            outlined
+          />
+        </div>
+      </Message>
+
+      <!-- Mensagem de feedback -->
+      <div v-if="message" :class="['message', messageClass]">
+        {{ message }}
+      </div>
         </TabPanel>
       </TabView>
 

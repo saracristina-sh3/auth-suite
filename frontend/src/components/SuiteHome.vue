@@ -1,4 +1,5 @@
 <template>
+  <BaseLayout>
   <div class="suite-container">
     <!-- User Info -->
     <div class="user-info">
@@ -65,6 +66,7 @@
       </Card>
     </div>
   </div>
+  </BaseLayout>
 </template>
 
 <script setup lang="ts">
@@ -78,6 +80,7 @@ import ProgressSpinner from 'primevue/progressspinner'
 import Message from 'primevue/message'
 import Button from 'primevue/button'
 import type { User } from '@/types/auth'
+import BaseLayout from './layouts/BaseLayout.vue'
 
 const { modulos, loading, error, reload } = useModulos()
 const router = useRouter()
