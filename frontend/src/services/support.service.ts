@@ -66,7 +66,7 @@ class SupportService {
         const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}')
         const modifiedUser = {
           ...currentUser,
-          autarquia_id: data.context.autarquia.id,
+          autarquia_ativa_id: data.context.autarquia.id,
           autarquia: data.context.autarquia,
           role: 'admin', // Temporariamente admin da autarquia
           is_superadmin: false, // Desabilitar flag de superadmin temporariamente

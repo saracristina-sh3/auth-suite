@@ -5,7 +5,7 @@
     :modal="true"
     :style="{ width: '500px' }"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
-    class="p-dialog-sm"
+    class="p-dialog-xl"
   >
     <form @submit.prevent="save" class="p-fluid">
       <div class="field">

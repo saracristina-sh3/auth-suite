@@ -72,7 +72,7 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       optionValue: 'value'
     },
     {
-      name: 'autarquia_id',
+      name: 'autarquia_ativa_id',
       label: 'Autarquia',
       type: 'select',
       required: true,

@@ -25,7 +25,7 @@ export interface User {
   email: string;
   cpf: string;
   role: string;
-  autarquia_id: number;
+  autarquia_ativa_id: number;
   autarquia?: Autarquia;
   is_active: boolean;
   is_superadmin: boolean;

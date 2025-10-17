@@ -1,6 +1,6 @@
 <!-- src/components/select/AutarquiaSelect.vue -->
 <template>
-  <Dropdown
+  <Select
     v-model="selectedValue"
     :options="options"
     optionLabel="label"
@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 
 interface Option {
   label: string

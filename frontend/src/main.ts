@@ -11,7 +11,6 @@ import ToastService from 'primevue/toastservice';
 import ConfirmationService from 'primevue/confirmationservice'
 import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
 
-
 const app = createApp(App)
 
 app.use(createPinia())

@@ -93,10 +93,10 @@ export function useModulos() {
 
       // Carregar módulos baseado na autarquia do usuário (real ou temporária em modo suporte)
       let data
-      if (user.autarquia_id) {
+      if (user.autarquia_ativa_id) {
         // Usuário com autarquia associada vê módulos da sua autarquia
         console.log('👤 Carregando módulos da autarquia:', user.autarquia?.nome)
-        data = await moduloService.list(user.autarquia_id)
+        data = await moduloService.list(user.autarquia_ativa_id)
       } else {
         error.value = 'Usuário não possui autarquia associada'
         modulos.value = []

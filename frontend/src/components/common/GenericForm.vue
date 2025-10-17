@@ -5,7 +5,7 @@
     :modal="true"
     :style="{ width: dialogWidth }"
     :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
-    class="p-dialog-sm"
+    class="p-dialog-xl"
   >
     <form @submit.prevent="save" class="p-fluid">
       <!-- Campos dinâmicos -->
@@ -132,7 +132,7 @@ interface FieldConfig {
 }
 
 interface Props {
-  entityName: string // Nome da entidade (ex: "Usuário", "Autarquia", "Módulo")
+  entityName: string 
   fields: FieldConfig[]
   dialogWidth?: string
 }
