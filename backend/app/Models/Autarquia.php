@@ -25,19 +25,23 @@ class Autarquia extends Model
     ];
 
     /**
-     * Relacionamento: Autarquia possui muitos usuários
+     * Relacionamento: Autarquia possui muitos usuários (N:N)
      */
-    public function users(): HasMany
+    public function users(): BelongsToMany
     {
-        return $this->hasMany(User::class, 'autarquia_id');
+        return $this->belongsToMany(User::class, 'usuario_autarquia')
+            ->withPivot('role', 'is_admin', 'is_default', 'ativo', 'data_vinculo')
+            ->withTimestamps();
     }
 
     /**
      * Relacionamento: Autarquia possui muitos usuários ativos
      */
-    public function usersAtivos(): HasMany
+    public function usersAtivos(): BelongsToMany
     {
-        return $this->users()->where('is_active', true);
+        return $this->users()
+            ->wherePivot('ativo', true)
+            ->where('is_active', true);
     }
 
     /**

@@ -15,12 +15,12 @@ class UserController extends Controller
         $perPage = $request->get('per_page', 10);
 
         $query = User::query()
-            ->select('id', 'name', 'email', 'role', 'cpf', 'autarquia_id', 'is_active', 'is_superadmin')
-            ->with('autarquia:id,nome');
+            ->select('id', 'name', 'email', 'role', 'cpf', 'autarquia_ativa_id', 'is_active', 'is_superadmin')
+            ->with('autarquiaAtiva:id,nome');
 
         // Filtrar por autarquia se solicitado
-        if ($request->has('autarquia_id')) {
-            $query->where('autarquia_id', $request->get('autarquia_id'));
+        if ($request->has('autarquia_ativa_id')) {
+            $query->where('autarquia_ativa_id', $request->get('autarquia_id'));
         }
 
         // Filtrar por status ativo se solicitado
@@ -51,7 +51,7 @@ class UserController extends Controller
             'password' => 'required|min:6',
             'role' => 'required|string|in:user,gestor,admin,superadmin',
             'cpf' => 'required|string|size:11|unique:users',
-            'autarquia_id' => 'required|exists:autarquias,id',
+            'autarquia_ativa_id' => 'required|exists:autarquias,id',
             'is_active' => 'boolean',
         ]);
 
@@ -64,7 +64,7 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'cpf' => $validated['cpf'],
             'role' => $validated['role'],
-            'autarquia_id' => $validated['autarquia_id'],
+            'autarquia_ativa_id' => $validated['autarquia_ativa_id'],
             'is_active' => $validated['is_active'] ?? true,
             'is_superadmin' => $isSuperadmin,
         ]);
@@ -86,7 +86,7 @@ class UserController extends Controller
             "email" => "sometimes|email|unique:users,email,{$user->id}",
             "cpf" => "sometimes|string|size:11|unique:users,cpf,{$user->id}",
             'role' => 'sometimes|string|in:user,gestor,admin,superadmin',
-            'autarquia_id' => 'sometimes|exists:autarquias,id',
+            'autarquia_ativa_id' => 'sometimes|exists:autarquias,id',
             'is_active' => 'sometimes|boolean',
         ]);
 

@@ -23,15 +23,24 @@ class SuperAdminSeeder extends Seeder
         $cpf = env('SUPERADMIN_CPF', '00000000000');
 
         if (!User::where('email', $email)->exists()) {
-            User::create([
+            $superAdmin = User::create([
                 'name' => $name,
                 'email' => $email,
                 'password' => Hash::make($password),
                 'cpf' => $cpf,
                 'role' => 'superadmin',
-                'autarquia_id' => $autarquiaSuporte->id,
+                'autarquia_ativa_id' => $autarquiaSuporte->id,
                 'is_active' => true,
                 'is_superadmin' => true,
+            ]);
+
+            // Criar vínculo na tabela pivot usuario_autarquia
+            $superAdmin->autarquias()->attach($autarquiaSuporte->id, [
+                'role' => 'suporteAdmin',
+                'is_admin' => true,
+                'is_default' => true,
+                'ativo' => true,
+                'data_vinculo' => now(),
             ]);
 
             Log::info("✅ Autarquia de suporte criada: SH3 - Suporte (ID: {$autarquiaSuporte->id})");

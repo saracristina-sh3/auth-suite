@@ -21,7 +21,7 @@
       <!-- Abas -->
       <TabView v-model:activeIndex="activeTab" @tab-change="onTabChange">
         <!-- Aba Usuários -->
-        <TabPanel header="Usuários">
+        <TabPanel header="Usuários" :value="0">
           <GenericTable
             title="Lista de Usuários"
             :items="users"
@@ -48,7 +48,7 @@
         </TabPanel>
 
         <!-- Aba Autarquias -->
-        <TabPanel header="Autarquias">
+        <TabPanel header="Autarquias" :value="1"> 
           <GenericTable
             title="Lista de Autarquias"
             :items="autarquias"
@@ -64,7 +64,7 @@
         </TabPanel>
 
         <!-- Aba Módulos -->
-        <TabPanel header="Módulos">
+        <TabPanel header="Módulos" :value="2">
           <Card>
             <template #title>
               <div class="flex align-items-center justify-content-between">
@@ -107,7 +107,7 @@
         </TabPanel>
 
         <!-- Aba Liberações de Módulos -->
-        <TabPanel header="Liberações">
+        <TabPanel header="Liberações" :value="3">
           <Card>
             <template #title>Liberação de Módulos por Autarquia</template>
             <template #subtitle>
@@ -120,7 +120,7 @@
             </template>
           </Card>
         </TabPanel>
-        <TabPanel header="Modo Suporte">
+        <TabPanel header="Modo Suporte" :value="4">
                <!-- Painel de seleção de contexto de autarquia -->
       <Card v-if="!supportContext" class="mb-4">
         <template #title>

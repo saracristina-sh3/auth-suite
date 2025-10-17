@@ -20,8 +20,7 @@ class User extends Authenticatable
     'password',
     'role',
     'cpf',
-    'autarquia_id',
-    'autarquia_ativa_id',  // Nova: autarquia em contexto ativo
+    'autarquia_ativa_id',
     'is_active',
     'is_superadmin'
 ];
@@ -38,16 +37,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'is_superadmin' => 'boolean',
-            'autarquia_id' => 'integer',
+            'autarquia_ativa_id' => 'integer',
         ];
-    }
-
-    /**
-     * Relacionamento: Usuário pertence a uma autarquia (legado - mantido para compatibilidade)
-     */
-    public function autarquia(): BelongsTo
-    {
-        return $this->belongsTo(Autarquia::class, 'autarquia_id');
     }
 
     /**
@@ -56,7 +47,7 @@ class User extends Authenticatable
     public function autarquias(): BelongsToMany
     {
         return $this->belongsToMany(Autarquia::class, 'usuario_autarquia')
-            ->withPivot('role', 'is_admin', 'ativo', 'data_vinculo')
+            ->withPivot('role', 'is_admin', 'is_default', 'ativo', 'data_vinculo')
             ->withTimestamps();
     }
 
@@ -144,11 +135,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->where('permissao_leitura', true)
             ->exists();
     }
@@ -162,11 +153,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->where('permissao_escrita', true)
             ->exists();
     }
@@ -180,11 +171,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->where('permissao_exclusao', true)
             ->exists();
     }
@@ -198,11 +189,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->where('permissao_admin', true)
             ->exists();
     }
@@ -216,7 +207,7 @@ class User extends Authenticatable
             return Modulo::ativos()->get();
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_id;
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
 
         return $this->modulos()
             ->wherePivot('autarquia_id', $autarquiaId)
@@ -235,7 +226,7 @@ class User extends Authenticatable
             return false;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id ?? $this->autarquia_id;
+        $autarquiaId ??= $this->autarquia_ativa_id;
 
         return $this->autarquias()
             ->where('autarquia_id', $autarquiaId)
@@ -276,7 +267,7 @@ class User extends Authenticatable
             return 'suporteAdmin';
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id ?? $this->autarquia_id;
+        $autarquiaId ??= $this->autarquia_ativa_id;
 
         $pivot = $this->autarquias()
             ->where('autarquia_id', $autarquiaId)

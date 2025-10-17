@@ -33,8 +33,8 @@ class UsuarioModuloPermissaoController extends Controller
         }
 
         // Filtrar por autarquia
-        if ($request->has('autarquia_id')) {
-            $query->where('autarquia_id', $request->get('autarquia_id'));
+        if ($request->has('autarquia_ativa_id')) {
+            $query->where('autarquia_ativa_id', $request->get('autarquia_ativa_id'));
         }
 
         // Filtrar por status ativo
@@ -58,7 +58,7 @@ class UsuarioModuloPermissaoController extends Controller
     {
         $permissao = UsuarioModuloPermissao::where('user_id', $userId)
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->with(['user:id,name,email', 'modulo:id,nome,icone', 'autarquia:id,nome'])
             ->firstOrFail();
 
@@ -77,7 +77,7 @@ class UsuarioModuloPermissaoController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'modulo_id' => 'required|exists:modulos,id',
-            'autarquia_id' => 'required|exists:autarquias,id',
+            'autarquia_ativa_id' => 'required|exists:autarquias,id',
             'permissao_leitura' => 'boolean',
             'permissao_escrita' => 'boolean',
             'permissao_exclusao' => 'boolean',
@@ -87,15 +87,15 @@ class UsuarioModuloPermissaoController extends Controller
 
         // Verificar se o usuário pertence à autarquia
         $user = User::find($validated['user_id']);
-        if ($user->autarquia_id != $validated['autarquia_id']) {
+        if ($user->autarquia_ativa_id != $validated['autarquia_ativa_id']) {
             throw ValidationException::withMessages([
-                'autarquia_id' => ['O usuário não pertence a esta autarquia.']
+                'autarquia_ativa_id' => ['O usuário não pertence a esta autarquia.']
             ]);
         }
 
         // Verificar se o módulo está liberado para a autarquia
         $moduloLiberado = DB::table('autarquia_modulo')
-            ->where('autarquia_id', $validated['autarquia_id'])
+            ->where('autarquia_ativa_id', $validated['autarquia_ativa_id'])
             ->where('modulo_id', $validated['modulo_id'])
             ->where('ativo', true)
             ->exists();
@@ -109,7 +109,7 @@ class UsuarioModuloPermissaoController extends Controller
         // Verificar se a permissão já existe
         $existe = UsuarioModuloPermissao::where('user_id', $validated['user_id'])
             ->where('modulo_id', $validated['modulo_id'])
-            ->where('autarquia_id', $validated['autarquia_id'])
+            ->where('autarquia_ativa_id', $validated['autarquia_ativa_id'])
             ->first();
 
         if ($existe) {
@@ -122,7 +122,7 @@ class UsuarioModuloPermissaoController extends Controller
         $permissao = UsuarioModuloPermissao::create([
             'user_id' => $validated['user_id'],
             'modulo_id' => $validated['modulo_id'],
-            'autarquia_id' => $validated['autarquia_id'],
+            'autarquia_ativa_id' => $validated['autarquia_ativa_id'],
             'permissao_leitura' => $validated['permissao_leitura'] ?? false,
             'permissao_escrita' => $validated['permissao_escrita'] ?? false,
             'permissao_exclusao' => $validated['permissao_exclusao'] ?? false,
@@ -155,7 +155,7 @@ class UsuarioModuloPermissaoController extends Controller
 
         $permissao = UsuarioModuloPermissao::where('user_id', $userId)
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->firstOrFail();
 
         $permissao->update($validated);
@@ -175,7 +175,7 @@ class UsuarioModuloPermissaoController extends Controller
     {
         $permissao = UsuarioModuloPermissao::where('user_id', $userId)
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $autarquiaId)
+            ->where('autarquia_ativa_id', $autarquiaId)
             ->firstOrFail();
 
         $permissao->delete();
@@ -193,7 +193,7 @@ class UsuarioModuloPermissaoController extends Controller
     {
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
-            'autarquia_id' => 'required|exists:autarquias,id',
+            'autarquia_ativa_id' => 'required|exists:autarquias,id',
             'modulos' => 'required|array',
             'modulos.*.modulo_id' => 'required|exists:modulos,id',
             'modulos.*.permissao_leitura' => 'boolean',
@@ -203,13 +203,13 @@ class UsuarioModuloPermissaoController extends Controller
         ]);
 
         $userId = $validated['user_id'];
-        $autarquiaId = $validated['autarquia_id'];
+        $autarquiaId = $validated['autarquia_ativa_id'];
 
         // Verificar se o usuário pertence à autarquia
         $user = User::find($userId);
-        if ($user->autarquia_id != $autarquiaId) {
+        if ($user->autarquia_ativa_id != $autarquiaId) {
             throw ValidationException::withMessages([
-                'autarquia_id' => ['O usuário não pertence a esta autarquia.']
+                'autarquia_ativa_id' => ['O usuário não pertence a esta autarquia.']
             ]);
         }
 
@@ -223,7 +223,7 @@ class UsuarioModuloPermissaoController extends Controller
 
                 // Verificar se o módulo está liberado para a autarquia
                 $moduloLiberado = DB::table('autarquia_modulo')
-                    ->where('autarquia_id', $autarquiaId)
+                    ->where('autarquia_ativa_id', $autarquiaId)
                     ->where('modulo_id', $moduloId)
                     ->where('ativo', true)
                     ->exists();
@@ -237,7 +237,7 @@ class UsuarioModuloPermissaoController extends Controller
                 // Verificar se já existe
                 $existe = UsuarioModuloPermissao::where('user_id', $userId)
                     ->where('modulo_id', $moduloId)
-                    ->where('autarquia_id', $autarquiaId)
+                    ->where('autarquia_ativa_id', $autarquiaId)
                     ->first();
 
                 if ($existe) {
@@ -249,7 +249,7 @@ class UsuarioModuloPermissaoController extends Controller
                 $permissao = UsuarioModuloPermissao::create([
                     'user_id' => $userId,
                     'modulo_id' => $moduloId,
-                    'autarquia_id' => $autarquiaId,
+                    'autarquia_ativa_id' => $autarquiaId,
                     'permissao_leitura' => $moduloData['permissao_leitura'] ?? false,
                     'permissao_escrita' => $moduloData['permissao_escrita'] ?? false,
                     'permissao_exclusao' => $moduloData['permissao_exclusao'] ?? false,
@@ -291,7 +291,7 @@ class UsuarioModuloPermissaoController extends Controller
 
         $permissao = UsuarioModuloPermissao::where('user_id', $userId)
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_id', $user->autarquia_id)
+            ->where('autarquia_ativa_id', $user->autarquia_ativa_id)
             ->where('ativo', true)
             ->first();
 

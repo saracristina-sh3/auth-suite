@@ -45,7 +45,7 @@ class SupportService {
       console.log('🔑 Token:', token?.substring(0, 20) + '...')
 
       const { data } = await api.post<AssumeContextResponse>('/support/assume-context', {
-        autarquia_id: autarquiaId,
+        autarquia_ativa_id: autarquiaId,
       })
 
       if (data.success && data.token && data.context) {

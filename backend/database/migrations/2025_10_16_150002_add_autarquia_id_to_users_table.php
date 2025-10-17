@@ -12,18 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Adiciona a coluna autarquia_id
-            $table->unsignedBigInteger('autarquia_id')->nullable()->after('id');
+            // Adiciona a coluna autarquia_ativa_id
+            $table->unsignedBigInteger('autarquia_ativa_id')->nullable()->after('id');
 
             // Cria a chave estrangeira com RESTRICT para evitar exclusão acidental
-            $table->foreign('autarquia_id')
+            $table->foreign('autarquia_ativa_id')
                   ->references('id')
                   ->on('autarquias')
                   ->onDelete('restrict')
                   ->onUpdate('cascade');
 
             // Índice para otimização de consultas
-            $table->index('autarquia_id');
+            $table->index('autarquia_ativa_id');
         });
     }
 
@@ -33,9 +33,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['autarquia_id']);
-            $table->dropIndex(['autarquia_id']);
-            $table->dropColumn('autarquia_id');
+            $table->dropForeign(['autarquia_ativa_id']);
+            $table->dropIndex(['autarquia_ativa_id']);
+            $table->dropColumn('autarquia_ativa_id');
         });
     }
 };

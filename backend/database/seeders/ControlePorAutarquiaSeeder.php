@@ -102,18 +102,28 @@ class ControlePorAutarquiaSeeder extends Seeder
 
         $usuarioIds = [];
         foreach ($usuarios as $usuarioData) {
-            $id = DB::table('users')->insertGetId([
+            // Criar usuário usando o modelo Eloquent
+            $user = \App\Models\User::create([
                 'name' => $usuarioData['name'],
                 'email' => $usuarioData['email'],
                 'cpf' => $usuarioData['cpf'],
                 'password' => $usuarioData['password'],
-                'autarquia_id' => $usuarioData['autarquia_id'],
                 'role' => $usuarioData['role'],
+                'autarquia_ativa_id' => $usuarioData['autarquia_id'],
                 'is_active' => $usuarioData['is_active'],
-                'created_at' => now(),
-                'updated_at' => now(),
+                'is_superadmin' => false,
             ]);
-            $usuarioIds[] = $id;
+
+            // Criar vínculo na tabela pivot usuario_autarquia
+            $user->autarquias()->attach($usuarioData['autarquia_id'], [
+                'role' => $usuarioData['role'],
+                'is_admin' => $usuarioData['role'] === 'admin',
+                'is_default' => true,
+                'ativo' => true,
+                'data_vinculo' => now(),
+            ]);
+
+            $usuarioIds[] = $user->id;
         }
 
         // ========================================

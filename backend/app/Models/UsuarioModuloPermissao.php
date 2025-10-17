@@ -13,13 +13,13 @@ class UsuarioModuloPermissao extends Model
     protected $table = 'usuario_modulo_permissao';
 
     // Chave primária composta
-    protected $primaryKey = ['user_id', 'modulo_id', 'autarquia_id'];
+    protected $primaryKey = ['user_id', 'modulo_id', 'autarquia_ativa_id'];
     public $incrementing = false;
 
     protected $fillable = [
         'user_id',
         'modulo_id',
-        'autarquia_id',
+        'autarquia_ativa_id',
         'permissao_leitura',
         'permissao_escrita',
         'permissao_exclusao',

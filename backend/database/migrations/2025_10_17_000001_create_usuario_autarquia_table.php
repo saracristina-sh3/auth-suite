@@ -22,6 +22,7 @@ return new class extends Migration
             $table->unsignedBigInteger('autarquia_id');
             $table->string('role')->default('user'); // Role específica para esta autarquia
             $table->boolean('is_admin')->default(false); // Admin desta autarquia?
+            $table->boolean('is_default')->default(false); // Autarquia padrão/ativa?
             $table->boolean('ativo')->default(true);
             $table->timestamp('data_vinculo')->useCurrent();
             $table->timestamps();
@@ -46,39 +47,52 @@ return new class extends Migration
             $table->unique(['user_id', 'autarquia_id']);
         });
 
-        // 2. Migrar dados existentes de users.autarquia_id para usuario_autarquia
-        // Usar aspas simples para strings no PostgreSQL
-        DB::statement("
-            INSERT INTO usuario_autarquia (user_id, autarquia_id, role, is_admin, ativo, created_at, updated_at)
-            SELECT
-                id as user_id,
-                autarquia_id,
-                role,
-                (role = 'clientAdmin') as is_admin,
-                is_active as ativo,
-                created_at,
-                updated_at
-            FROM users
-            WHERE autarquia_id IS NOT NULL
-        ");
+        // 2. Verificar se a coluna autarquia_id existe antes de migrar dados
+        if (Schema::hasColumn('users', 'autarquia_id')) {
+            // Migrar dados existentes de users.autarquia_id para usuario_autarquia
+            DB::statement("
+                INSERT INTO usuario_autarquia (user_id, autarquia_id, role, is_admin, is_default, ativo, created_at, updated_at)
+                SELECT
+                    id as user_id,
+                    autarquia_id,
+                    role,
+                    (role = 'clientAdmin') as is_admin,
+                    true as is_default,
+                    is_active as ativo,
+                    created_at,
+                    updated_at
+                FROM users
+                WHERE autarquia_id IS NOT NULL
+            ");
+        }
 
-        // 3. Adicionar coluna para autarquia ativa (contexto atual do usuário)
-        Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('autarquia_ativa_id')->nullable()->after('autarquia_id');
-            $table->foreign('autarquia_ativa_id')
-                  ->references('id')
-                  ->on('autarquias')
-                  ->onDelete('set null');
-        });
+        // 3. Adicionar coluna para autarquia ativa (contexto atual do usuário) se não existir
+        if (!Schema::hasColumn('users', 'autarquia_ativa_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                if (Schema::hasColumn('users', 'autarquia_id')) {
+                    $table->unsignedBigInteger('autarquia_ativa_id')->nullable()->after('autarquia_id');
+                } else {
+                    $table->unsignedBigInteger('autarquia_ativa_id')->nullable();
+                }
+                $table->foreign('autarquia_ativa_id')
+                      ->references('id')
+                      ->on('autarquias')
+                      ->onDelete('set null');
+            });
+        }
 
-        // 4. Copiar autarquia_id para autarquia_ativa_id (manter contexto atual)
-        DB::statement('UPDATE users SET autarquia_ativa_id = autarquia_id WHERE autarquia_id IS NOT NULL');
+        // 4. Copiar autarquia_id para autarquia_ativa_id (manter contexto atual) se autarquia_id existir
+        if (Schema::hasColumn('users', 'autarquia_id')) {
+            DB::statement('UPDATE users SET autarquia_ativa_id = autarquia_id WHERE autarquia_id IS NOT NULL');
+        }
 
-        // 5. OPCIONAL: Remover autarquia_id (descomentar quando tiver certeza)
-        // Schema::table('users', function (Blueprint $table) {
-        //     $table->dropForeign(['autarquia_id']);
-        //     $table->dropColumn('autarquia_id');
-        // });
+        // 5. Remover autarquia_id se existir (não é mais necessário)
+        if (Schema::hasColumn('users', 'autarquia_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropForeign(['autarquia_id']);
+                $table->dropColumn('autarquia_id');
+            });
+        }
     }
 
     /**

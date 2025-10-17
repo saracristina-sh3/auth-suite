@@ -41,14 +41,14 @@ class AuthController extends Controller
         // Create real Sanctum token
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        // Load autarquia relationship
-        $user->load('autarquia');
+        // Load autarquia ativa e autarquias vinculadas
+        $user->load(['autarquiaAtiva', 'autarquias']);
 
         \Log::info('✅ Login bem-sucedido', [
             'user_id' => $user->id,
             'email' => $user->email,
-            'autarquia_id' => $user->autarquia_id,
-            'autarquia_nome' => $user->autarquia?->nome
+            'autarquia_ativa_id' => $user->autarquia_ativa_id,
+            'autarquia_nome' => $user->autarquiaAtiva?->nome
         ]);
 
         return response()->json([
@@ -58,11 +58,11 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'cpf' => $user->cpf,
                 'role' => $user->role,
-                'autarquia_id' => $user->autarquia_id,
-                'autarquia' => $user->autarquia ? [
-                    'id' => $user->autarquia->id,
-                    'nome' => $user->autarquia->nome,
-                    'ativo' => $user->autarquia->ativo,
+                'autarquia_ativa_id' => $user->autarquia_ativa_id,
+                'autarquia' => $user->autarquiaAtiva ? [
+                    'id' => $user->autarquiaAtiva->id,
+                    'nome' => $user->autarquiaAtiva->nome,
+                    'ativo' => $user->autarquiaAtiva->ativo,
                 ] : null,
                 'is_active' => $user->is_active,
                 'is_superadmin' => $user->is_superadmin,
@@ -131,7 +131,7 @@ class AuthController extends Controller
             'user_id' => $user->id,
             'user_role' => $user->role,
             'is_superadmin' => $user->is_superadmin,
-            'autarquia_id' => $request->autarquia_id
+            'autarquia_ativa_id' => $request->autarquia_ativa_id
         ]);
 
         // Apenas usuários superadmin (Sh3) podem assumir contexto de outras autarquias
@@ -148,14 +148,14 @@ class AuthController extends Controller
         }
 
         $request->validate([
-            'autarquia_id' => 'required|exists:autarquias,id'
+            'autarquia_ativa_id' => 'required|exists:autarquias,id'
         ]);
 
-        $autarquia = \App\Models\Autarquia::with('modulos')->findOrFail($request->autarquia_id);
+        $autarquia = \App\Models\Autarquia::with('modulos')->findOrFail($request->autarquia_ativa_id);
 
         if (!$autarquia->ativo) {
             \Log::warning('❌ Tentativa de acessar autarquia inativa', [
-                'autarquia_id' => $autarquia->id,
+                'autarquia_ativa_id' => $autarquia->id,
                 'autarquia_nome' => $autarquia->nome
             ]);
 
@@ -169,12 +169,12 @@ class AuthController extends Controller
         // O token antigo continua válido mas vamos criar um novo para a sessão de suporte
         $token = $user->createToken('support-context-token', [
             'support_mode' => true,
-            'context_autarquia_id' => $autarquia->id
+            'context_autarquia_ativa_id' => $autarquia->id
         ])->plainTextToken;
 
         \Log::info('✅ Contexto de autarquia assumido com sucesso', [
             'user_id' => $user->id,
-            'autarquia_id' => $autarquia->id,
+            'autarquia_ativa_id' => $autarquia->id,
             'autarquia_nome' => $autarquia->nome,
             'modulos_count' => $autarquia->modulos->count()
         ]);
@@ -229,12 +229,12 @@ class AuthController extends Controller
         // Cria um novo token normal
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        // Recarrega o usuário com sua autarquia original
-        $user->load('autarquia');
+        // Recarrega o usuário com sua autarquia ativa
+        $user->load(['autarquiaAtiva', 'autarquias']);
 
         \Log::info('✅ Retornado ao contexto original', [
             'user_id' => $user->id,
-            'autarquia_original_id' => $user->autarquia_id
+            'autarquia_original_id' => $user->autarquia_ativa_id
         ]);
 
         return response()->json([
@@ -247,11 +247,11 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'cpf' => $user->cpf,
                 'role' => $user->role,
-                'autarquia_id' => $user->autarquia_id,
-                'autarquia' => $user->autarquia ? [
-                    'id' => $user->autarquia->id,
-                    'nome' => $user->autarquia->nome,
-                    'ativo' => $user->autarquia->ativo,
+                'autarquia_ativa_id' => $user->autarquia_ativa_id,
+                'autarquia' => $user->autarquiaAtiva ? [
+                    'id' => $user->autarquiaAtiva->id,
+                    'nome' => $user->autarquiaAtiva->nome,
+                    'ativo' => $user->autarquiaAtiva->ativo,
                 ] : null,
                 'is_active' => $user->is_active,
                 'is_superadmin' => $user->is_superadmin,
@@ -306,7 +306,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'autarquias' => $autarquias,
-            'autarquia_ativa_id' => $user->autarquia_ativa_id ?? $user->autarquia_id,
+            'autarquia_ativa_id' => $user->autarquia_ativa_id ?? $user->autarquia_ativa_id,
         ]);
     }
 
@@ -319,22 +319,22 @@ class AuthController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'autarquia_id' => 'required|exists:autarquias,id'
+            'autarquia_ativa_id' => 'required|exists:autarquias,id'
         ]);
 
         \Log::info('🔄 Tentativa de trocar autarquia', [
             'user_id' => $user->id,
-            'autarquia_atual' => $user->autarquia_ativa_id ?? $user->autarquia_id,
-            'autarquia_nova' => $request->autarquia_id
+            'autarquia_atual' => $user->autarquia_ativa_id ?? $user->autarquia_ativa_id,
+            'autarquia_nova' => $request->autarquia_ativa_id
         ]);
 
         // Tenta trocar a autarquia
-        $sucesso = $user->trocarAutarquia($request->autarquia_id);
+        $sucesso = $user->trocarAutarquia($request->autarquia_ativa_id);
 
         if (!$sucesso) {
             \Log::warning('❌ Usuário não tem acesso à autarquia solicitada', [
                 'user_id' => $user->id,
-                'autarquia_id' => $request->autarquia_id
+                'autarquia_ativa_id' => $request->autarquia_ativa_id
             ]);
 
             return response()->json([
@@ -360,7 +360,6 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->getRoleParaAutarquia($user->autarquia_ativa_id),
-                'autarquia_id' => $user->autarquia_id, // Legado
                 'autarquia_ativa_id' => $user->autarquia_ativa_id,
                 'autarquia' => $user->autarquiaAtiva ? [
                     'id' => $user->autarquiaAtiva->id,
