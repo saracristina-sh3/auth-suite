@@ -9,7 +9,6 @@
         <!-- Botão de criar apenas para Usuários e Autarquias -->
         <Button
           v-if="activeTab === 0 || activeTab === 1"
-          class="btn-primary"
           @click="onNew"
         >
           Novo {{ activeTabLabel }}
@@ -94,7 +93,7 @@
                   <template #content>
                     <div class="flex align-items-center justify-content-between mt-3">
                       <span class="text-sm text-gray-600">Status:</span>
-                      <InputSwitch
+                      <ToggleSwitch
                         v-model="modulo.ativo"
                         @change="toggleModuloStatus(modulo)"
                       />
@@ -134,7 +133,7 @@
             Escolha uma autarquia para acessar como administrador com todas as permissões
           </p>
           <div class="flex gap-3">
-            <Dropdown
+            <Select
               v-model="selectedAutarquiaId"
               :options="autarquias"
               optionLabel="nome"
@@ -152,7 +151,7 @@
                   />
                 </div>
               </template>
-            </Dropdown>
+            </Select>
             <Button
               label="Acessar"
               icon="pi pi-sign-in"
@@ -217,8 +216,8 @@ import GenericTable from '@/components/common/GenericTable.vue'
 import GenericForm from '@/components/common/GenericForm.vue'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
-import Dropdown from 'primevue/dropdown'
-import InputSwitch from 'primevue/inputswitch'
+import Select from 'primevue/select'
+import ToggleSwitch from 'primevue/toggleswitch'
 import Message from 'primevue/message'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -266,9 +265,6 @@ const userActions = userConfig.actions
 
 const autarquiaColumns = autarquiaConfig.columns
 const autarquiaActions = autarquiaConfig.actions
-
-const moduloColumns = moduloConfig.columns
-const moduloActions = moduloConfig.actions
 
 // Configuração de campos de formulário para cada entidade
 const currentFields = computed(() => {

@@ -9,7 +9,6 @@
         :rows="rows"
         :rowsPerPageOptions="rowsPerPageOptions"
         responsiveLayout="scroll"
-        class="p-datatable-sm"
         :loading="loading"
       >
         <!-- Colunas dinâmicas -->
@@ -77,7 +76,7 @@ interface ColumnConfig {
   header: string
   sortable?: boolean
   style?: string
-  type?: 'text' | 'boolean' | 'date' | 'cpf' // Tipos de formatação
+  type?: 'text' | 'boolean' | 'date' | 'cpf'
 }
 
 interface ActionConfig {

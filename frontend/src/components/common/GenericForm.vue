@@ -4,8 +4,6 @@
     :header="editingItem ? `Editar ${entityName}` : `Novo ${entityName}`"
     :modal="true"
     :style="{ width: dialogWidth }"
-    :breakpoints="{ '960px': '75vw', '640px': '90vw' }"
-    class="p-dialog-xl"
   >
     <form @submit.prevent="save" class="p-fluid">
       <!-- Campos dinâmicos -->
@@ -64,7 +62,7 @@
             {{ field.label }}
             <span v-if="field.required" class="text-red-500">*</span>
           </label>
-          <Dropdown
+          <Select
             :id="field.name"
             v-model="formData[field.name]"
             :options="field.options || []"
@@ -113,7 +111,7 @@ import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Textarea from 'primevue/textarea'
-import Dropdown from 'primevue/dropdown'
+import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
 
@@ -124,10 +122,10 @@ interface FieldConfig {
   required?: boolean
   placeholder?: string
   autofocus?: boolean
-  rows?: number // Para textarea
-  options?: any[] // Para select
-  optionLabel?: string // Para select
-  optionValue?: string // Para select
+  rows?: number 
+  options?: any[] 
+  optionLabel?: string 
+  optionValue?: string 
   defaultValue?: any
 }
 
@@ -138,7 +136,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  dialogWidth: '500px'
+  dialogWidth: '700px'
 })
 
 const isOpen = ref(false)
