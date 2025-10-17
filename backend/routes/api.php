@@ -30,6 +30,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/support/assume-context', [AuthController::class, 'assumeAutarquiaContext']);
     Route::post('/support/exit-context', [AuthController::class, 'exitAutarquiaContext']);
 
+    // Múltiplas autarquias: Listar e trocar entre autarquias do usuário
+    Route::get('/user/autarquias', [AuthController::class, 'getAutarquias']);
+    Route::post('/user/switch-autarquia', [AuthController::class, 'switchAutarquia']);
+
     // ====================================
     // USUÁRIOS
     // ====================================

@@ -2,6 +2,7 @@
   <div class="login-container">
     <!-- Lado esquerdo azul turquesa -->
     <div class="login-left">
+      <div class="form-container">
       <div class="logo-section">
         <div class="logo-wrapper">
           <img src="@/assets/logo.svg" alt="Logo SH3" class="logo" />
@@ -14,6 +15,7 @@
         <a href="#" class="link">site oficial</a>
         <a href="#" class="link">portal da transparência</a>
         <a href="#" class="link">webmail</a>
+      </div>
       </div>
     </div>
 
@@ -127,9 +129,6 @@ async function onLogin() {
 }
 </script>
 
-<style scoped>
-/* (mantém todo o seu CSS original, está ótimo) */
-</style>
 
 
 <style scoped>
@@ -148,7 +147,7 @@ async function onLogin() {
   justify-content: space-between;
   padding: 3rem;
   color: white;
-  position: fixed;
+  position:relative;
   overflow: hidden;
 }
 
@@ -239,8 +238,7 @@ async function onLogin() {
   align-items: center;
   justify-content: center;
   background: var(--color-background-soft);
-  padding: 2rem;
-  margin-left: 50%; /* ✅ Adicionado para compensar o fixed do lado esquerdo */
+  padding: 2rem; 
 }
 
 .form-container {

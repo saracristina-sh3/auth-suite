@@ -33,7 +33,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col items-center py-8 px-6">
-      <Card class="w-full max-w-6xl">
+      <Card class="w-full max-w-10xl">
         <template #content>
           <slot />
         </template>

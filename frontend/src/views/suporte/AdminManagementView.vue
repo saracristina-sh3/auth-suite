@@ -555,7 +555,10 @@ onMounted(async () => {
 
 <style scoped>
 .admin-container {
-  padding: 1.5rem;
+  display:contents;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--color-background);
 }
 
 .admin-header {

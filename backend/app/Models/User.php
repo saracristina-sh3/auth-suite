@@ -21,6 +21,7 @@ class User extends Authenticatable
     'role',
     'cpf',
     'autarquia_id',
+    'autarquia_ativa_id',  // Nova: autarquia em contexto ativo
     'is_active',
     'is_superadmin'
 ];
@@ -42,11 +43,37 @@ class User extends Authenticatable
     }
 
     /**
-     * Relacionamento: Usuário pertence a uma autarquia
+     * Relacionamento: Usuário pertence a uma autarquia (legado - mantido para compatibilidade)
      */
     public function autarquia(): BelongsTo
     {
         return $this->belongsTo(Autarquia::class, 'autarquia_id');
+    }
+
+    /**
+     * Relacionamento: Usuário pode estar vinculado a múltiplas autarquias (N:N)
+     */
+    public function autarquias(): BelongsToMany
+    {
+        return $this->belongsToMany(Autarquia::class, 'usuario_autarquia')
+            ->withPivot('role', 'is_admin', 'ativo', 'data_vinculo')
+            ->withTimestamps();
+    }
+
+    /**
+     * Relacionamento: Autarquia ativa no contexto atual
+     */
+    public function autarquiaAtiva(): BelongsTo
+    {
+        return $this->belongsTo(Autarquia::class, 'autarquia_ativa_id');
+    }
+
+    /**
+     * Relacionamento: Autarquias ativas do usuário
+     */
+    public function autarquiasAtivas(): BelongsToMany
+    {
+        return $this->autarquias()->wherePivot('ativo', true);
     }
 
     /**
@@ -78,7 +105,8 @@ class User extends Authenticatable
     // Métodos de autorização
     public function isAdmin(): bool
     {
-        return $this->role === 'suporteAdmin' || $this->is_superadmin;
+        // Apenas superadmin SH3 é considerado admin global
+        return $this->is_superadmin;
     }
 
     public function isManager(): bool
@@ -194,5 +222,67 @@ class User extends Authenticatable
             ->wherePivot('autarquia_id', $autarquiaId)
             ->wherePivot('ativo', true)
             ->get();
+    }
+
+    /**
+     * Verifica se o usuário é admin de uma autarquia específica
+     * (Não confundir com superadmin SH3 - isto é para admin de autarquia)
+     */
+    public function isAdminDaAutarquia(?int $autarquiaId = null): bool
+    {
+        // Superadmin SH3 tem acesso total mas não usa esta função
+        if ($this->is_superadmin) {
+            return false;
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id ?? $this->autarquia_id;
+
+        return $this->autarquias()
+            ->where('autarquia_id', $autarquiaId)
+            ->wherePivot('is_admin', true)
+            ->wherePivot('ativo', true)
+            ->exists();
+    }
+
+    /**
+     * Troca o contexto de autarquia ativa
+     */
+    public function trocarAutarquia(int $autarquiaId): bool
+    {
+        // Verifica se o usuário tem acesso à autarquia
+        $temAcesso = $this->autarquias()
+            ->where('autarquia_id', $autarquiaId)
+            ->wherePivot('ativo', true)
+            ->exists();
+
+        // Superadmin SH3 não precisa ter vínculo explícito
+        if (!$temAcesso && !$this->is_superadmin) {
+            return false;
+        }
+
+        $this->autarquia_ativa_id = $autarquiaId;
+        $this->save();
+
+        return true;
+    }
+
+    /**
+     * Retorna o role do usuário para uma autarquia específica
+     */
+    public function getRoleParaAutarquia(?int $autarquiaId = null): string
+    {
+        // Superadmin SH3 sempre tem role de suporte
+        if ($this->is_superadmin) {
+            return 'suporteAdmin';
+        }
+
+        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id ?? $this->autarquia_id;
+
+        $pivot = $this->autarquias()
+            ->where('autarquia_id', $autarquiaId)
+            ->wherePivot('ativo', true)
+            ->first()?->pivot;
+
+        return $pivot?->role ?? $this->role;
     }
 }

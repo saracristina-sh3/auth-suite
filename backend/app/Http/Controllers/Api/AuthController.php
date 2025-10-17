@@ -258,4 +258,118 @@ class AuthController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Lista todas as autarquias que o usuário tem acesso
+     * (Para usuários vinculados a múltiplas autarquias)
+     */
+    public function getAutarquias(Request $request)
+    {
+        $user = $request->user();
+
+        \Log::info('📋 Listando autarquias do usuário', [
+            'user_id' => $user->id,
+            'is_superadmin' => $user->is_superadmin
+        ]);
+
+        // Superadmin SH3 vê todas as autarquias ativas
+        if ($user->is_superadmin) {
+            $autarquias = \App\Models\Autarquia::where('ativo', true)
+                ->orderBy('nome')
+                ->get()
+                ->map(function($autarquia) {
+                    return [
+                        'id' => $autarquia->id,
+                        'nome' => $autarquia->nome,
+                        'ativo' => $autarquia->ativo,
+                        'role' => 'suporteAdmin',
+                        'is_admin' => true,
+                    ];
+                });
+        } else {
+            // Usuários normais veem apenas suas autarquias vinculadas
+            $autarquias = $user->autarquiasAtivas()
+                ->orderBy('nome')
+                ->get()
+                ->map(function($autarquia) {
+                    return [
+                        'id' => $autarquia->id,
+                        'nome' => $autarquia->nome,
+                        'ativo' => $autarquia->ativo,
+                        'role' => $autarquia->pivot->role,
+                        'is_admin' => $autarquia->pivot->is_admin,
+                        'data_vinculo' => $autarquia->pivot->data_vinculo,
+                    ];
+                });
+        }
+
+        return response()->json([
+            'success' => true,
+            'autarquias' => $autarquias,
+            'autarquia_ativa_id' => $user->autarquia_ativa_id ?? $user->autarquia_id,
+        ]);
+    }
+
+    /**
+     * Troca a autarquia ativa do usuário
+     * (Para usuários vinculados a múltiplas autarquias)
+     */
+    public function switchAutarquia(Request $request)
+    {
+        $user = $request->user();
+
+        $request->validate([
+            'autarquia_id' => 'required|exists:autarquias,id'
+        ]);
+
+        \Log::info('🔄 Tentativa de trocar autarquia', [
+            'user_id' => $user->id,
+            'autarquia_atual' => $user->autarquia_ativa_id ?? $user->autarquia_id,
+            'autarquia_nova' => $request->autarquia_id
+        ]);
+
+        // Tenta trocar a autarquia
+        $sucesso = $user->trocarAutarquia($request->autarquia_id);
+
+        if (!$sucesso) {
+            \Log::warning('❌ Usuário não tem acesso à autarquia solicitada', [
+                'user_id' => $user->id,
+                'autarquia_id' => $request->autarquia_id
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Você não tem acesso a esta autarquia.'
+            ], 403);
+        }
+
+        // Recarrega o usuário com a nova autarquia ativa
+        $user->load(['autarquiaAtiva', 'autarquias']);
+
+        \Log::info('✅ Autarquia trocada com sucesso', [
+            'user_id' => $user->id,
+            'autarquia_ativa_id' => $user->autarquia_ativa_id,
+            'autarquia_nome' => $user->autarquiaAtiva?->nome
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Autarquia alterada com sucesso',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->getRoleParaAutarquia($user->autarquia_ativa_id),
+                'autarquia_id' => $user->autarquia_id, // Legado
+                'autarquia_ativa_id' => $user->autarquia_ativa_id,
+                'autarquia' => $user->autarquiaAtiva ? [
+                    'id' => $user->autarquiaAtiva->id,
+                    'nome' => $user->autarquiaAtiva->nome,
+                    'ativo' => $user->autarquiaAtiva->ativo,
+                ] : null,
+                'is_active' => $user->is_active,
+                'is_superadmin' => $user->is_superadmin,
+            ]
+        ]);
+    }
 }
