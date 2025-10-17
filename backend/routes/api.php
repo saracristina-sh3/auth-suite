@@ -20,11 +20,15 @@ Route::post('/register', [AuthController::class, 'register']);
 // ====================================
 // ROTAS AUTENTICADAS
 // ====================================
-//Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     // Autenticação
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Suporte: Assumir contexto de autarquia (apenas para superadmin/Sh3)
+    Route::post('/support/assume-context', [AuthController::class, 'assumeAutarquiaContext']);
+    Route::post('/support/exit-context', [AuthController::class, 'exitAutarquiaContext']);
 
     // ====================================
     // USUÁRIOS
@@ -92,4 +96,4 @@ Route::post('/register', [AuthController::class, 'register']);
     // ====================================
     Route::get('/roles', [RoleController::class, 'index']);
 
-//});
+});

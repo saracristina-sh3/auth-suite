@@ -12,6 +12,68 @@
         </Button>
       </div>
 
+      <!-- Painel de seleção de contexto de autarquia -->
+      <Card v-if="!supportContext" class="mb-4">
+        <template #title>
+          <div class="flex align-items-center gap-2">
+            <i class="pi pi-building"></i>
+            <span>Modo Suporte - Selecione uma Autarquia</span>
+          </div>
+        </template>
+        <template #content>
+          <p class="mb-3">
+            Escolha uma autarquia para acessar como administrador com todas as permissões
+          </p>
+          <div class="flex gap-3">
+            <Dropdown
+              v-model="selectedAutarquiaId"
+              :options="autarquias"
+              optionLabel="nome"
+              optionValue="id"
+              placeholder="Selecione uma autarquia"
+              class="flex-1"
+              showClear
+            >
+              <template #option="slotProps">
+                <div class="flex align-items-center justify-content-between w-full">
+                  <span>{{ slotProps.option.nome }}</span>
+                  <Tag
+                    :value="slotProps.option.ativo ? 'Ativa' : 'Inativa'"
+                    :severity="slotProps.option.ativo ? 'success' : 'danger'"
+                  />
+                </div>
+              </template>
+            </Dropdown>
+            <Button
+              label="Acessar"
+              icon="pi pi-sign-in"
+              @click="handleAssumeContext"
+              :disabled="!selectedAutarquiaId"
+            />
+          </div>
+        </template>
+      </Card>
+
+      <!-- Barra de contexto ativo -->
+      <Message v-else severity="warn" :closable="false" class="mb-4">
+        <div class="flex align-items-center justify-content-between w-full">
+          <div class="flex align-items-center gap-3">
+            <i class="pi pi-shield" style="font-size: 1.5rem"></i>
+            <div>
+              <strong>Modo Suporte Ativo:</strong>
+              <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
+            </div>
+          </div>
+          <Button
+            label="Sair do Modo Suporte"
+            icon="pi pi-sign-out"
+            @click="exitContext"
+            severity="warning"
+            outlined
+          />
+        </div>
+      </Message>
+
       <!-- Mensagem de feedback -->
       <div v-if="message" :class="['message', messageClass]">
         {{ message }}
@@ -94,10 +156,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { userService } from '@/services/user.service'
 import { roleService } from '@/services/role.service'
 import { autarquiaService } from '@/services/autarquia.service'
 import { moduloService } from '@/services/modulos.service'
+import { supportService, type SupportContext } from '@/services/support.service'
 import { useUserTableConfig } from '@/composables/useUserTableConfig'
 import { useAutarquiaTableConfig } from '@/composables/useAutarquiaTableConfig'
 import { useModuloTableConfig } from '@/composables/useModuloTableConfig'
@@ -105,12 +169,17 @@ import BaseLayout from '@/components/layouts/BaseLayout.vue'
 import GenericTable from '@/components/common/GenericTable.vue'
 import GenericForm from '@/components/common/GenericForm.vue'
 import Button from 'primevue/button'
+import Card from 'primevue/card'
+import Dropdown from 'primevue/dropdown'
+import Message from 'primevue/message'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
 import Tag from 'primevue/tag'
 import type { User } from '@/services/user.service'
 import type { Role, Permission } from '@/services/role.service'
 import type { Autarquia, Modulo } from '@/types/auth'
+
+const router = useRouter()
 
 // State
 const activeTab = ref(0)
@@ -123,6 +192,8 @@ const loading = ref(false)
 const genericForm = ref()
 const message = ref('')
 const messageType = ref<'success' | 'error' | ''>('')
+const supportContext = ref<SupportContext | null>(null)
+const selectedAutarquiaId = ref<number | null>(null)
 
 // Composables para configuração de tabelas
 const userConfig = useUserTableConfig(roles, autarquias)
@@ -318,6 +389,71 @@ async function handleViewModules() {
   showMessage('error', 'Funcionalidade em desenvolvimento.')
 }
 
+// Support Context Functions
+async function handleAssumeContext() {
+  if (!selectedAutarquiaId.value) {
+    showMessage('error', 'Selecione uma autarquia.')
+    return
+  }
+
+  const autarquia = autarquias.value.find((a) => a.id === selectedAutarquiaId.value)
+  if (!autarquia) {
+    showMessage('error', 'Autarquia não encontrada.')
+    return
+  }
+
+  if (!autarquia.ativo) {
+    showMessage('error', 'Esta autarquia está inativa e não pode ser acessada.')
+    return
+  }
+
+  try {
+    loading.value = true
+    console.log('🔄 Selecionando autarquia:', autarquia.nome)
+
+    const context = await supportService.assumeAutarquiaContext(autarquia.id)
+    supportContext.value = context
+    selectedAutarquiaId.value = null
+
+    showMessage('success', `Modo suporte ativado para: ${autarquia.nome}. Redirecionando...`)
+    console.log('✅ Contexto de suporte ativo:', context)
+
+    // Redirecionar para SuiteView (home) após 1 segundo
+    setTimeout(() => {
+      router.push({ name: 'home' })
+    }, 1000)
+  } catch (error: any) {
+    console.error('❌ Erro ao selecionar autarquia:', error)
+    const errorMessage = error.message || 'Erro ao ativar modo suporte. Tente novamente.'
+    showMessage('error', errorMessage)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function exitContext() {
+  if (!confirm('Deseja sair do modo suporte e retornar ao seu contexto original?')) {
+    return
+  }
+
+  try {
+    loading.value = true
+    console.log('🔙 Saindo do modo suporte...')
+
+    await supportService.exitAutarquiaContext()
+    supportContext.value = null
+
+    showMessage('success', 'Retornado ao contexto original.')
+    console.log('✅ Modo suporte desativado')
+  } catch (error: any) {
+    console.error('❌ Erro ao sair do contexto:', error)
+    const errorMessage = error.message || 'Erro ao sair do modo suporte. Tente novamente.'
+    showMessage('error', errorMessage)
+  } finally {
+    loading.value = false
+  }
+}
+
 // Helper functions
 function formatCPF(cpf: string): string {
   if (!cpf) return '-'
@@ -332,6 +468,9 @@ function truncate(text: string, length: number): string {
 
 // Lifecycle
 onMounted(async () => {
+  // Verificar se já existe um contexto de suporte ativo
+  supportContext.value = supportService.getSupportContext()
+
   await loadRoles()
   await loadAutarquias()
   await loadCurrentTab()

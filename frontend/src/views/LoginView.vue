@@ -167,7 +167,7 @@ async function onLogin() {
 }
 
 .login-left > * {
-  position: relative;
+  position: absolute;
   z-index: 2;
 }
 
