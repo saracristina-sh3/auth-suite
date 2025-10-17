@@ -13,7 +13,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(SuperAdminSeeder::class);
+        // Seeders de produção (sempre executados)
+        $this->call(ModulosSeeder::class);        // Módulos fixos do sistema
+        $this->call(SuperAdminSeeder::class);     // Usuário superadmin SH3
+
+        // Seeders de desenvolvimento/teste (opcional)
         $this->call(ControlePorAutarquiaSeeder::class);
     }
 }

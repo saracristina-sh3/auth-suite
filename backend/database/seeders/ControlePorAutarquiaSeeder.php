@@ -37,50 +37,10 @@ class ControlePorAutarquiaSeeder extends Seeder
         }
 
         // ========================================
-        // 2. CRIAÇÃO DE MÓDULOS
+        // 2. MÓDULOS
         // ========================================
-        $modulos = [
-            [
-                'id' => 1,
-                'nome' => 'Gestão de Frota',
-                'descricao' => 'Módulo para controle e gestão da frota de veículos municipais',
-                'icone' => 'truck',
-                'ativo' => true
-            ],
-            [
-                'id' => 2,
-                'nome' => 'Recursos Humanos',
-                'descricao' => 'Módulo para gestão de funcionários, folha de pagamento e benefícios',
-                'icone' => 'users',
-                'ativo' => true
-            ],
-            [
-                'id' => 3,
-                'nome' => 'Almoxarifado',
-                'descricao' => 'Módulo para controle de estoque e requisições de materiais',
-                'icone' => 'warehouse',
-                'ativo' => true
-            ],
-            [
-                'id' => 4,
-                'nome' => 'Contabilidade',
-                'descricao' => 'Módulo para controle financeiro, empenhos e prestação de contas',
-                'icone' => 'calculator',
-                'ativo' => true
-            ],
-        ];
-
-        foreach ($modulos as $modulo) {
-            DB::table('modulos')->insert([
-                'id' => $modulo['id'],
-                'nome' => $modulo['nome'],
-                'descricao' => $modulo['descricao'],
-                'icone' => $modulo['icone'],
-                'ativo' => $modulo['ativo'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        // NOTA: Os módulos são criados pelo ModulosSeeder (seeders de produção)
+        // Este seeder apenas referencia os IDs existentes: 1, 2, 3, 4
 
         // ========================================
         // 3. CRIAÇÃO DE USUÁRIOS
@@ -300,11 +260,12 @@ class ControlePorAutarquiaSeeder extends Seeder
         $this->command->info('✅ Dados de teste criados com sucesso!');
         $this->command->info('');
         $this->command->info('📊 Resumo:');
-        $this->command->info('   - 3 Autarquias (X, Y, Z)');
-        $this->command->info('   - 4 Módulos (Gestão de Frota, RH, Almoxarifado, Contabilidade)');
-        $this->command->info('   - 5 Usuários (João, Maria, Pedro, Ana, Carlos)');
+        $this->command->info('   - 3 Autarquias de teste (X, Y, Z)');
+        $this->command->info('   - 5 Usuários de teste (João, Maria, Pedro, Ana, Carlos)');
         $this->command->info('   - 9 Liberações de módulos para autarquias');
         $this->command->info('   - 7 Permissões de usuários configuradas');
+        $this->command->info('');
+        $this->command->info('ℹ️  Os módulos do sistema são gerenciados pelo ModulosSeeder');
         $this->command->info('');
         $this->command->info('🔑 Credenciais de acesso:');
         $this->command->info('   Email: joao.silva@prefeiturax.gov.br | Senha: senha123');

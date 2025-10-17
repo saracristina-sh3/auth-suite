@@ -6,7 +6,12 @@
           <h2 class="admin-title">Gerenciamento do Sistema</h2>
           <p class="admin-subtitle">Área restrita - SH3 Suporte</p>
         </div>
-        <Button class="btn-primary" @click="onNew">
+        <!-- Botão de criar apenas para Usuários e Autarquias -->
+        <Button
+          v-if="activeTab === 0 || activeTab === 1"
+          class="btn-primary"
+          @click="onNew"
+        >
           <span class="btn-icon">+</span>
           Novo {{ activeTabLabel }}
         </Button>
@@ -126,20 +131,60 @@
 
         <!-- Aba Módulos -->
         <TabPanel header="Módulos">
-          <GenericTable
-            title="Lista de Módulos"
-            :items="modulos"
-            :columns="moduloColumns"
-            :actions="moduloActions"
-            :loading="loading"
-            actionsColumnStyle="width: 120px"
-            @edit="handleEdit"
-            @delete="handleDelete"
-          >
-            <template #column-descricao="{ data }">
-              <span :title="data.descricao">{{ truncate(data.descricao, 50) }}</span>
+          <Card>
+            <template #title>
+              <div class="flex align-items-center justify-content-between">
+                <span>Módulos do Sistema</span>
+                <Tag value="Somente Leitura" severity="info" />
+              </div>
             </template>
-          </GenericTable>
+            <template #subtitle>
+              Os módulos são fixos e não podem ser criados ou removidos. Você pode ativar/desativar globalmente.
+            </template>
+            <template #content>
+              <div class="modulos-grid">
+                <Card v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
+                  <template #header>
+                    <div class="modulo-header">
+                      <img
+                        v-if="modulo.icone"
+                        :src="`/src/assets/icons/${modulo.icone}.svg`"
+                        :alt="`Ícone ${modulo.nome}`"
+                        class="modulo-icon-svg"
+                      />
+                      <i v-else class="pi pi-box modulo-icon"></i>
+                    </div>
+                  </template>
+                  <template #title>{{ modulo.nome }}</template>
+                  <template #subtitle>{{ modulo.descricao }}</template>
+                  <template #content>
+                    <div class="flex align-items-center justify-content-between mt-3">
+                      <span class="text-sm text-gray-600">Status:</span>
+                      <InputSwitch
+                        v-model="modulo.ativo"
+                        @change="toggleModuloStatus(modulo)"
+                      />
+                    </div>
+                  </template>
+                </Card>
+              </div>
+            </template>
+          </Card>
+        </TabPanel>
+
+        <!-- Aba Liberações de Módulos -->
+        <TabPanel header="Liberações">
+          <Card>
+            <template #title>Liberação de Módulos por Autarquia</template>
+            <template #subtitle>
+              Gerencie quais módulos cada autarquia tem acesso (contratos/planos)
+            </template>
+            <template #content>
+              <p class="text-center text-gray-500 my-5">
+                Interface em desenvolvimento...
+              </p>
+            </template>
+          </Card>
         </TabPanel>
       </TabView>
 
@@ -171,6 +216,7 @@ import GenericForm from '@/components/common/GenericForm.vue'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import Dropdown from 'primevue/dropdown'
+import InputSwitch from 'primevue/inputswitch'
 import Message from 'primevue/message'
 import TabView from 'primevue/tabview'
 import TabPanel from 'primevue/tabpanel'
@@ -454,6 +500,36 @@ async function exitContext() {
   }
 }
 
+// Módulos Functions
+async function toggleModuloStatus(modulo: Modulo) {
+  try {
+    loading.value = true
+    console.log('🔄 Alterando status do módulo:', modulo.nome, '→', modulo.ativo)
+
+    await moduloService.update(modulo.id, {
+      nome: modulo.nome,
+      descricao: modulo.descricao,
+      icone: modulo.icone,
+      ativo: modulo.ativo,
+    })
+
+    showMessage(
+      'success',
+      `Módulo "${modulo.nome}" ${modulo.ativo ? 'ativado' : 'desativado'} com sucesso.`
+    )
+  } catch (error: any) {
+    console.error('❌ Erro ao alterar status do módulo:', error)
+
+    // Reverter o status em caso de erro
+    modulo.ativo = !modulo.ativo
+
+    const errorMessage = error.response?.data?.message || 'Erro ao alterar status do módulo.'
+    showMessage('error', errorMessage)
+  } finally {
+    loading.value = false
+  }
+}
+
 // Helper functions
 function formatCPF(cpf: string): string {
   if (!cpf) return '-'
@@ -543,5 +619,43 @@ onMounted(async () => {
 
 .message-info {
   background-color: #6b7280;
+}
+
+/* Módulos Grid Styles */
+.modulos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.modulo-card {
+  transition: all 0.3s ease;
+}
+
+.modulo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.modulo-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px 8px 0 0;
+}
+
+.modulo-icon {
+  font-size: 3rem;
+  color: white;
+}
+
+.modulo-icon-svg {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* Torna o SVG branco */
 }
 </style>

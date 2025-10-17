@@ -49,6 +49,12 @@ class SupportService {
       })
 
       if (data.success && data.token && data.context) {
+        // Salvar dados originais do usuário antes de modificar
+        const originalUserData = localStorage.getItem('user_data')
+        if (originalUserData) {
+          localStorage.setItem('original_user_data', originalUserData)
+        }
+
         // Atualizar o token de autenticação
         localStorage.setItem('auth_token', data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
@@ -56,7 +62,20 @@ class SupportService {
         // Salvar o contexto de suporte no localStorage
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data.context))
 
+        // IMPORTANTE: Modificar os dados do usuário para parecer um admin da autarquia
+        const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}')
+        const modifiedUser = {
+          ...currentUser,
+          autarquia_id: data.context.autarquia.id,
+          autarquia: data.context.autarquia,
+          role: 'admin', // Temporariamente admin da autarquia
+          is_superadmin: false, // Desabilitar flag de superadmin temporariamente
+          _support_mode: true, // Flag interna para identificar modo suporte
+        }
+        localStorage.setItem('user_data', JSON.stringify(modifiedUser))
+
         console.log('✅ Contexto assumido com sucesso:', data.context.autarquia.nome)
+        console.log('👤 Usuário modificado temporariamente:', modifiedUser)
 
         return data.context
       } else {
@@ -84,8 +103,16 @@ class SupportService {
         localStorage.setItem('auth_token', data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
 
-        // Atualizar dados do usuário
-        localStorage.setItem('user_data', JSON.stringify(data.user))
+        // Restaurar dados originais do usuário (se existir backup)
+        const originalUserData = localStorage.getItem('original_user_data')
+        if (originalUserData) {
+          localStorage.setItem('user_data', originalUserData)
+          localStorage.removeItem('original_user_data')
+          console.log('✅ Dados originais do usuário restaurados')
+        } else {
+          // Caso não tenha backup, usa os dados retornados pela API
+          localStorage.setItem('user_data', JSON.stringify(data.user))
+        }
 
         // Remover o contexto de suporte
         localStorage.removeItem(this.STORAGE_KEY)

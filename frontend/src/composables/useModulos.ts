@@ -17,7 +17,22 @@ import RequisicaoInternaIcon from '@/components/icons/IconRequisicaoInterna.vue'
 import TesourariaIcon from '@/components/icons/IconTesouraria.vue'
 
 // Mapa de ícones - mapeia nomes de ícones para componentes Vue
+// Os nomes devem corresponder ao campo 'icone' retornado pelo backend
 const iconMap: Record<string, any> = {
+  // Nomes dos ícones do seeder (backend)
+  'frota_button': FrotaIcon,
+  'compras_button': ComprasIcon,
+  'almoxarifado_button': AlmoxarifadoIcon,
+  'contabilidade_button': ContabilidadeIcon,
+  'departamento_pessoal_button': DepartamentoPessoalIcon,
+  'controle_interno_button': ControleInternoIcon,
+  'tesouraria_button': TesourariaIcon,
+  'orcamento_button': OrcamentoIcon,
+  'patrimonio_button': PatrimonioIcon,
+  'diarias_button': DiariasIcon,
+  'requisicao_interna_button': RequisicaoInternaIcon,
+
+  // Mantém nomes antigos para compatibilidade (caso existam dados legados)
   'FrotaIcon': FrotaIcon,
   'ComprasIcon': ComprasIcon,
   'AlmoxarifadoIcon': AlmoxarifadoIcon,
@@ -29,6 +44,7 @@ const iconMap: Record<string, any> = {
   'PatrimonioIcon': PatrimonioIcon,
   'DiariasIcon': DiariasIcon,
   'RequisicaoInternaIcon': RequisicaoInternaIcon,
+
   // Também suporta ícones do PrimeIcons
   'pi-home': 'pi pi-home',
   'pi-box': 'pi pi-box',
@@ -75,14 +91,10 @@ export function useModulos() {
         return
       }
 
-      // Superadmin SH3 vê todos os módulos, outros usuários veem apenas da sua autarquia
+      // Carregar módulos baseado na autarquia do usuário (real ou temporária em modo suporte)
       let data
-      if (user.is_superadmin && user.autarquia?.nome === 'SH3 - Suporte') {
-        // Superadmin SH3 vê todos os módulos
-        console.log('🔑 Carregando todos os módulos (Superadmin SH3)')
-        data = await moduloService.list()
-      } else if (user.autarquia_id) {
-        // Usuário comum vê apenas módulos da sua autarquia
+      if (user.autarquia_id) {
+        // Usuário com autarquia associada vê módulos da sua autarquia
         console.log('👤 Carregando módulos da autarquia:', user.autarquia?.nome)
         data = await moduloService.list(user.autarquia_id)
       } else {
