@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+@custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
+
 /* Nova paleta de cores com melhor contraste */
 :root {
   /* Cores base - Mais escuras para melhor contraste */

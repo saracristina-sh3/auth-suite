@@ -5,9 +5,8 @@
       <div class="form-container">
       <div class="logo-section">
         <div class="logo-wrapper">
-          <img src="@/assets/logo.svg" alt="Logo SH3" class="logo" />
+          <img src="@/assets/logo-2.svg" alt="Logo SH3" class="logo" />
         </div>
-        <h1 class="system-name">SH3</h1>
         <p class="system-description">Sistema Integrado de Gestão</p>
       </div>
 
@@ -140,11 +139,12 @@ async function onLogin() {
 }
 
 .login-left {
-  flex: 1;
+  flex: 0.5;
   background: var(--gradient-primary);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
   padding: 3rem;
   color: white;
   position:relative;
@@ -179,21 +179,20 @@ async function onLogin() {
 }
 
 .logo-wrapper {
-  width: 100px;
-  height: 100px;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.322);
+  border-radius: 10px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .logo {
-  width: 60px;
-  height: 60px;
-  filter: brightness(0) invert(1);
+  width: 150px;
+  height: 150px;
 }
 
 .system-name {
