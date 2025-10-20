@@ -54,7 +54,7 @@
 
         <!-- Loading de autarquias -->
         <div v-else-if="loadingAutarquias" class="autarquia-loading">
-          <ProgressSpinner style="width: 30px; height: 30px" />
+          <ProgressSpinner size="small" />
           <span class="ml-2">Carregando autarquias...</span>
         </div>
 
@@ -68,7 +68,7 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="loading-container">
-        <ProgressSpinner />
+        <Sh3ProgressSpinner size="small" />
         <p class="text-color-secondary mt-3">Carregando módulos...</p>
       </div>
 
@@ -123,7 +123,7 @@ import { userService, type AutarquiaWithPivot } from '@/services/user.service'
 import UsuarioCard from './usuario/UsuarioCard.vue'
 import Sh3Select from './common/Sh3Select.vue'
 import Sh3Card from './common/Sh3Card.vue'
-import ProgressSpinner from 'primevue/progressspinner'
+import Sh3ProgressSpinner from './common/Sh3ProgressSpinner.vue'
 import Sh3Message from './common/Sh3Message.vue'
 import Sh3Button from './common/Sh3Button.vue'
 import type { User } from '@/types/auth'
