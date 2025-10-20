@@ -7,12 +7,12 @@
           <p class="admin-subtitle">Área restrita - SH3 Suporte</p>
         </div>
         <!-- Botão de criar apenas para Usuários e Autarquias -->
-        <Button
+        <button
           v-if="activeTab === 0 || activeTab === 1"
           @click="onNew"
         >
           Novo {{ activeTabLabel }}
-        </Button>
+        </button>
       </div>
 
  
@@ -133,26 +133,21 @@
             Escolha uma autarquia para acessar como administrador com todas as permissões
           </p>
           <div class="flex gap-3">
-            <Select
-              v-model="selectedAutarquiaId"
-              :options="autarquias"
-              optionLabel="nome"
-              optionValue="id"
-              placeholder="Selecione uma autarquia"
-              class="flex-1"
-              showClear
-            >
-              <template #option="slotProps">
-                <div class="flex align-items-center justify-content-between w-full">
-                  <span>{{ slotProps.option.nome }}</span>
-                  <Tag
-                    :value="slotProps.option.ativo ? 'Ativa' : 'Inativa'"
-                    :severity="slotProps.option.ativo ? 'success' : 'danger'"
-                  />
-                </div>
-              </template>
-            </Select>
-            <Button
+            <Sh3Select
+  v-model="selectedAutarquiaId"
+  :field="{
+    name: 'autarquia',
+    label: 'Autarquia',
+    type: 'select',
+    placeholder: 'Selecione uma autarquia',
+    optionLabel: 'nome',
+    optionValue: 'id',
+    options: autarquias
+  }"
+  class="flex-1"
+/>
+
+            <button
               label="Acessar"
               icon="pi pi-sign-in"
               @click="handleAssumeContext"
@@ -172,7 +167,7 @@
               <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
             </div>
           </div>
-          <Button
+          <button
             label="Sair do Modo Suporte"
             icon="pi pi-sign-out"
             @click="exitContext"
@@ -190,7 +185,7 @@
       </TabView>
 
       <!-- Formulário genérico -->
-      <GenericForm
+      <Sh3Form
         ref="genericForm"
         :entityName="activeTabLabel"
         :fields="currentFields"
@@ -213,10 +208,9 @@ import { useAutarquiaTableConfig } from '@/composables/useAutarquiaTableConfig'
 import { useModuloTableConfig } from '@/composables/useModuloTableConfig'
 import BaseLayout from '@/components/layouts/BaseLayout.vue'
 import GenericTable from '@/components/common/GenericTable.vue'
-import GenericForm from '@/components/common/GenericForm.vue'
-import Button from 'primevue/button'
+import Sh3Form from '@/components/common/Sh3Form.vue'
+import Sh3Select from '@/components/common/Sh3Select.vue'
 import Card from 'primevue/card'
-import Select from 'primevue/select'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Message from 'primevue/message'
 import TabView from 'primevue/tabview'
