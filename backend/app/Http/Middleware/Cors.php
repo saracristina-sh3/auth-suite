@@ -31,7 +31,7 @@ class Cors
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
         $response->headers->set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization, X-CSRF-TOKEN, Accept');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
-        $response->headers->set('Access-Control-Max-Age', '86400'); // Cache preflight por 24h
+        $response->headers->set('Access-Control-Max-Age', '200'); // Cache preflight por 200 segundos
 
         return $response;
     }
