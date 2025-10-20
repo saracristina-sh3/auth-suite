@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAutarquiaTableConfig } from "@/composables/useAutarquiaTableConfig";
+import { useAutarquiaTableConfig } from "@/config/useAutarquiaTableConfig";
 import GenericTable from "@/components/common/GenericTable.vue";
 import type { Autarquia } from "@/types/auth";
 

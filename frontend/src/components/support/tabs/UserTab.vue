@@ -12,6 +12,10 @@
         {{ formatCPF(data.cpf) }}
       </template>
 
+      <template #column-autarquia="{ data }">
+        {{ getAutarquiaNome(data) }}
+      </template>
+
       <template #column-is_active="{ data }">
         <Sh3Tag 
           :value="data.is_active ? 'Ativo' : 'Inativo'" 
@@ -23,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { useUserTableConfig } from "@/composables/useUserTableConfig";
+import { useUserTableConfig } from "@/config/useUserTableConfig";
 import Sh3Table from "@/components/common/Sh3Table.vue";
 import Sh3Tag from "@/components/common/Sh3Tag.vue";
 import type { User } from "@/services/user.service";
@@ -35,10 +39,28 @@ defineEmits<{
   'delete': [item: any];
 }>();
 
-// Helper function
+// Helper functions
 function formatCPF(cpf: string): string {
   if (!cpf) return "-";
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+}
+
+function getAutarquiaNome(user: User): string {
+  // Tenta acessar as diferentes possíveis convenções de nomenclatura
+  // Laravel pode retornar como autarquia_ativa (snake_case) ou autarquiaAtiva (camelCase)
+  const userRecord = user as unknown as Record<string, unknown>;
+  const autarquiaAtivaData = userRecord.autarquiaAtiva as { nome?: string } | undefined;
+
+  console.log('🔍 Debug user data:', {
+    id: user.id,
+    name: user.name,
+    autarquia_ativa: user.autarquia_ativa,
+    autarquiaAtiva: autarquiaAtivaData,
+    autarquia_ativa_id: user.autarquia_ativa_id,
+    raw_user: user
+  });
+
+  return user.autarquia_ativa?.nome || autarquiaAtivaData?.nome || '-';
 }
 
 // Configuração da tabela de usuários - recebe roles e autarquias como props

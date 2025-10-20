@@ -40,6 +40,7 @@ export interface User {
   is_superadmin: boolean
   is_active: boolean
   autarquia_ativa_id?: number | null
+  autarqui_ativa_nome?: string
   autarquia_ativa?: Autarquia | null
   autarquias?: AutarquiaWithPivot[]
 }
