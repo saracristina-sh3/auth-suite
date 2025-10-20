@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { moduloService } from '@/services/modulos.service'
 import { authService } from '@/services/auth.service'
+import { supportService } from '@/services/support.service'
 import type { Modulo } from '@/types/auth'
 
 import AlmoxarifadoIcon from '@/components/icons/IconAlmoxarifado.vue'
@@ -82,7 +83,32 @@ export function useModulos() {
       loading.value = true
       error.value = null
 
-      // Pega o usuário atual
+      // 🔍 Verificar se está em modo suporte PRIMEIRO
+      const supportContext = supportService.getSupportContext()
+
+      if (supportContext && supportContext.support_mode) {
+        // 🛡️ MODO SUPORTE ATIVO: Usar módulos do contexto de suporte
+        console.log('🛡️ Modo suporte ativo - Carregando módulos do contexto:', supportContext.autarquia.nome)
+
+        const data = supportContext.modulos || []
+
+        // Mapeia os módulos com ícones e rotas
+        modulos.value = data
+          .filter(modulo => modulo.ativo !== false) // Apenas módulos ativos
+          .map(modulo => ({
+            ...modulo,
+            icon: iconMap[modulo.icone || ''] || iconMap[modulo.nome] || 'pi pi-box',
+            route: routeMap[modulo.nome] || '/',
+            key: modulo.nome.toLowerCase().replace(/\s+/g, '-'),
+            title: modulo.nome,
+            description: modulo.descricao || `Módulo ${modulo.nome}`
+          }))
+
+        console.log('✅ Módulos do modo suporte carregados:', modulos.value.length, 'módulos')
+        return
+      }
+
+      // 👤 MODO NORMAL: Buscar módulos pela autarquia do usuário
       const user = authService.getUserFromStorage()
 
       if (!user) {
@@ -91,10 +117,9 @@ export function useModulos() {
         return
       }
 
-      // Carregar módulos baseado na autarquia do usuário (real ou temporária em modo suporte)
+      // Carregar módulos baseado na autarquia do usuário
       let data
       if (user.autarquia_ativa_id) {
-        // Usuário com autarquia associada vê módulos da sua autarquia
         console.log('👤 Carregando módulos da autarquia:', user.autarquia?.nome)
         data = await moduloService.list(user.autarquia_ativa_id)
       } else {
@@ -108,11 +133,8 @@ export function useModulos() {
         .filter(modulo => modulo.ativo) // Apenas módulos ativos
         .map(modulo => ({
           ...modulo,
-          // Mapeia o ícone (componente Vue ou classe PrimeIcons)
           icon: iconMap[modulo.icone || ''] || iconMap[modulo.nome] || 'pi pi-box',
-          // Mapeia a rota baseada no nome do módulo
           route: routeMap[modulo.nome] || '/',
-          // Mantém campos legados para compatibilidade
           key: modulo.nome.toLowerCase().replace(/\s+/g, '-'),
           title: modulo.nome,
           description: modulo.descricao || `Módulo ${modulo.nome}`

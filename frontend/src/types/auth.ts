@@ -29,6 +29,8 @@ export interface User {
   autarquia?: Autarquia;
   is_active: boolean;
   is_superadmin: boolean;
+  // Propriedades adicionadas quando em modo suporte
+  _support_mode?: boolean;
 }
 
 export interface LoginCredentials {
@@ -46,4 +48,14 @@ export interface RegisterCredentials {
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+// Tipo específico para usuário em modo suporte
+// Extende User com as modificações feitas pelo supportService
+export interface SupportModeUser extends User {
+  _support_mode: true;
+  role: 'admin';
+  is_superadmin: false;
+  autarquia: Autarquia; // Sempre presente em modo suporte
+  autarquia_ativa_id: number;
 }

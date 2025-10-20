@@ -1,5 +1,6 @@
 import axios, { type AxiosError } from 'axios'
 import type { LoginCredentials, AuthResponse, User } from '@/types/auth'
+import { supportService } from './support.service'
 
 interface ApiError {
   message?: string
@@ -60,8 +61,11 @@ api.interceptors.response.use(
       !requestUrl.includes('/login') &&
       !requestUrl.includes('/register')
     ) {
+      // Limpa tokens de autenticação
       localStorage.removeItem('auth_token')
       localStorage.removeItem('user_data')
+      // Limpa contexto de suporte se existir
+      supportService.clearSupportContext()
       window.location.href = '/login'
     }
 
@@ -127,8 +131,11 @@ class AuthService {
       }
     }
 
+    // Limpa tokens de autenticação
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
+    // Limpa contexto de suporte se existir (original_user_data e support_context)
+    supportService.clearSupportContext()
     delete api.defaults.headers.common.Authorization
   }
 
