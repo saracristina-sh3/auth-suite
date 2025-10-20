@@ -41,9 +41,17 @@
               }"
               v-model="autarquiaAtivaId"
               @update:modelValue="handleAutarquiaChange"
+              :disabled="changingAutarquia"
             />
 
-            <div v-if="autarquiaAtiva" class="autarquia-info-footer">
+            <!-- Loading durante mudança -->
+            <div v-if="changingAutarquia" class="autarquia-changing-feedback">
+              <Sh3ProgressSpinner size="small" />
+              <span class="ml-2">Alterando autarquia e recarregando módulos...</span>
+            </div>
+
+            <!-- Info da autarquia ativa -->
+            <div v-else-if="autarquiaAtiva" class="autarquia-info-footer">
               <span class="info-text">
                 <i class="pi pi-check-circle"></i>
                 Trabalhando em: <strong>{{ autarquiaAtiva.nome }}</strong>
@@ -118,6 +126,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useModulos } from '@/composables/useModulos'
+import { useNotification } from '@/composables/useNotification'
 import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
 import UsuarioCard from './usuario/UsuarioCard.vue'
@@ -130,6 +139,7 @@ import type { User } from '@/types/auth'
 import BaseLayout from './layouts/BaseLayout.vue'
 
 const { modulos, loading, error, reload } = useModulos()
+const { showMessage } = useNotification()
 const router = useRouter()
 
 // Estado
@@ -137,6 +147,7 @@ const currentUser = ref<User | null>(null)
 const autarquias = ref<AutarquiaWithPivot[]>([])
 const autarquiaAtivaId = ref<number | null>(null)
 const loadingAutarquias = ref(false)
+const changingAutarquia = ref(false) // Loading durante mudança de autarquia
 
 // Computed
 const autarquiaAtiva = computed(() => {
@@ -190,30 +201,65 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
 
   console.log('🔄 Mudando autarquia ativa para:', id)
 
-  await updateActiveAutarquia(id)
+  changingAutarquia.value = true
 
-  // Recarregar módulos para a nova autarquia
-  await reload()
+  try {
+    await updateActiveAutarquia(id)
+
+    // Recarregar módulos para a nova autarquia
+    await reload()
+
+    // Mostrar mensagem de sucesso
+    const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
+    showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
+  } catch (err) {
+    showMessage('error', 'Erro ao alterar autarquia. Tente novamente.')
+  } finally {
+    changingAutarquia.value = false
+  }
 }
 
 async function updateActiveAutarquia(autarquiaId: number) {
   const user = authService.getUserFromStorage()
   if (!user || !user.id) return
 
+  // Guardar ID anterior para rollback em caso de erro
+  const previousAutarquiaId = user.autarquia_ativa_id
+
   try {
+    // 💾 Atualizar localStorage PRIMEIRO (persistência otimista)
+    const autarquiaAtualizada = autarquias.value.find(a => a.id === autarquiaId)
+    const updatedUserData = {
+      ...user,
+      autarquia_ativa_id: autarquiaId,
+      autarquia_ativa: autarquiaAtualizada || null
+    }
+    localStorage.setItem('user_data', JSON.stringify(updatedUserData))
+    currentUser.value = updatedUserData
+
+    console.log('💾 localStorage atualizado com autarquia:', autarquiaId)
+
+    // 🔄 Sincronizar com backend
     await userService.updateActiveAutarquia(user.id, autarquiaId)
 
-    // Atualizar dados do usuário no localStorage
-    const updatedUser = await authService.getCurrentUser()
-    if (updatedUser) {
-      currentUser.value = updatedUser
-    }
-
-    console.log('✅ Autarquia ativa atualizada com sucesso')
+    console.log('✅ Autarquia ativa sincronizada com backend e persistida')
   } catch (err) {
     console.error('❌ Erro ao atualizar autarquia ativa:', err)
-    // Reverter mudança em caso de erro
-    autarquiaAtivaId.value = currentUser.value?.autarquia_ativa_id || null
+
+    // 🔙 Rollback: Reverter localStorage para valor anterior
+    if (previousAutarquiaId) {
+      const autarquiaAnterior = autarquias.value.find(a => a.id === previousAutarquiaId)
+      const rollbackUserData = {
+        ...user,
+        autarquia_ativa_id: previousAutarquiaId,
+        autarquia_ativa: autarquiaAnterior || null
+      }
+      localStorage.setItem('user_data', JSON.stringify(rollbackUserData))
+      currentUser.value = rollbackUserData
+      autarquiaAtivaId.value = previousAutarquiaId
+    }
+
+    throw err
   }
 }
 
@@ -345,6 +391,30 @@ watch(autarquiaAtivaId, (newId) => {
 
 .info-text i {
   font-size: 1rem;
+}
+
+/* Feedback durante mudança de autarquia */
+.autarquia-changing-feedback {
+  margin-top: 1rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border-radius: 8px;
+  color: #667eea;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Loading e Empty States */

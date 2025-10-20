@@ -100,7 +100,8 @@ class AuthService {
     if (!token) return null
 
     try {
-      const { data } = await api.get<{ user: User }>('/user')
+      // Rota correta é /me conforme api.php linha 27
+      const { data } = await api.get<{ user: User }>('/me')
 
       if (data.user) {
         localStorage.setItem('user_data', JSON.stringify(data.user))

@@ -275,7 +275,7 @@ PUT /api/users/{userId}/active-autarquia
 ### Loading Autarquias
 ```vue
 <div v-else-if="loadingAutarquias" class="autarquia-loading">
-  <ProgressSpinner style="width: 30px; height: 30px" />
+  <Sh3ProgressSpinner  />
   <span class="ml-2">Carregando autarquias...</span>
 </div>
 ```
@@ -283,7 +283,7 @@ PUT /api/users/{userId}/active-autarquia
 ### Loading Módulos
 ```vue
 <div v-if="loading" class="loading-container">
-  <ProgressSpinner />
+  <Sh3ProgressSpinner />
   <p class="text-color-secondary mt-3">Carregando módulos...</p>
 </div>
 ```
