@@ -29,12 +29,12 @@
             class="flex-1" 
           />
 
-          <Sh3Button 
-            label="Acessar" 
-            icon="pi pi-sign-in" 
-            variant="primary" 
-            @click="$emit('assume-context')"
-            :disabled="!selectedAutarquiaId" 
+          <Sh3Button
+            label="Acessar"
+            icon="pi pi-sign-in"
+            variant="primary"
+            @click="handleAssumeClick"
+            :disabled="!selectedAutarquiaId"
           />
         </div>
       </template>
@@ -75,7 +75,7 @@ import Message from "primevue/message";
 import type { Autarquia } from "@/types/auth";
 import type { SupportContext } from "@/types/support/supportTypes";
 
-defineProps<{
+const props = defineProps<{
   supportContext: SupportContext | null;
   autarquias: Autarquia[];
   selectedAutarquiaId: number | null;
@@ -83,12 +83,18 @@ defineProps<{
   messageClass: string;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   'tab-change': [event: any];
   'assume-context': [];
   'exit-context': [];
   'update:selected-autarquia-id': [id: number | null];
 }>();
+
+function handleAssumeClick() {
+  console.log('🖱️ Botão Acessar clicado!');
+  console.log('📍 selectedAutarquiaId:', props.selectedAutarquiaId);
+  emit('assume-context');
+}
 </script>
 
 <style scoped>

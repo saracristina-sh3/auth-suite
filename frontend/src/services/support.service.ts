@@ -164,6 +164,8 @@ class SupportService {
    */
   clearSupportContext(): void {
     localStorage.removeItem(this.STORAGE_KEY)
+    localStorage.removeItem('original_user_data')
+    console.log('🧹 Contexto de suporte limpo (support_context e original_user_data removidos)')
   }
 }
 
