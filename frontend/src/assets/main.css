@@ -5,13 +5,10 @@
   margin: 0 auto;
   font-weight: normal;
   min-height: 100vh;
-  background: var(--color-background);
 }
 
 /* Garantir que o tema claro seja aplicado */
-body {
-  background: var(--color-background) !important;
-  color: var(--color-text) !important;
+body {  color: var(--color-text) !important;
 }
 
 a,
@@ -28,9 +25,3 @@ a,
   }
 }
 
-/* Layout principal sempre claro */
-.main-content {
-  background: var(--color-background);
-  color: var(--color-text);
-  min-height: 100vh;
-}
