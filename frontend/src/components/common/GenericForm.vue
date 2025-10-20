@@ -1,6 +1,6 @@
 <template>
   <Dialog
-    v-model:visible="isOpen"
+    v-model="isOpen"
     :header="editingItem ? `Editar ${entityName}` : `Novo ${entityName}`"
     :modal="true"
     :style="{ width: dialogWidth }"
@@ -18,7 +18,7 @@
             {{ field.label }}
             <span v-if="field.required" class="text-red-500">*</span>
           </label>
-          <InputText
+          <input
             v-if="field.type !== 'password'"
             :id="field.name"
             v-model="formData[field.name]"
@@ -28,12 +28,13 @@
             :autofocus="field.autofocus"
             class="w-full"
           />
-          <Password
+          <input
             v-else
             :id="field.name"
             v-model="formData[field.name]"
             :feedback="false"
             toggleMask
+            type="password"
             :required="field.required && !editingItem"
             :placeholder="field.placeholder"
             class="w-full"
@@ -57,12 +58,15 @@
         </template>
 
         <!-- Campo de dropdown/select -->
+        
+
+        <!-- Campo de dropdown/select customizado -->
         <template v-else-if="field.type === 'select'">
           <label :for="field.name" class="block text-900 font-medium mb-2">
             {{ field.label }}
             <span v-if="field.required" class="text-red-500">*</span>
           </label>
-          <Select
+          <Sh3Select
             :id="field.name"
             v-model="formData[field.name]"
             :options="field.options || []"
@@ -76,7 +80,7 @@
 
         <!-- Campo de checkbox -->
         <template v-else-if="field.type === 'checkbox'">
-          <Checkbox
+          <Sh3Checkbox
             :id="field.name"
             v-model="formData[field.name]"
             :binary="true"
@@ -108,12 +112,12 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
 import Password from 'primevue/password'
 import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
-import Checkbox from 'primevue/checkbox'
 import Button from 'primevue/button'
+import Sh3Checkbox from './Sh3Checkbox.vue'
+import Sh3Select from './Sh3Select.vue'
 
 interface FieldConfig {
   name: string
