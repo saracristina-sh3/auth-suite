@@ -1,34 +1,7 @@
 import api from './auth.service'
 import type { Autarquia, Modulo } from '@/types/auth'
+import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/supportTypes'
 
-export interface SupportContext {
-  autarquia: Autarquia
-  support_mode: boolean
-  is_admin: boolean
-  modulos: Modulo[]
-  permissions: {
-    view: boolean
-    create: boolean
-    edit: boolean
-    delete: boolean
-    manage_users: boolean
-    manage_modules: boolean
-  }
-}
-
-export interface AssumeContextResponse {
-  success: boolean
-  message: string
-  token: string
-  context: SupportContext
-}
-
-export interface ExitContextResponse {
-  success: boolean
-  message: string
-  token: string
-  user: any
-}
 
 class SupportService {
   private readonly STORAGE_KEY = 'support_context'

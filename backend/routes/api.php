@@ -44,6 +44,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{user}', [UserController::class, 'update']);
         Route::delete('/{user}', [UserController::class, 'destroy']);
         Route::get('/{user}/modulos', [UserController::class, 'modulos']);
+
+        // Gestão de autarquias do usuário (N:N)
+        Route::get('/{user}/autarquias', [\App\Http\Controllers\Api\UserAutarquiaController::class, 'index']);
+        Route::post('/{user}/autarquias/attach', [\App\Http\Controllers\Api\UserAutarquiaController::class, 'attach']);
+        Route::post('/{user}/autarquias/detach', [\App\Http\Controllers\Api\UserAutarquiaController::class, 'detach']);
+        Route::post('/{user}/autarquias/sync', [\App\Http\Controllers\Api\UserAutarquiaController::class, 'sync']);
+        Route::put('/{user}/active-autarquia', [\App\Http\Controllers\Api\UserAutarquiaController::class, 'updateActive']);
     });
 
     // ====================================
@@ -81,6 +88,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/{autarquiaId}/{moduloId}', [AutarquiaModuloController::class, 'update']);
         Route::delete('/{autarquiaId}/{moduloId}', [AutarquiaModuloController::class, 'destroy']);
     });
+
+    // ====================================
+    // PERMISSÕES DE USUÁRIOS AUTARQUIAS
+    // ====================================
 
     // ====================================
     // PERMISSÕES DE USUÁRIOS NOS MÓDULOS

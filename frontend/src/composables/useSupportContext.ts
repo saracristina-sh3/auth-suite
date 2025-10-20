@@ -1,5 +1,6 @@
 import { ref, onMounted, type Ref } from 'vue';
-import { supportService, type SupportContext } from "@/services/support.service";
+import { supportService } from "@/services/support.service";
+import type { SupportContext } from "@/types/support/supportTypes";
 import type { Autarquia } from "@/types/auth";
 import type { Router } from 'vue-router';
 

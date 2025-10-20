@@ -76,8 +76,8 @@
 import { ref, reactive, watch } from 'vue'
 import Sh3Select from './Sh3Select.vue'
 
-/** 
- * Interface que define cada campo dinâmico do formulário 
+/**
+ * Interface que define cada campo dinâmico do formulário
  */
 interface FieldConfig {
   name: string
@@ -91,6 +91,8 @@ interface FieldConfig {
   optionLabel?: string
   optionValue?: string
   defaultValue?: any
+  multiple?: boolean      // Para multi-select
+  searchable?: boolean    // Para habilitar busca no multi-select
 }
 
 /**
@@ -132,7 +134,7 @@ watch(
         formData[field.name] =
           field.defaultValue !== undefined
             ? field.defaultValue
-            : getDefaultValue(field.type)
+            : getDefaultValue(field.type, field.multiple)
       }
     })
   },
@@ -142,12 +144,12 @@ watch(
 /**
  * Função auxiliar para definir valores padrão conforme o tipo
  */
-function getDefaultValue(type: string): any {
+function getDefaultValue(type: string, multiple?: boolean): any {
   switch (type) {
     case 'checkbox':
       return false
     case 'select':
-      return null
+      return multiple ? [] : null
     default:
       return ''
   }
@@ -161,13 +163,13 @@ function open(item?: Record<string, any>) {
     editingItem.value = item
     fields.forEach((field) => {
       formData[field.name] =
-        item[field.name] ?? field.defaultValue ?? getDefaultValue(field.type)
+        item[field.name] ?? field.defaultValue ?? getDefaultValue(field.type, field.multiple)
     })
   } else {
     editingItem.value = null
     fields.forEach((field) => {
       formData[field.name] =
-        field.defaultValue ?? getDefaultValue(field.type)
+        field.defaultValue ?? getDefaultValue(field.type, field.multiple)
     })
   }
   isOpen.value = true
@@ -181,7 +183,7 @@ function close() {
   editingItem.value = null
   fields.forEach((field) => {
     formData[field.name] =
-      field.defaultValue ?? getDefaultValue(field.type)
+      field.defaultValue ?? getDefaultValue(field.type, field.multiple)
   })
 }
 

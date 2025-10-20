@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import type { Autarquia } from "@/types/auth";
-import type { SupportContext } from "@/services/support.service";
+import type { SupportContext } from "@/types/support/supportTypes";
 
 defineProps<{
   supportContext: SupportContext | null;

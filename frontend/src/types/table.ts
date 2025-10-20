@@ -29,4 +29,6 @@ export interface FieldConfig {
   optionLabel?: string
   optionValue?: string
   defaultValue?: any
+  multiple?: boolean      // Habilita multi-seleção em campos select
+  searchable?: boolean    // Habilita busca em campos select com multi-seleção
 }
