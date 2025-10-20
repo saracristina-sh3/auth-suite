@@ -1,283 +1,145 @@
-/* Adicione estas linhas no INÍCIO do base.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 
 
-/* Nova paleta de cores com melhor contraste */
 :root {
-  /* Cores base - Mais escuras para melhor contraste */
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8fafc;
-  --vt-c-white-mute: #f1f5f9;
 
-  --vt-c-black: #0a0f1c;
-  --vt-c-black-soft: #151a2d;
-  --vt-c-black-mute: #2a3245;
+  ----indium-50: #f7f9fb;
+  --indium-100: #e3ebf0;
+  --indium-200: #c1d4df;
+  --indium-300: #9bbac7;
+  --indium-400: #749faf;
+  --indium-500: #4f8397;
+  --indium-600: #3a6675;
+  --indium-700: #2e4f5a;
+  --indium-800: #223842;
+  --indium-900: #121c22;
+  --indium-950: #0a1014;
 
-  /* Cores primárias - Azul turquesa escuro */
-  --vt-c-turquoise-dark: #0f766e;
-  --vt-c-turquoise: #14b8a6;
-  --vt-c-turquoise-light: #2dd4bf;
+  /* Cores primárias - Selenium */
+  --selenium-50: #f0f9ff;
+  --selenium-100: #e0f2fe;
+  --selenium-200: #bae6fd;
+  --selenium-300: #7dd3fc;
+  --selenium-400: #38bdf8;
+  --selenium-500: #0ea5e9;
+  --selenium-600: #0284c7;
+  --selenium-700: #0369a1;
+  --selenium-800: #075985;
+  --selenium-900: #0c4a6e;
+  --selenium-950: #082f49;
 
-  /* Cores secundárias */
-  --vt-c-primary: #2563eb;
-  --vt-c-primary-soft: #3b82f6;
-  --vt-c-primary-mute: #60a5fa;
+  /* Cores secundárias - Copper */
+  --copper-50: #fdf8f6;
+  --copper-100: #f2e8e5;
+  --copper-200: #eaddd7;
+  --copper-300: #e0cec7;
+  --copper-400: #d2bab0;
+  --copper-500: #bfa094;
+  --copper-600: #a18072;
+  --copper-700: #977669;
+  --copper-800: #846358;
+  --copper-900: #43302b;
+  --copper-950: #2c1f1c;
 
-  /* Cores de acento */
-  --vt-c-accent: #7c3aed;
-  --vt-c-accent-soft: #8b5cf6;
-  --vt-c-accent-mute: #a78bfa;
+  /* Cores de background */
+  --color-background: #ffffff;
+  --color-background-soft: #f8fafc;
+  --color-background-mute: #f1f5f9;
 
-  /* Escala de cinza com melhor contraste */
-  --vt-c-gray-50: #f8fafc;
-  --vt-c-gray-100: #f1f5f9;
-  --vt-c-gray-200: #e2e8f0;
-  --vt-c-gray-300: #cbd5e1;
-  --vt-c-gray-400: #94a3b8;
-  --vt-c-gray-500: #64748b;
-  --vt-c-gray-600: #475569;
-  --vt-c-gray-700: #334155;
-  --vt-c-gray-800: #1e293b;
-  --vt-c-gray-900: #0f172a;
+  /* Cores de borda */
+  --color-border: var(--selenium-200);
+  --color-border-hover: var(--selenium-300);
 
-  /* Divisores mais visíveis */
-  --vt-c-divider-light-1: rgba(100, 116, 139, 0.4);
-  --vt-c-divider-light-2: rgba(100, 116, 139, 0.2);
-  --vt-c-divider-dark-1: rgba(148, 163, 184, 0.6);
-  --vt-c-divider-dark-2: rgba(148, 163, 184, 0.4);
+  /* Cores de texto */
+  --color-heading: var(--selenium-950);
+  --color-text: var(--selenium-800);
 
-  /* Texto - CORRIGIDO e mais escuro */
-  --vt-c-text-light-1: var(--vt-c-gray-900);  /* Texto principal muito mais escuro */
-  --vt-c-text-light-2: var(--vt-c-gray-700);  /* Texto secundário mais escuro */
-  --vt-c-text-dark-1: var(--vt-c-gray-100);
-  --vt-c-text-dark-2: var(--vt-c-gray-300);
-}
+  /* Cores do sistema - usando Selenium como primária */
+  --color-primary: var(--selenium-600);
+  --color-primary-soft: var(--selenium-500);
+  --color-primary-mute: var(--selenium-400);
 
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white-soft);
-  --color-background-soft: var(--vt-c-white);
-  --color-background-mute: var(--vt-c-white-mute);
+  --color-secondary: var(--copper-500);
+  --color-accent: var(--copper-600);
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+  /* Cores para estados interativos */
+  --color-primary-hover: var(--selenium-700);
+  --color-primary-active: var(--selenium-800);
+  --color-primary-inverse: #ffffff;
 
-  --color-heading: var(--vt-c-text-light-1);  /* Agora usa gray-900 - bem escuro */
-  --color-text: var(--vt-c-text-light-2);     /* Agora usa gray-700 - mais escuro */
-
-  /* Cores do sistema - usando turquesa */
-  --color-primary: var(--vt-c-turquoise-dark);
-  --color-primary-soft: var(--vt-c-turquoise);
-  --color-primary-mute: var(--vt-c-turquoise-light);
-
-  --color-secondary: var(--vt-c-secondary);
-  --color-accent: var(--vt-c-accent);
+  --color-highlight-bg: var(--selenium-950);
+  --color-highlight-focus-bg: var(--selenium-700);
+  --color-highlight-text: #ffffff;
+  --color-highlight-focus-text: #ffffff;
 
   --section-gap: 160px;
 
-  /* Gradientes */
-  --gradient-primary: linear-gradient(135deg, var(--vt-c-turquoise-dark) 0%, var(--vt-c-turquoise) 100%);
-  --gradient-secondary: linear-gradient(135deg, var(--vt-c-turquoise) 0%, var(--vt-c-primary-soft) 100%);
+  /* Gradientes atualizados */
+  --gradient-primary: linear-gradient(135deg, var(--selenium-700) 0%, var(--selenium-500) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--selenium-500) 0%, var(--copper-500) 100%);
+  --gradient-copper: linear-gradient(135deg, var(--copper-600) 0%, var(--copper-400) 100%);
 }
 
-/* Forçar tema claro sempre */
+/* Classes utilitárias para as cores */
+.primary-50 { color: var(--indium-50); }
+.primary-100 { color: var(--indium-100); }
+.primary-200 { color: var(--indium-200); }
+.primary-300 { color: var(--indium-300); }
+.primary-400 { color: var(--indium-400); }
+.primary-500 { color: var(--indium-500); }
+.primary-600 { color: var(--indium-600); }
+.primary-700 { color: var(--indium-700); }
+.primary-800 { color: var(--indium-800); }
+.primary-900 { color: var(--indium-900); }
+.primary-950 { color: var(--indium-950); }
+
+.secondary-50 { color: var(--selenium-50); }
+.secondary-100 { color: var(--selenium-100); }
+.secondary-200 { color: var(--selenium-200); }
+.secondary-300 { color: var(--selenium-300); }
+.secondary-400 { color: var(--selenium-400); }
+.secondary-500 { color: var(--selenium-500); }
+.secondary-600 { color: var(--selenium-600); }
+.secondary-700 { color: var(--selenium-700); }
+.secondary-800 { color: var(--selenium-800); }
+.secondary-900 { color: var(--selenium-900); }
+.secondary-950 { color: var(--selenium-950); }
+
+/* Background colors */
+.bg-primary-50 { background-color: var(--indium-50); }
+.bg-primary-100 { background-color: var(--indium-100); }
+.bg-primary-200 { background-color: var(--indium-200); }
+.bg-primary-300 { background-color: var(--indium-300); }
+.bg-primary-400 { background-color: var(--indium-400); }
+.bg-primary-500 { background-color: var(--indium-500); }
+.bg-primary-600 { background-color: var(--indium-600); }
+.bg-primary-700 { background-color: var(--indium-700); }
+.bg-primary-800 { background-color: var(--indium-800); }
+.bg-primary-900 { background-color: var(--indium-900); }
+.bg-primary-950 { background-color: var(--indium-950); }
+
+.bg-secondary-50 { background-color: var(--selenium-50); }
+.bg-secondary-100 { background-color: var(--selenium-100); }
+.bg-secondary-200 { background-color: var(--selenium-200); }
+.bg-secondary-300 { background-color: var(--selenium-300); }
+.bg-secondary-400 { background-color: var(--selenium-400); }
+.bg-secondary-500 { background-color: var(--selenium-500); }
+.bg-secondary-600 { background-color: var(--selenium-600); }
+.bg-secondary-700 { background-color: var(--selenium-700); }
+.bg-secondary-800 { background-color: var(--selenium-800); }
+.bg-secondary-900 { background-color: var(--selenium-900); }
+.bg-secondary-950 { background-color: var(--selenium-950); }
+
+/* Forçar tema claro sempre (mantido do seu código original) */
 :root {
-  --color-background: var(--vt-c-white-soft);
-  --color-background-soft: var(--vt-c-white);
-  --color-background-mute: var(--vt-c-white-mute);
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-2);
-}
-
-/* Resto do CSS permanece igual... */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  font-weight: 450;
-}
-
-body {
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition:
-    color 0.5s ease,
-    background-color 0.5s ease;
-  line-height: 1.7;
-  font-family:
-    'Inter var',
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 16px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv11', 'ss01';
-  letter-spacing: -0.01em;
-}
-
-/* Melhorias para tipografia - CONTRASTE MELHORADO */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-heading);
-  font-weight: 650;
-  line-height: 1.3;
-  letter-spacing: -0.025em;
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 750;
-  color: var(--vt-c-gray-900);
-}
-
-h2 {
-  font-size: 2rem;
-  color: var(--vt-c-gray-900);
-}
-
-h3 {
-  font-size: 1.5rem;
-  color: var(--vt-c-gray-800);
-}
-
-/* Texto de parágrafos mais escuro */
-p, li, span {
-  color: var(--vt-c-gray-700);
-}
-
-/* Links modernos com melhor contraste */
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-  font-weight: 550;
-}
-
-a:hover {
-  color: var(--color-primary-soft);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* Botões base */
-button {
-  font-family: inherit;
-  font-weight: 550;
-  transition: all 0.2s ease;
-}
-
-/* Resto do CSS permanece igual... */
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-background-soft);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-hover);
-}
-
-/* Seleção de texto */
-::selection {
-  background-color: var(--color-primary-mute);
-  color: var(--color-heading);
-}
-
-/* Foco visível para acessibilidade */
-:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Sombras mais definidas */
-.shadow-soft {
-  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-}
-
-/* Cards modernos com melhor contraste */
-.card {
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  border-color: var(--color-primary-soft);
-  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.08);
-}
-
-/* Utilitários de texto para forçar contraste */
-.text-high-contrast {
-  color: var(--vt-c-gray-900) !important;
-}
-
-.text-medium-contrast {
-  color: var(--vt-c-gray-700) !important;
-}
-
-/* Gradientes utilitários */
-.gradient-primary {
-  background: var(--gradient-primary);
-}
-
-.gradient-secondary {
-  background: var(--gradient-secondary);
-}
-
-/* Animações suaves */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  --color-background: #ffffff;
+  --color-background-soft: #f8fafc;
+  --color-background-mute: #f1f5f9;
+  --color-border: var(--selenium-200);
+  --color-border-hover: var(--selenium-300);
+  --color-heading: var(--selenium-950);
+  --color-text: var(--selenium-800);
 }
