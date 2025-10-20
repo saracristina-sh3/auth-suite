@@ -8,62 +8,42 @@
         </div>
         <!-- Botão de criar apenas para Usuários e Autarquias -->
         <Sh3Button v-if="activeTab === 0 || activeTab === 1" @click="onNew">
-          Novo {{ activeTabLabel }}
+          + {{ activeTabLabel }}
         </Sh3Button>
       </div>
 
-     <!-- Navegação das Abas -->
+      <!-- Navegação das Abas -->
       <div class="tabs-nav">
-       <button
-    v-for="(tab, index) in tabs"
-    :key="index"
-    :class="['tab-button', { active: activeTab === index }]"
-    @click="setActiveTab(index)"
-  >
-    {{ tab }}
-  </button>
+        <button v-for="(tab, index) in tabs" :key="index" :class="['tab-button', { active: activeTab === index }]"
+          @click="setActiveTab(index)">
+          {{ tab }}
+        </button>
       </div>
-        <!-- Aba Usuários -->
-   <div class="tabs-content">
+      <!-- Aba Usuários -->
+      <div class="tabs-content">
         <div v-if="activeTab === 0" @tab-change="onTabChange">
-                    <Sh3Table
-            title="Lista de Usuários"
-            :items="users"
-            :columns="userColumns"
-            :actions="userActions"
-            @edit="handleEdit"
-            @delete="handleDelete"
-          >
+          <Sh3Table title="Lista de Usuários" :items="users" :columns="userColumns" :actions="userActions"
+            @edit="handleEdit" @delete="handleDelete">
             <template #column-cpf="{ data }">
               {{ formatCPF(data.cpf) }}
             </template>
 
             <template #column-is_active="{ data }">
-              <Sh3Tag
-                :value="data.is_active ? 'Ativo' : 'Inativo'"
-                :severity="data.is_active ? 'success' : 'danger'"
-              />
+              <Sh3Tag :value="data.is_active ? 'Ativo' : 'Inativo'" :severity="data.is_active ? 'success' : 'danger'" />
             </template>
           </Sh3Table>
         </div>
 
         <!-- Aba Autarquias -->
- <div v-else-if="activeTab === 1" @tab-change="onTabChange">
-            <GenericTable
-            title="Lista de Autarquias"
-            :items="autarquias"
-            :columns="autarquiaColumns"
-            :actions="autarquiaActions"
-            @edit="handleEdit"
-            @delete="handleDelete"
-            @viewUsers="handleViewUsers"
-            @viewModules="handleViewModules"
-          />
- </div>
+        <div v-else-if="activeTab === 1" @tab-change="onTabChange">
+          <GenericTable title="Lista de Autarquias" :items="autarquias" :columns="autarquiaColumns"
+            :actions="autarquiaActions" @edit="handleEdit" @delete="handleDelete" @viewUsers="handleViewUsers"
+            @viewModules="handleViewModules" />
+        </div>
 
         <!-- Aba Módulos -->
- <div v-else-if="activeTab === 2" @tab-change="onTabChange">
-            <Card>
+        <div v-else-if="activeTab === 2" @tab-change="onTabChange">
+          <Card>
             <template #title>
               <div class="flex align-items-center justify-content-between">
                 <span>Módulos do Sistema</span>
@@ -76,33 +56,20 @@
             </template>
             <template #content>
               <div class="modulos-grid">
-                <Card
-                  v-for="modulo in modulos"
-                  :key="modulo.id"
-                  class="modulo-card"
-                >
+                <Card v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
                   <template #header>
                     <div class="modulo-header">
-                      <img
-                        v-if="modulo.icone"
-                        :src="`/src/assets/icons/${modulo.icone}.svg`"
-                        :alt="`Ícone ${modulo.nome}`"
-                        class="modulo-icon-svg"
-                      />
+                      <img v-if="modulo.icone" :src="`/src/assets/icons/${modulo.icone}.svg`"
+                        :alt="`Ícone ${modulo.nome}`" class="modulo-icon-svg" />
                       <i v-else class="pi pi-box modulo-icon"></i>
                     </div>
                   </template>
                   <template #title>{{ modulo.nome }}</template>
                   <template #subtitle>{{ modulo.descricao }}</template>
                   <template #content>
-                    <div
-                      class="flex align-items-center justify-content-between mt-3"
-                    >
+                    <div class="flex align-items-center justify-content-between mt-3">
                       <span class="text-sm text-gray-600">Status:</span>
-                      <ToggleSwitch
-                        v-model="modulo.ativo"
-                        @change="toggleModuloStatus(modulo)"
-                      />
+                      <ToggleSwitch v-model="modulo.ativo" @change="toggleModuloStatus(modulo)" />
                     </div>
                   </template>
                 </Card>
@@ -112,8 +79,8 @@
         </div>
 
         <!-- Aba Liberações de Módulos -->
-<div v-else-if="activeTab === 3" @tab-change="onTabChange">
-            <Card>
+        <div v-else-if="activeTab === 3" @tab-change="onTabChange">
+          <Card>
             <template #title>Liberação de Módulos por Autarquia</template>
             <template #subtitle>
               Gerencie quais módulos cada autarquia tem acesso
@@ -126,9 +93,9 @@
             </template>
           </Card>
         </div>
-<div v-else-if="activeTab === 4" @tab-change="onTabChange">
-            <!-- Painel de seleção de contexto de autarquia -->
-          <Card v-if="!supportContext" class="mb-4">
+        <div v-else-if="activeTab === 4" @tab-change="onTabChange">
+          <!-- Painel de seleção de contexto de autarquia -->
+          <Sh3Card v-if="!supportContext" class="mb-4">
             <template #title>
               <div class="flex align-items-center gap-2">
                 <i class="pi pi-building"></i>
@@ -141,29 +108,21 @@
                 as permissões
               </p>
               <div class="flex gap-3">
-                <Sh3Select
-                  v-model="selectedAutarquiaId"
-                  :field="{
-                    name: 'autarquia',
-                    label: 'Autarquia',
-                    type: 'select',
-                    placeholder: 'Selecione uma autarquia',
-                    optionLabel: 'nome',
-                    optionValue: 'id',
-                    options: autarquias,
-                  }"
-                  class="flex-1"
-                />
+                <Sh3Select v-model="selectedAutarquiaId" :field="{
+                  name: 'autarquia',
+                  label: 'Autarquia',
+                  type: 'select',
+                  placeholder: 'Selecione uma autarquia',
+                  optionLabel: 'nome',
+                  optionValue: 'id',
+                  options: autarquias,
+                }" class="flex-1" />
 
-                <button
-                  label="Acessar"
-                  icon="pi pi-sign-in"
-                  @click="handleAssumeContext"
-                  :disabled="!selectedAutarquiaId"
-                />
+                <Sh3Button label="Acessar" icon="pi pi-sign-in" variant="primary" @click="handleAssumeContext"
+                  :disabled="!selectedAutarquiaId" />
               </div>
             </template>
-          </Card>
+          </Sh3Card>
 
           <!-- Barra de contexto ativo -->
           <Message v-else severity="warn" :closable="false" class="mb-4">
@@ -175,13 +134,8 @@
                   <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
                 </div>
               </div>
-              <button
-                label="Sair do Modo Suporte"
-                icon="pi pi-sign-out"
-                @click="exitContext"
-                severity="warning"
-                outlined
-              />
+              <Sh3Button label="Sair do Modo Suporte" icon="pi pi-sign-out" variant="warning" outlined
+                @click="exitContext" />
             </div>
           </Message>
 
@@ -193,12 +147,7 @@
       </div>
 
       <!-- Formulário genérico -->
-      <Sh3Form
-        ref="genericForm"
-        :entityName="activeTabLabel"
-        :fields="currentFields"
-        @save="onSave"
-      />
+      <Sh3Form ref="genericForm" :entityName="activeTabLabel" :fields="currentFields" @save="onSave" />
     </div>
   </BaseLayout>
 </template>
@@ -222,6 +171,7 @@ import GenericTable from "@/components/common/GenericTable.vue";
 import Sh3Form from "@/components/common/Sh3Form.vue";
 import Sh3Select from "@/components/common/Sh3Select.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
+import Sh3Card from "@/components/common/Sh3Card.vue";
 import Card from "primevue/card";
 import ToggleSwitch from "primevue/toggleswitch";
 import Message from "primevue/message";
@@ -344,7 +294,7 @@ async function loadRoles() {
   }
 }
 
-async function onTabChange(event: any) {
+async function onTabChange(event: { index: number }) {
   activeTab.value = event.index;
   await loadCurrentTab();
 }
@@ -542,18 +492,17 @@ async function toggleModuloStatus(modulo: Modulo) {
 
     showMessage(
       "success",
-      `Módulo "${modulo.nome}" ${
-        modulo.ativo ? "ativado" : "desativado"
+      `Módulo "${modulo.nome}" ${modulo.ativo ? "ativado" : "desativado"
       } com sucesso.`
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("❌ Erro ao alterar status do módulo:", error);
 
     // Reverter o status em caso de erro
     modulo.ativo = !modulo.ativo;
 
     const errorMessage =
-      error.response?.data?.message || "Erro ao alterar status do módulo.";
+      (error as any).response?.data?.message || "Erro ao alterar status do módulo.";
     showMessage("error", errorMessage);
   } finally {
     loading.value = false;
@@ -566,11 +515,6 @@ function formatCPF(cpf: string): string {
   return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
-function truncate(text: string, length: number): string {
-  if (!text) return "-";
-  if (text.length <= length) return text;
-  return text.substring(0, length) + "...";
-}
 
 // Lifecycle
 onMounted(async () => {
@@ -695,6 +639,7 @@ onMounted(async () => {
   width: 80px;
   height: 80px;
   object-fit: contain;
-  filter: brightness(0) invert(1); /* Torna o SVG branco */
+  filter: brightness(0) invert(1);
+  /* Torna o SVG branco */
 }
 </style>
