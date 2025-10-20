@@ -7,64 +7,63 @@
           <p class="admin-subtitle">Área restrita - SH3 Suporte</p>
         </div>
         <!-- Botão de criar apenas para Usuários e Autarquias -->
-        <button
-          v-if="activeTab === 0 || activeTab === 1"
-          @click="onNew"
-        >
+        <Sh3Button v-if="activeTab === 0 || activeTab === 1" @click="onNew">
           Novo {{ activeTabLabel }}
-        </button>
+        </Sh3Button>
       </div>
 
- 
-
-      <!-- Abas -->
-      <TabView v-model:activeIndex="activeTab" @tab-change="onTabChange">
+     <!-- Navegação das Abas -->
+      <div class="tabs-nav">
+       <button
+    v-for="(tab, index) in tabs"
+    :key="index"
+    :class="['tab-button', { active: activeTab === index }]"
+    @click="setActiveTab(index)"
+  >
+    {{ tab }}
+  </button>
+      </div>
         <!-- Aba Usuários -->
-        <TabPanel header="Usuários" :value="0">
-          <GenericTable
+   <div class="tabs-content">
+        <div v-if="activeTab === 0" @tab-change="onTabChange">
+                    <Sh3Table
             title="Lista de Usuários"
             :items="users"
             :columns="userColumns"
             :actions="userActions"
-            :loading="loading"
-            actionsColumnStyle="width: 120px"
             @edit="handleEdit"
             @delete="handleDelete"
           >
             <template #column-cpf="{ data }">
               {{ formatCPF(data.cpf) }}
             </template>
+
             <template #column-is_active="{ data }">
-              <Tag
+              <Sh3Tag
                 :value="data.is_active ? 'Ativo' : 'Inativo'"
                 :severity="data.is_active ? 'success' : 'danger'"
               />
             </template>
-            <template #column-autarquia="{ data }">
-              {{ data.autarquia?.nome || '-' }}
-            </template>
-          </GenericTable>
-        </TabPanel>
+          </Sh3Table>
+        </div>
 
         <!-- Aba Autarquias -->
-        <TabPanel header="Autarquias" :value="1"> 
-          <GenericTable
+ <div v-else-if="activeTab === 1" @tab-change="onTabChange">
+            <GenericTable
             title="Lista de Autarquias"
             :items="autarquias"
             :columns="autarquiaColumns"
             :actions="autarquiaActions"
-            :loading="loading"
-            actionsColumnStyle="width: 180px"
             @edit="handleEdit"
             @delete="handleDelete"
             @viewUsers="handleViewUsers"
             @viewModules="handleViewModules"
           />
-        </TabPanel>
+ </div>
 
         <!-- Aba Módulos -->
-        <TabPanel header="Módulos" :value="2">
-          <Card>
+ <div v-else-if="activeTab === 2" @tab-change="onTabChange">
+            <Card>
             <template #title>
               <div class="flex align-items-center justify-content-between">
                 <span>Módulos do Sistema</span>
@@ -72,11 +71,16 @@
               </div>
             </template>
             <template #subtitle>
-              Os módulos são fixos e não podem ser criados ou removidos. Você pode ativar/desativar globalmente.
+              Os módulos são fixos e não podem ser criados ou removidos. Você
+              pode ativar/desativar globalmente.
             </template>
             <template #content>
               <div class="modulos-grid">
-                <Card v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
+                <Card
+                  v-for="modulo in modulos"
+                  :key="modulo.id"
+                  class="modulo-card"
+                >
                   <template #header>
                     <div class="modulo-header">
                       <img
@@ -91,7 +95,9 @@
                   <template #title>{{ modulo.nome }}</template>
                   <template #subtitle>{{ modulo.descricao }}</template>
                   <template #content>
-                    <div class="flex align-items-center justify-content-between mt-3">
+                    <div
+                      class="flex align-items-center justify-content-between mt-3"
+                    >
                       <span class="text-sm text-gray-600">Status:</span>
                       <ToggleSwitch
                         v-model="modulo.ativo"
@@ -103,14 +109,15 @@
               </div>
             </template>
           </Card>
-        </TabPanel>
+        </div>
 
         <!-- Aba Liberações de Módulos -->
-        <TabPanel header="Liberações" :value="3">
-          <Card>
+<div v-else-if="activeTab === 3" @tab-change="onTabChange">
+            <Card>
             <template #title>Liberação de Módulos por Autarquia</template>
             <template #subtitle>
-              Gerencie quais módulos cada autarquia tem acesso (contratos/planos)
+              Gerencie quais módulos cada autarquia tem acesso
+              (contratos/planos)
             </template>
             <template #content>
               <p class="text-center text-gray-500 my-5">
@@ -118,71 +125,72 @@
               </p>
             </template>
           </Card>
-        </TabPanel>
-        <TabPanel header="Modo Suporte" :value="4">
-               <!-- Painel de seleção de contexto de autarquia -->
-      <Card v-if="!supportContext" class="mb-4">
-        <template #title>
-          <div class="flex align-items-center gap-2">
-            <i class="pi pi-building"></i>
-            <span>Modo Suporte - Selecione uma Autarquia</span>
-          </div>
-        </template>
-        <template #content>
-          <p class="mb-3">
-            Escolha uma autarquia para acessar como administrador com todas as permissões
-          </p>
-          <div class="flex gap-3">
-            <Sh3Select
-  v-model="selectedAutarquiaId"
-  :field="{
-    name: 'autarquia',
-    label: 'Autarquia',
-    type: 'select',
-    placeholder: 'Selecione uma autarquia',
-    optionLabel: 'nome',
-    optionValue: 'id',
-    options: autarquias
-  }"
-  class="flex-1"
-/>
-
-            <button
-              label="Acessar"
-              icon="pi pi-sign-in"
-              @click="handleAssumeContext"
-              :disabled="!selectedAutarquiaId"
-            />
-          </div>
-        </template>
-      </Card>
-
-      <!-- Barra de contexto ativo -->
-      <Message v-else severity="warn" :closable="false" class="mb-4">
-        <div class="flex align-items-center justify-content-between w-full">
-          <div class="flex align-items-center gap-3">
-            <i class="pi pi-shield" style="font-size: 1.5rem"></i>
-            <div>
-              <strong>Modo Suporte Ativo:</strong>
-              <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
-            </div>
-          </div>
-          <button
-            label="Sair do Modo Suporte"
-            icon="pi pi-sign-out"
-            @click="exitContext"
-            severity="warning"
-            outlined
-          />
         </div>
-      </Message>
+<div v-else-if="activeTab === 4" @tab-change="onTabChange">
+            <!-- Painel de seleção de contexto de autarquia -->
+          <Card v-if="!supportContext" class="mb-4">
+            <template #title>
+              <div class="flex align-items-center gap-2">
+                <i class="pi pi-building"></i>
+                <span>Modo Suporte - Selecione uma Autarquia</span>
+              </div>
+            </template>
+            <template #content>
+              <p class="mb-3">
+                Escolha uma autarquia para acessar como administrador com todas
+                as permissões
+              </p>
+              <div class="flex gap-3">
+                <Sh3Select
+                  v-model="selectedAutarquiaId"
+                  :field="{
+                    name: 'autarquia',
+                    label: 'Autarquia',
+                    type: 'select',
+                    placeholder: 'Selecione uma autarquia',
+                    optionLabel: 'nome',
+                    optionValue: 'id',
+                    options: autarquias,
+                  }"
+                  class="flex-1"
+                />
 
-      <!-- Mensagem de feedback -->
-      <div v-if="message" :class="['message', messageClass]">
-        {{ message }}
+                <button
+                  label="Acessar"
+                  icon="pi pi-sign-in"
+                  @click="handleAssumeContext"
+                  :disabled="!selectedAutarquiaId"
+                />
+              </div>
+            </template>
+          </Card>
+
+          <!-- Barra de contexto ativo -->
+          <Message v-else severity="warn" :closable="false" class="mb-4">
+            <div class="flex align-items-center justify-content-between w-full">
+              <div class="flex align-items-center gap-3">
+                <i class="pi pi-shield" style="font-size: 1.5rem"></i>
+                <div>
+                  <strong>Modo Suporte Ativo:</strong>
+                  <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
+                </div>
+              </div>
+              <button
+                label="Sair do Modo Suporte"
+                icon="pi pi-sign-out"
+                @click="exitContext"
+                severity="warning"
+                outlined
+              />
+            </div>
+          </Message>
+
+          <!-- Mensagem de feedback -->
+          <div v-if="message" :class="['message', messageClass]">
+            {{ message }}
+          </div>
+        </div>
       </div>
-        </TabPanel>
-      </TabView>
 
       <!-- Formulário genérico -->
       <Sh3Form
@@ -196,155 +204,163 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { userService } from '@/services/user.service'
-import { roleService } from '@/services/role.service'
-import { autarquiaService } from '@/services/autarquia.service'
-import { moduloService } from '@/services/modulos.service'
-import { supportService, type SupportContext } from '@/services/support.service'
-import { useUserTableConfig } from '@/composables/useUserTableConfig'
-import { useAutarquiaTableConfig } from '@/composables/useAutarquiaTableConfig'
-import { useModuloTableConfig } from '@/composables/useModuloTableConfig'
-import BaseLayout from '@/components/layouts/BaseLayout.vue'
-import GenericTable from '@/components/common/GenericTable.vue'
-import Sh3Form from '@/components/common/Sh3Form.vue'
-import Sh3Select from '@/components/common/Sh3Select.vue'
-import Card from 'primevue/card'
-import ToggleSwitch from 'primevue/toggleswitch'
-import Message from 'primevue/message'
-import TabView from 'primevue/tabview'
-import TabPanel from 'primevue/tabpanel'
-import Tag from 'primevue/tag'
-import type { User } from '@/services/user.service'
-import type { Role, Permission } from '@/services/role.service'
-import type { Autarquia, Modulo } from '@/types/auth'
+import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
+import { userService } from "@/services/user.service";
+import { roleService } from "@/services/role.service";
+import { autarquiaService } from "@/services/autarquia.service";
+import { moduloService } from "@/services/modulos.service";
+import {
+  supportService,
+  type SupportContext,
+} from "@/services/support.service";
+import { useUserTableConfig } from "@/composables/useUserTableConfig";
+import { useAutarquiaTableConfig } from "@/composables/useAutarquiaTableConfig";
+import { useModuloTableConfig } from "@/composables/useModuloTableConfig";
+import BaseLayout from "@/components/layouts/BaseLayout.vue";
+import GenericTable from "@/components/common/GenericTable.vue";
+import Sh3Form from "@/components/common/Sh3Form.vue";
+import Sh3Select from "@/components/common/Sh3Select.vue";
+import Sh3Button from "@/components/common/Sh3Button.vue";
+import Card from "primevue/card";
+import ToggleSwitch from "primevue/toggleswitch";
+import Message from "primevue/message";
+import Tag from "primevue/tag";
+import type { User } from "@/services/user.service";
+import type { Role, Permission } from "@/services/role.service";
+import type { Autarquia, Modulo } from "@/types/auth";
 
-const router = useRouter()
+const router = useRouter();
+const tabs = ['Usuários', 'Autarquias', 'Módulos', 'Liberações', 'Modo Suporte']
+
+function setActiveTab(index: number) {
+  activeTab.value = index
+  loadCurrentTab()
+}
 
 // State
-const activeTab = ref(0)
-const users = ref<User[]>([])
-const autarquias = ref<Autarquia[]>([])
-const modulos = ref<Modulo[]>([])
-const roles = ref<Role[]>([])
-const permissions = ref<Permission>({})
-const loading = ref(false)
-const genericForm = ref()
-const message = ref('')
-const messageType = ref<'success' | 'error' | ''>('')
-const supportContext = ref<SupportContext | null>(null)
-const selectedAutarquiaId = ref<number | null>(null)
+const activeTab = ref(0);
+const users = ref<User[]>([]);
+const autarquias = ref<Autarquia[]>([]);
+const modulos = ref<Modulo[]>([]);
+const roles = ref<Role[]>([]);
+const permissions = ref<Permission>({});
+const loading = ref(false);
+const genericForm = ref();
+const message = ref("");
+const messageType = ref<"success" | "error" | "">("");
+const supportContext = ref<SupportContext | null>(null);
+const selectedAutarquiaId = ref<number | null>(null);
 
 // Composables para configuração de tabelas
-const userConfig = useUserTableConfig(roles, autarquias)
-const autarquiaConfig = useAutarquiaTableConfig()
-const moduloConfig = useModuloTableConfig()
+const userConfig = useUserTableConfig(roles, autarquias);
+const autarquiaConfig = useAutarquiaTableConfig();
+const moduloConfig = useModuloTableConfig();
 
 // Computed
 const activeTabLabel = computed(() => {
-  const labels = ['Usuário', 'Autarquia', 'Módulo']
-  return labels[activeTab.value] || 'Item'
-})
+  const labels = ["Usuário", "Autarquia", "Módulo"];
+  return labels[activeTab.value] || "Item";
+});
 
 const messageClass = computed(() => {
-  if (messageType.value === 'success') return 'message-success'
-  if (messageType.value === 'error') return 'message-error'
-  return 'message-info'
-})
+  if (messageType.value === "success") return "message-success";
+  if (messageType.value === "error") return "message-error";
+  return "message-info";
+});
 
 // Configuração de colunas, ações e campos vindos dos composables
-const userColumns = userConfig.columns
-const userActions = userConfig.actions
+const userColumns = userConfig.columns;
+const userActions = userConfig.actions;
 
-const autarquiaColumns = autarquiaConfig.columns
-const autarquiaActions = autarquiaConfig.actions
+const autarquiaColumns = autarquiaConfig.columns;
+const autarquiaActions = autarquiaConfig.actions;
 
 // Configuração de campos de formulário para cada entidade
 const currentFields = computed(() => {
   if (activeTab.value === 0) {
-    return userConfig.fields.value
+    return userConfig.fields.value;
   } else if (activeTab.value === 1) {
-    return autarquiaConfig.fields
+    return autarquiaConfig.fields;
   } else {
-    return moduloConfig.fields
+    return moduloConfig.fields;
   }
-})
+});
 
 // Methods
-function showMessage(type: 'success' | 'error', text: string) {
-  messageType.value = type
-  message.value = text
+function showMessage(type: "success" | "error", text: string) {
+  messageType.value = type;
+  message.value = text;
   setTimeout(() => {
-    message.value = ''
-    messageType.value = ''
-  }, 4000)
+    message.value = "";
+    messageType.value = "";
+  }, 4000);
 }
 
 async function loadUsers() {
   try {
-    loading.value = true
-    const response = await userService.list()
-    users.value = response.items
+    loading.value = true;
+    const response = await userService.list();
+    users.value = response.items;
   } catch (error) {
-    console.error('Erro ao carregar usuários:', error)
-    showMessage('error', 'Falha ao carregar usuários.')
+    console.error("Erro ao carregar usuários:", error);
+    showMessage("error", "Falha ao carregar usuários.");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function loadAutarquias() {
   try {
-    loading.value = true
-    autarquias.value = await autarquiaService.list()
+    loading.value = true;
+    autarquias.value = await autarquiaService.list();
   } catch (error) {
-    console.error('Erro ao carregar autarquias:', error)
-    showMessage('error', 'Falha ao carregar autarquias.')
+    console.error("Erro ao carregar autarquias:", error);
+    showMessage("error", "Falha ao carregar autarquias.");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function loadModulos() {
   try {
-    loading.value = true
-    modulos.value = await moduloService.list()
+    loading.value = true;
+    modulos.value = await moduloService.list();
   } catch (error) {
-    console.error('Erro ao carregar módulos:', error)
-    showMessage('error', 'Falha ao carregar módulos.')
+    console.error("Erro ao carregar módulos:", error);
+    showMessage("error", "Falha ao carregar módulos.");
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function loadRoles() {
   try {
-    const response = await roleService.list()
-    roles.value = response.roles
-    permissions.value = response.permissions
+    const response = await roleService.list();
+    roles.value = response.roles;
+    permissions.value = response.permissions;
   } catch (error) {
-    console.error('Erro ao carregar roles:', error)
+    console.error("Erro ao carregar roles:", error);
   }
 }
 
 async function onTabChange(event: any) {
-  activeTab.value = event.index
-  await loadCurrentTab()
+  activeTab.value = event.index;
+  await loadCurrentTab();
 }
 
 async function loadCurrentTab() {
   if (activeTab.value === 0) {
-    await loadUsers()
+    await loadUsers();
   } else if (activeTab.value === 1) {
-    await loadAutarquias()
+    await loadAutarquias();
   } else if (activeTab.value === 2) {
-    await loadModulos()
+    await loadModulos();
   }
 }
 
 function onNew() {
-  genericForm.value?.open()
+  genericForm.value?.open();
 }
 
 async function onSave(data: any) {
@@ -352,202 +368,224 @@ async function onSave(data: any) {
     if (activeTab.value === 0) {
       // Salvar usuário
       if (data.id) {
-        await userService.update(data.id, data)
-        showMessage('success', 'Usuário atualizado com sucesso.')
+        await userService.update(data.id, data);
+        showMessage("success", "Usuário atualizado com sucesso.");
       } else {
-        await userService.create(data)
-        showMessage('success', 'Usuário criado com sucesso.')
+        await userService.create(data);
+        showMessage("success", "Usuário criado com sucesso.");
       }
-      await loadUsers()
+      await loadUsers();
     } else if (activeTab.value === 1) {
       // Salvar autarquia
       if (data.id) {
-        await autarquiaService.update(data.id, data)
-        showMessage('success', 'Autarquia atualizada com sucesso.')
+        await autarquiaService.update(data.id, data);
+        showMessage("success", "Autarquia atualizada com sucesso.");
       } else {
-        await autarquiaService.create(data)
-        showMessage('success', 'Autarquia criada com sucesso.')
+        await autarquiaService.create(data);
+        showMessage("success", "Autarquia criada com sucesso.");
       }
-      await loadAutarquias()
+      await loadAutarquias();
     } else if (activeTab.value === 2) {
       // Salvar módulo
       if (data.id) {
-        await moduloService.update(data.id, data)
-        showMessage('success', 'Módulo atualizado com sucesso.')
+        await moduloService.update(data.id, data);
+        showMessage("success", "Módulo atualizado com sucesso.");
       } else {
-        await moduloService.create(data)
-        showMessage('success', 'Módulo criado com sucesso.')
+        await moduloService.create(data);
+        showMessage("success", "Módulo criado com sucesso.");
       }
-      await loadModulos()
+      await loadModulos();
     }
   } catch (error: any) {
-    console.error('Erro ao salvar:', error)
-    const errorMessage = error.response?.data?.message || 'Erro ao salvar.'
-    showMessage('error', errorMessage)
+    console.error("Erro ao salvar:", error);
+    const errorMessage = error.response?.data?.message || "Erro ao salvar.";
+    showMessage("error", errorMessage);
   }
 }
 
 // Event handlers para tabela
 async function handleEdit(item: any) {
-  genericForm.value?.open(item)
+  genericForm.value?.open(item);
 }
 
 async function handleDelete(item: any) {
-  const entityName = activeTabLabel.value
-  if (!confirm(`Excluir ${entityName.toLowerCase()} "${item.nome || item.name}"?`)) {
-    return
+  const entityName = activeTabLabel.value;
+  if (
+    !confirm(`Excluir ${entityName.toLowerCase()} "${item.nome || item.name}"?`)
+  ) {
+    return;
   }
 
   try {
     if (activeTab.value === 0) {
-      await userService.remove(item.id)
-      showMessage('success', 'Usuário removido com sucesso.')
-      await loadUsers()
+      await userService.remove(item.id);
+      showMessage("success", "Usuário removido com sucesso.");
+      await loadUsers();
     } else if (activeTab.value === 1) {
-      await autarquiaService.delete(item.id)
-      showMessage('success', 'Autarquia removida com sucesso.')
-      await loadAutarquias()
+      await autarquiaService.delete(item.id);
+      showMessage("success", "Autarquia removida com sucesso.");
+      await loadAutarquias();
     } else if (activeTab.value === 2) {
-      await moduloService.delete(item.id)
-      showMessage('success', 'Módulo removido com sucesso.')
-      await loadModulos()
+      await moduloService.delete(item.id);
+      showMessage("success", "Módulo removido com sucesso.");
+      await loadModulos();
     }
   } catch (error: any) {
-    console.error('Erro ao excluir:', error)
-    const errorMessage = error.response?.data?.message || 'Erro ao excluir.'
-    showMessage('error', errorMessage)
+    console.error("Erro ao excluir:", error);
+    const errorMessage = error.response?.data?.message || "Erro ao excluir.";
+    showMessage("error", errorMessage);
   }
 }
 
 async function handleViewUsers() {
-  showMessage('error', 'Funcionalidade em desenvolvimento.')
+  showMessage("error", "Funcionalidade em desenvolvimento.");
 }
 
 async function handleViewModules() {
-  showMessage('error', 'Funcionalidade em desenvolvimento.')
+  showMessage("error", "Funcionalidade em desenvolvimento.");
 }
 
 // Support Context Functions
 async function handleAssumeContext() {
   if (!selectedAutarquiaId.value) {
-    showMessage('error', 'Selecione uma autarquia.')
-    return
+    showMessage("error", "Selecione uma autarquia.");
+    return;
   }
 
-  const autarquia = autarquias.value.find((a) => a.id === selectedAutarquiaId.value)
+  const autarquia = autarquias.value.find(
+    (a) => a.id === selectedAutarquiaId.value
+  );
   if (!autarquia) {
-    showMessage('error', 'Autarquia não encontrada.')
-    return
+    showMessage("error", "Autarquia não encontrada.");
+    return;
   }
 
   if (!autarquia.ativo) {
-    showMessage('error', 'Esta autarquia está inativa e não pode ser acessada.')
-    return
+    showMessage(
+      "error",
+      "Esta autarquia está inativa e não pode ser acessada."
+    );
+    return;
   }
 
   try {
-    loading.value = true
-    console.log('🔄 Selecionando autarquia:', autarquia.nome)
+    loading.value = true;
+    console.log("🔄 Selecionando autarquia:", autarquia.nome);
 
-    const context = await supportService.assumeAutarquiaContext(autarquia.id)
-    supportContext.value = context
-    selectedAutarquiaId.value = null
+    const context = await supportService.assumeAutarquiaContext(autarquia.id);
+    supportContext.value = context;
+    selectedAutarquiaId.value = null;
 
-    showMessage('success', `Modo suporte ativado para: ${autarquia.nome}. Redirecionando...`)
-    console.log('✅ Contexto de suporte ativo:', context)
+    showMessage(
+      "success",
+      `Modo suporte ativado para: ${autarquia.nome}. Redirecionando...`
+    );
+    console.log("✅ Contexto de suporte ativo:", context);
 
     // Redirecionar para SuiteView (home) após 1 segundo
     setTimeout(() => {
-      router.push({ name: 'home' })
-    }, 1000)
+      router.push({ name: "home" });
+    }, 1000);
   } catch (error: any) {
-    console.error('❌ Erro ao selecionar autarquia:', error)
-    const errorMessage = error.message || 'Erro ao ativar modo suporte. Tente novamente.'
-    showMessage('error', errorMessage)
+    console.error("❌ Erro ao selecionar autarquia:", error);
+    const errorMessage =
+      error.message || "Erro ao ativar modo suporte. Tente novamente.";
+    showMessage("error", errorMessage);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 async function exitContext() {
-  if (!confirm('Deseja sair do modo suporte e retornar ao seu contexto original?')) {
-    return
+  if (
+    !confirm("Deseja sair do modo suporte e retornar ao seu contexto original?")
+  ) {
+    return;
   }
 
   try {
-    loading.value = true
-    console.log('🔙 Saindo do modo suporte...')
+    loading.value = true;
+    console.log("🔙 Saindo do modo suporte...");
 
-    await supportService.exitAutarquiaContext()
-    supportContext.value = null
+    await supportService.exitAutarquiaContext();
+    supportContext.value = null;
 
-    showMessage('success', 'Retornado ao contexto original.')
-    console.log('✅ Modo suporte desativado')
+    showMessage("success", "Retornado ao contexto original.");
+    console.log("✅ Modo suporte desativado");
   } catch (error: any) {
-    console.error('❌ Erro ao sair do contexto:', error)
-    const errorMessage = error.message || 'Erro ao sair do modo suporte. Tente novamente.'
-    showMessage('error', errorMessage)
+    console.error("❌ Erro ao sair do contexto:", error);
+    const errorMessage =
+      error.message || "Erro ao sair do modo suporte. Tente novamente.";
+    showMessage("error", errorMessage);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 // Módulos Functions
 async function toggleModuloStatus(modulo: Modulo) {
   try {
-    loading.value = true
-    console.log('🔄 Alterando status do módulo:', modulo.nome, '→', modulo.ativo)
+    loading.value = true;
+    console.log(
+      "🔄 Alterando status do módulo:",
+      modulo.nome,
+      "→",
+      modulo.ativo
+    );
 
     await moduloService.update(modulo.id, {
       nome: modulo.nome,
       descricao: modulo.descricao,
       icone: modulo.icone,
       ativo: modulo.ativo,
-    })
+    });
 
     showMessage(
-      'success',
-      `Módulo "${modulo.nome}" ${modulo.ativo ? 'ativado' : 'desativado'} com sucesso.`
-    )
+      "success",
+      `Módulo "${modulo.nome}" ${
+        modulo.ativo ? "ativado" : "desativado"
+      } com sucesso.`
+    );
   } catch (error: any) {
-    console.error('❌ Erro ao alterar status do módulo:', error)
+    console.error("❌ Erro ao alterar status do módulo:", error);
 
     // Reverter o status em caso de erro
-    modulo.ativo = !modulo.ativo
+    modulo.ativo = !modulo.ativo;
 
-    const errorMessage = error.response?.data?.message || 'Erro ao alterar status do módulo.'
-    showMessage('error', errorMessage)
+    const errorMessage =
+      error.response?.data?.message || "Erro ao alterar status do módulo.";
+    showMessage("error", errorMessage);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 
 // Helper functions
 function formatCPF(cpf: string): string {
-  if (!cpf) return '-'
-  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+  if (!cpf) return "-";
+  return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
 }
 
 function truncate(text: string, length: number): string {
-  if (!text) return '-'
-  if (text.length <= length) return text
-  return text.substring(0, length) + '...'
+  if (!text) return "-";
+  if (text.length <= length) return text;
+  return text.substring(0, length) + "...";
 }
 
 // Lifecycle
 onMounted(async () => {
   // Verificar se já existe um contexto de suporte ativo
-  supportContext.value = supportService.getSupportContext()
+  supportContext.value = supportService.getSupportContext();
 
-  await loadRoles()
-  await loadAutarquias()
-  await loadCurrentTab()
-})
+  await loadRoles();
+  await loadAutarquias();
+  await loadCurrentTab();
+});
 </script>
 
 <style scoped>
 .admin-container {
-  display:contents;
+  display: contents;
   min-height: 100vh;
   width: 100%;
   background: var(--color-background);
@@ -574,27 +612,33 @@ onMounted(async () => {
   margin: 0;
 }
 
-.btn-primary {
+.tabs-nav {
   display: flex;
-  align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  background-color: #3b82f6;
-  color: white;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-button {
+  background: none;
   border: none;
-  border-radius: 0.375rem;
+  padding: 0.75rem 1.25rem;
   font-weight: 500;
+  color: #6b7280;
   cursor: pointer;
-  transition: background-color 0.2s;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
 }
 
-.btn-primary:hover {
-  background-color: #2563eb;
+.tab-button:hover {
+  color: #111827;
 }
 
-.btn-icon {
-  font-weight: bold;
+.tab-button.active {
+  color: #2563eb;
+  border-color: #2563eb;
 }
+
 
 .message {
   margin-bottom: 1rem;
