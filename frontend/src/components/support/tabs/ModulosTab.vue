@@ -1,10 +1,10 @@
 <template>
   <div @tab-change="$emit('tab-change', $event)">
-    <Card>
+    <Sh3Card>
       <template #title>
         <div class="flex align-items-center justify-content-between">
           <span>Módulos do Sistema</span>
-          <Tag value="Somente Leitura" severity="info" />
+          <Sh3Tag value="Somente Leitura" severity="info" />
         </div>
       </template>
       <template #subtitle>
@@ -13,7 +13,7 @@
       </template>
       <template #content>
         <div class="modulos-grid">
-          <Card v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
+          <Sh3Card v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
             <template #header>
               <div class="modulo-header">
                 <img 
@@ -30,23 +30,23 @@
             <template #content>
               <div class="flex align-items-center justify-content-between mt-3">
                 <span class="text-sm text-gray-600">Status:</span>
-                <ToggleSwitch 
+                <Sh3ToggleSwitch 
                   v-model="modulo.ativo" 
                   @change="$emit('toggle-modulo-status', modulo)" 
                 />
               </div>
             </template>
-          </Card>
+          </Sh3Card>
         </div>
       </template>
-    </Card>
+    </Sh3Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import Card from "primevue/card";
-import ToggleSwitch from "primevue/toggleswitch";
-import Tag from "primevue/tag";
+import Sh3Card from "@/components/common/Sh3Card.vue";
+import Sh3ToggleSwitch from "@/components/common/Sh3ToggleSwitch.vue";
+import Sh3Tag from "@/components/common/Sh3Tag.vue";
 import type { Modulo } from "@/types/auth";
 
 defineProps<{

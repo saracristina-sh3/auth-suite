@@ -60,9 +60,9 @@
 
         <!-- Sem autarquias -->
         <div v-else class="autarquia-empty">
-          <Message severity="warn" :closable="false">
+          <Sh3Message severity="warn" :closable="false">
             Você não está vinculado a nenhuma autarquia. Entre em contato com o administrador.
-          </Message>
+          </Sh3Message>
         </div>
       </div>
 
@@ -74,10 +74,10 @@
 
       <!-- Error State -->
       <div v-else-if="error" class="error-container">
-        <Message severity="error" :closable="false">
+        <Sh3Message severity="error" :closable="false">
           {{ error }}
-        </Message>
-        <Button label="Tentar novamente" icon="pi pi-refresh" @click="reload" class="mt-3" />
+        </Sh3Message>
+        <Sh3Button label="Tentar novamente" icon="pi pi-refresh" @click="reload" class="mt-3" />
       </div>
 
       <!-- Empty State -->
@@ -92,7 +92,7 @@
 
       <!-- Modules Grid -->
       <div v-else class="grid gap-3 md:gap-4 mt-6 w-full max-w-6xl">
-        <Card
+        <Sh3Card
           v-for="modulo in modulos"
           :key="modulo.key"
           class="cursor-pointer transition-all duration-300 hover:shadow-2xl border-1 surface-border"
@@ -108,7 +108,7 @@
               <p class="text-color-secondary line-height-3 m-0">{{ modulo.description }}</p>
             </div>
           </template>
-        </Card>
+        </Sh3Card>
       </div>
     </div>
   </BaseLayout>
@@ -122,10 +122,10 @@ import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
 import UsuarioCard from './usuario/UsuarioCard.vue'
 import Sh3Select from './common/Sh3Select.vue'
-import Card from 'primevue/card'
+import Sh3Card from './common/Sh3Card.vue'
 import ProgressSpinner from 'primevue/progressspinner'
-import Message from 'primevue/message'
-import Button from 'primevue/button'
+import Sh3Message from './common/Sh3Message.vue'
+import Sh3Button from './common/Sh3Button.vue'
 import type { User } from '@/types/auth'
 import BaseLayout from './layouts/BaseLayout.vue'
 
