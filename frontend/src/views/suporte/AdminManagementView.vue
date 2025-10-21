@@ -6,12 +6,15 @@
           <h2 class="text-2xl font-bold text-foreground mb-1">Painel do suporte</h2>
           <p class="text-sm text-muted-foreground font-medium m-0">Área restrita - SH3 Suporte</p>
         </div>
-        <!-- Botão flutuante fixo no canto inferior direito -->
-        <Sh3Button
-          v-if="activeTab === 1 || activeTab === 2"
-          @click="onNew"
-        >
-          <i class="pi pi-plus">+ {{ activeTabLabel }} </i>
+      <!-- Botão fixo (atalho global menor) -->
+      <transition name="fade">
+
+        <Sh3Button v-if="activeTab === 1 || activeTab === 2"
+          class="!px-3 !py-2 bottom-4 right-4 z-50 shadow-md rounded-full flex items-center gap-1 text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-all duration-200"
+      @click="onNew"
+    >
+          <i class="pi pi-plus text-sm"></i>
+          {{ activeTabLabel }}
         </Sh3Button>
       </div>
 
