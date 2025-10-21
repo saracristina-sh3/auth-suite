@@ -127,12 +127,32 @@ class AutarquiaController extends Controller
      */
     public function modulos(Autarquia $autarquia): JsonResponse
     {
-        $modulos = $autarquia->modulosAtivos()->get();
+        $modulos = $autarquia->modulos()->get();
 
         return response()->json([
             'success' => true,
             'message' => 'Módulos da autarquia recuperados com sucesso.',
             'data' => $modulos,
+        ]);
+    }
+
+    /**
+     * Retorna estatísticas dos módulos da autarquia
+     */
+    public function modulosStats(Autarquia $autarquia): JsonResponse
+    {
+        $total = $autarquia->modulos()->count();
+        $ativos = $autarquia->modulos()->wherePivot('ativo', true)->count();
+        $inativos = $autarquia->modulos()->wherePivot('ativo', false)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estatísticas dos módulos da autarquia recuperadas com sucesso.',
+            'data' => [
+                'total' => $total,
+                'ativos' => $ativos,
+                'inativos' => $inativos,
+            ],
         ]);
     }
 
@@ -149,6 +169,26 @@ class AutarquiaController extends Controller
             'success' => true,
             'message' => 'Usuários da autarquia recuperados com sucesso.',
             'data' => $usuarios,
+        ]);
+    }
+
+    /**
+     * Retorna estatísticas das autarquias
+     */
+    public function stats(): JsonResponse
+    {
+        $total = Autarquia::count();
+        $ativas = Autarquia::where('ativo', true)->count();
+        $inativas = Autarquia::where('ativo', false)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estatísticas de autarquias recuperadas com sucesso.',
+            'data' => [
+                'total' => $total,
+                'ativas' => $ativas,
+                'inativas' => $inativas,
+            ],
         ]);
     }
 }

@@ -138,4 +138,24 @@ class ModulosController extends Controller
             'data' => $autarquias,
         ]);
     }
+
+    /**
+     * Retorna estatísticas dos módulos
+     */
+    public function stats(): JsonResponse
+    {
+        $total = Modulo::count();
+        $ativos = Modulo::where('ativo', true)->count();
+        $inativos = Modulo::where('ativo', false)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estatísticas de módulos recuperadas com sucesso.',
+            'data' => [
+                'total' => $total,
+                'ativos' => $ativos,
+                'inativos' => $inativos,
+            ],
+        ]);
+    }
 }

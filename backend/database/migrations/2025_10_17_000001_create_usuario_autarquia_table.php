@@ -20,9 +20,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('autarquia_id');
-            $table->string('role')->default('user'); // Role específica para esta autarquia
-            $table->boolean('is_admin')->default(false); // Admin desta autarquia?
-            $table->boolean('is_default')->default(false); // Autarquia padrão/ativa?
+            $table->string('role')->default('user');
+            $table->boolean('is_admin')->default(false);
+            $table->boolean('is_default')->default(false);
             $table->boolean('ativo')->default(true);
             $table->timestamp('data_vinculo')->useCurrent();
             $table->timestamps();

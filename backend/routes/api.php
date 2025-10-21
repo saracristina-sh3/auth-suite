@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ====================================
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index']);
+        Route::get('/stats', [UserController::class, 'stats']);
         Route::get('/{user}', [UserController::class, 'show']);
         Route::post('/', [UserController::class, 'store']);
         Route::put('/{user}', [UserController::class, 'update']);
@@ -58,11 +59,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ====================================
     Route::prefix('autarquias')->group(function () {
         Route::get('/', [AutarquiaController::class, 'index']);
+        Route::get('/stats', [AutarquiaController::class, 'stats']);
         Route::get('/{autarquia}', [AutarquiaController::class, 'show']);
         Route::post('/', [AutarquiaController::class, 'store']);
         Route::put('/{autarquia}', [AutarquiaController::class, 'update']);
         Route::delete('/{autarquia}', [AutarquiaController::class, 'destroy']);
         Route::get('/{autarquia}/modulos', [AutarquiaController::class, 'modulos']);
+        Route::get('/{autarquia}/modulos/stats', [AutarquiaController::class, 'modulosStats']);
         Route::get('/{autarquia}/usuarios', [AutarquiaController::class, 'usuarios']);
     });
 
@@ -71,6 +74,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ====================================
     Route::prefix('modulos')->group(function () {
         Route::get('/', [ModulosController::class, 'index']);
+        Route::get('/stats', [ModulosController::class, 'stats']);
         Route::get('/{modulo}', [ModulosController::class, 'show']);
         Route::post('/', [ModulosController::class, 'store']);
         Route::put('/{modulo}', [ModulosController::class, 'update']);

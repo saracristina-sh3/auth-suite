@@ -13,15 +13,13 @@
       </template>
       <template #content>
         <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 mt-4">
-          <Sh3Card v-for="modulo in modulos" :key="modulo.id" class="transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+          <Sh3Card v-for="modulo in modulos" :key="modulo.id"
+            class="transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
             <template #header>
-              <div class="bg-gradient-to-br from-selenium-600 to-selenium-800 h-[120px] flex items-center justify-center rounded-t-lg">
-                <img
-                  v-if="modulo.icone"
-                  :src="`/src/assets/icons/${modulo.icone}.svg`"
-                  :alt="`Ícone ${modulo.nome}`"
-                  class="w-20 h-20 object-contain brightness-0 invert"
-                />
+              <div
+                class="bg-gradient-to-br from-selenium-600 to-selenium-800 h-[120px] flex items-center justify-center rounded-t-lg">
+                <img v-if="modulo.icone" :src="`/src/assets/icons/${modulo.icone}.svg`" :alt="`Ícone ${modulo.nome}`"
+                  class="w-20 h-20 object-contain brightness-0 invert" />
                 <i v-else class="pi pi-box text-5xl text-white"></i>
               </div>
             </template>
@@ -30,10 +28,7 @@
             <template #content>
               <div class="flex align-items-center justify-content-between mt-3">
                 <span class="text-sm text-muted-foreground">Status:</span>
-                <Sh3ToggleSwitch
-                  v-model="modulo.ativo"
-                  @change="$emit('toggle-modulo-status', modulo)"
-                />
+                <Sh3ToggleSwitch v-model="modulo.ativo" @change="$emit('toggle-modulo-status', modulo)" />
               </div>
             </template>
           </Sh3Card>

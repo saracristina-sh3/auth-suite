@@ -41,6 +41,13 @@ export const autarquiaService = {
     return response.data.data
   },
 
+  async getModulosStats(id: number): Promise<{ total: number; ativos: number; inativos: number }> {
+    const response = await api.get<{ data: { total: number; ativos: number; inativos: number } }>(
+      `/autarquias/${id}/modulos/stats`
+    )
+    return response.data.data
+  },
+
   async getUsers(id: number): Promise<any[]> {
     const response = await api.get(`/autarquias/${id}/usuarios`)
     return response.data.data
@@ -49,5 +56,10 @@ export const autarquiaService = {
   // Alias para compatibilidade
   async getUsuarios(id: number): Promise<any[]> {
     return this.getUsers(id)
+  },
+
+  async getStats(): Promise<{ total: number; ativas: number; inativas: number }> {
+    const response = await api.get<{ data: { total: number; ativas: number; inativas: number } }>('/autarquias/stats')
+    return response.data.data
   },
 }

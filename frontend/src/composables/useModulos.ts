@@ -74,13 +74,13 @@ interface ModuloWithUI extends Modulo {
 }
 
 const modulos = ref<ModuloWithUI[]>([])
-const loading = ref(true)
+const loadingModulos = ref(true)
 const error = ref<string | null>(null)
 
 export function useModulos() {
   const loadModulos = async () => {
     try {
-      loading.value = true
+      loadingModulos.value = true
       error.value = null
 
       // 🔍 Verificar se está em modo suporte PRIMEIRO
@@ -130,7 +130,7 @@ export function useModulos() {
 
       // Mapeia os módulos com ícones e rotas
       modulos.value = data
-        .filter(modulo => modulo.ativo) // Apenas módulos ativos
+        .filter(modulo => modulo.ativo)
         .map(modulo => ({
           ...modulo,
           icon: iconMap[modulo.icone || ''] || iconMap[modulo.nome] || 'pi pi-box',
@@ -146,7 +146,7 @@ export function useModulos() {
       console.error('❌ Erro ao carregar módulos:', err)
       modulos.value = []
     } finally {
-      loading.value = false
+      loadingModulos.value = false
     }
   }
 
@@ -156,7 +156,7 @@ export function useModulos() {
 
   return {
     modulos,
-    loading,
+    loadingModulos,
     error,
     reload: loadModulos
   }

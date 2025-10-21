@@ -1,80 +1,44 @@
 <template>
-  <Sh3Modal
-    v-model="isOpen"
-    title="Usuários da Autarquia"
-    :subtitle="autarquia?.nome"
-    icon="pi-users"
-  >
-    <!-- Corpo -->
+  <Sh3Modal v-model="isOpen" title="Usuários da Autarquia" :subtitle="autarquia?.nome" icon="pi-users">
     <div class="flex-1 overflow-y-auto">
-      <!-- Estado de carregamento -->
-      <Sh3LoadingState
-        v-if="loading"
-        message="Carregando usuários..."
-      />
+      <Sh3LoadingState v-if="loading" message="Carregando usuários..." />
 
-      <!-- Estado de erro -->
-      <Sh3ErrorState
-        v-else-if="error"
-        :message="error"
-        buttonLabel="Tentar novamente"
-        buttonIcon="pi pi-refresh"
-        @retry="loadUsers"
-      />
+      <Sh3ErrorState v-else-if="error" :message="error" buttonLabel="Tentar novamente" buttonIcon="pi pi-refresh"
+        @retry="loadUsers" />
 
-      <!-- Estado vazio -->
-      <Sh3EmptyState
-        v-else-if="users.length === 0"
-        icon="pi pi-users"
-        iconClass="text-muted-foreground"
-        title="Nenhum usuário vinculado"
-        description="Esta autarquia ainda não possui usuários vinculados."
-      />
+      <Sh3EmptyState v-else-if="users.length === 0" icon="pi pi-users" iconClass="text-muted-foreground"
+        title="Nenhum usuário vinculado" description="Esta autarquia ainda não possui usuários vinculados." />
 
-      <!-- Conteúdo principal -->
       <div v-else class="space-y-6">
-        <!-- Estatísticas -->
-        <Sh3StatsGrid
-          :stats="[
-            {
-              icon: 'pi pi-users',
-              label: 'Total de usuários',
-              value: users.length,
-              iconColor: 'text-primary'
-            },
-            {
-              icon: 'pi pi-check-circle',
-              label: 'Ativos',
-              value: activeUsersCount,
-              iconColor: 'text-success'
-            },
-            {
-              icon: 'pi pi-shield',
-              label: 'Administradores',
-              value: adminUsersCount,
-              iconColor: 'text-copper-500'
-            }
-          ]"
-        />
+        <Sh3StatsGrid :stats="[
+          {
+            icon: 'pi pi-users',
+            label: 'Total de usuários',
+            value: users.length,
+            iconColor: 'text-primary'
+          },
+          {
+            icon: 'pi pi-check-circle',
+            label: 'Ativos',
+            value: activeUsersCount,
+            iconColor: 'text-success'
+          },
+          {
+            icon: 'pi pi-shield',
+            label: 'Administradores',
+            value: adminUsersCount,
+            iconColor: 'text-copper-500'
+          }
+        ]" />
 
-        <!-- Tabela -->
-        <Sh3Table
-          :items="users"
-      :columns="userColumns" 
-          :paginated="true"
-          :rows="8"
-          dataKey="id"
-        >
+        <Sh3Table :items="users" :columns="userColumns" :paginated="true" :rows="8" dataKey="id">
         </Sh3Table>
       </div>
     </div>
 
-    <!-- Rodapé -->
     <template #footer>
-      <button
-        @click="close"
-        class="px-4 py-2 bg-transparent border border-border text-foreground rounded-md hover:bg-accent transition-colors"
-      >
+      <button @click="close"
+        class="px-4 py-2 bg-transparent border border-border text-foreground rounded-md hover:bg-accent transition-colors">
         Fechar
       </button>
     </template>
@@ -164,7 +128,7 @@ async function loadUsers() {
 
 
 const userConfig = useUserTableConfig(
-  { value: props.roles || [] } as any, 
+  { value: props.roles || [] } as any,
   { value: props.autarquias || [] } as any
 );
 const userColumns = userConfig.columns;

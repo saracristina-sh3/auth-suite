@@ -91,8 +91,8 @@ interface FieldConfig {
   optionLabel?: string
   optionValue?: string
   defaultValue?: any
-  multiple?: boolean      // Para multi-select
-  searchable?: boolean    // Para habilitar busca no multi-select
+  multiple?: boolean     
+  searchable?: boolean 
 }
 
 /**

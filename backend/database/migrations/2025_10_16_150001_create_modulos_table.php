@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('modulos', function (Blueprint $table) {
-            $table->id(); // Equivalente a SERIAL (auto-incremento)
+            $table->id();
             $table->string('nome', 255)->unique()->notNull();
             $table->text('descricao')->nullable();
-            $table->string('icone', 100)->nullable(); // Para armazenar ícone do módulo
+            $table->string('icone', 100)->nullable();
             $table->boolean('ativo')->default(true)->notNull();
-            $table->timestamps(); // created_at, updated_at
+            $table->timestamps();
 
             // Índices para otimização
             $table->index('nome');

@@ -288,4 +288,12 @@ export const userService = {
       throw error
     }
   },
+
+  /**
+   * Retorna estatísticas dos usuários
+   */
+  async getStats(): Promise<{ total: number; ativos: number; inativos: number; superadmins: number }> {
+    const response = await api.get<{ data: { total: number; ativos: number; inativos: number; superadmins: number } }>('/users/stats')
+    return response.data.data
+  },
 }

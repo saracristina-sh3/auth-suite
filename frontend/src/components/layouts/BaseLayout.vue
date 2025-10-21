@@ -1,18 +1,17 @@
 <template>
   <div class="min-h-screen flex flex-col bg-background">
     <!-- Header -->
-   <Sh3Header
-    title="Gerenciamento do Sistema"
-    icon="pi-building"
-    :user="user"
-    @notify="abrirNotificacoes"
-  >
-    <!-- Exemplo de personalização com slot -->
-    <template #actions>
-      <Sh3Button icon="pi pi-bell" variant="text" @click="abrirNotificacoes" />
-      <Sh3Button icon="pi pi-cog" variant="text" @click="abrirConfiguracoes" />
-    </template>
-  </Sh3Header>
+    <Sh3Header
+      :title="title"
+      :icon="icon"
+      :user="user"
+      @notify="abrirNotificacoes"
+    >
+      <template #actions>
+        <Sh3Button icon="pi pi-bell" variant="text" @click="abrirNotificacoes" />
+        <Sh3Button icon="pi pi-cog" variant="text" @click="abrirConfiguracoes" />
+      </template>
+    </Sh3Header>
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col items-center py-8 px-6">
@@ -34,6 +33,11 @@
 import Sh3Button from '@/components/common/Sh3Button.vue'
 import Sh3Card from '@/components/common/Sh3Card.vue'
 import Sh3Header from '@/components/layouts/HeaderLayout.vue'
+
+const props = defineProps<{
+  title?: string
+  icon?: string
+}>()
 
 const user = JSON.parse(localStorage.getItem('user_data') || '{}')
 const abrirNotificacoes = () => console.log('🔔 Notificações clicadas')

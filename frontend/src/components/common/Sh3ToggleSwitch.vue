@@ -6,14 +6,23 @@
     :disabled="disabled"
     @click="toggle"
     :class="[
-      'toggle-switch',
-      {
-        'toggle-switch--checked': modelValue,
-        'toggle-switch--disabled': disabled
-      }
+      'relative inline-block w-12 h-6 rounded-full border-none outline-none transition-all duration-200 ease-in-out',
+      disabled
+        ? modelValue
+          ? 'bg-primary opacity-60 cursor-not-allowed'
+          : 'bg-muted opacity-60 cursor-not-allowed'
+        : modelValue
+          ? 'bg-primary hover:bg-jade-600 cursor-pointer'
+          : 'bg-muted hover:bg-border cursor-pointer',
+      'focus-visible:shadow-[0_0_0_2px] focus-visible:shadow-primary/50'
     ]"
   >
-    <span class="toggle-switch__thumb"></span>
+    <span
+      :class="[
+        'absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ease-in-out shadow-[0_1px_3px_rgba(0,0,0,0.3)]',
+        modelValue ? 'left-[calc(100%-1rem-0.25rem)]' : 'left-1'
+      ]"
+    ></span>
   </button>
 </template>
 
@@ -40,55 +49,3 @@ const toggle = () => {
   }
 };
 </script>
-
-<style scoped>
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 3rem;
-  height: 1.5rem;
-  background-color: var(--surface-300);
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.toggle-switch:hover:not(.toggle-switch--disabled) {
-  background-color: var(--surface-400);
-}
-
-.toggle-switch--checked {
-  background-color: var(--primary-color);
-}
-
-.toggle-switch--checked:hover:not(.toggle-switch--disabled) {
-  background-color: var(--primary-600);
-}
-
-.toggle-switch--disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.toggle-switch__thumb {
-  position: absolute;
-  top: 0.25rem;
-  left: 0.25rem;
-  width: 1rem;
-  height: 1rem;
-  background-color: white;
-  border-radius: 50%;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.toggle-switch--checked .toggle-switch__thumb {
-  left: calc(100% - 1rem - 0.25rem);
-}
-
-.toggle-switch:focus-visible {
-  box-shadow: 0 0 0 2px var(--primary-color);
-}
-</style>

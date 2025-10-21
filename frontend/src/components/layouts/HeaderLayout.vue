@@ -1,7 +1,6 @@
 <template>
   <header class="background-grayscale shadow-sm sticky top-0 z-10 w-full border-b border-border">
-    <div class="max-w-4xl mx-auto flex justify-between items-center px-6 py-3">
-      <!-- Título e ícone -->
+    <div class="max-w-8xl mx-auto flex justify-between items-center px-6 py-3">
       <div class="flex items-center gap-3">
         <slot name="icon">
           <i v-if="icon" :class="['pi', icon, 'text-primary text-xl']"></i>
@@ -11,68 +10,39 @@
         </h1>
       </div>
 
-      <!-- Ações à direita -->
       <div class="flex items-center gap-4">
-        <!-- Botão de notificações -->
         <slot name="actions">
-          <Sh3Button
-            v-if="showNotifications"
-            icon="pi pi-bell"
-            variant="text"
-            aria-label="Notificações"
-            @click="$emit('notify')"
-          />
+          <Sh3Button v-if="showNotifications" icon="pi pi-bell" variant="text" aria-label="Notificações"
+            @click="$emit('notify')" />
         </slot>
 
-        <!-- Menu de usuário -->
         <slot name="user">
-          <div
-            v-if="user"
-            class="relative flex items-center gap-2 select-none"
-            ref="userMenuButton"
-            v-click-outside="closeUserMenu"
-          >
-            <!-- Avatar + informações -->
-            <button
-              @click="toggleUserMenu"
-              class="flex items-center gap-2 cursor-pointer hover:bg-accent rounded-lg px-2 py-1 transition-colors duration-150"
-            >
-              <Avatar
-                :label="userInitials"
-                shape="circle"
-                size="large"
-                class="bg-primary text-primary-foreground"
-              />
+          <div v-if="user" class="relative flex items-center gap-2 select-none" ref="userMenuButton"
+            v-click-outside="closeUserMenu">
+            <button @click="toggleUserMenu"
+              class="flex items-center gap-2 cursor-pointer hover:bg-accent rounded-lg px-2 py-1 transition-colors duration-150">
+              <Avatar :label="userInitials" shape="circle" size="large" class="bg-primary text-primary-foreground" />
               <div class="hidden sm:flex flex-col text-left">
                 <span class="font-medium text-foreground leading-tight">{{ user.name }}</span>
                 <small class="text-muted-foreground truncate max-w-[120px]">{{ user.email }}</small>
               </div>
-              <i
-                class="pi pi-angle-down text-muted-foreground transition-transform duration-200"
-                :class="{ 'rotate-180': isUserMenuOpen }"
-              ></i>
+              <i class="pi pi-angle-down text-muted-foreground transition-transform duration-200"
+                :class="{ 'rotate-180': isUserMenuOpen }"></i>
             </button>
 
-            <!-- Dropdown -->
             <transition name="fade">
-              <div
-                v-if="isUserMenuOpen"
-                class="absolute top-full right-0 mt-2 w-56 bg-popover rounded-lg shadow-lg border border-border py-1 z-20"
-              >
-                <button
-                  @click="goToProfile"
-                  class="flex items-center w-full px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors duration-150"
-                >
+              <div v-if="isUserMenuOpen"
+                class="absolute top-full right-0 mt-2 w-56 bg-popover rounded-lg shadow-lg border border-border py-1 z-20">
+                <button @click="goToProfile"
+                  class="flex items-center w-full px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors duration-150">
                   <i class="pi pi-user mr-3 text-muted-foreground"></i>
                   <span>Meu Perfil</span>
                 </button>
 
                 <div class="border-t border-border my-1"></div>
 
-                <button
-                  @click="logout"
-                  class="flex items-center w-full px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150"
-                >
+                <button @click="logout"
+                  class="flex items-center w-full px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150">
                   <i class="pi pi-sign-out mr-3"></i>
                   <span>Sair</span>
                 </button>
@@ -104,7 +74,6 @@ const router = useRouter()
 const isUserMenuOpen = ref(false)
 const userMenuButton = ref<HTMLElement>()
 
-/** Gera iniciais do usuário */
 const userInitials = computed(() => {
   const name = props.user?.name?.trim()
   if (!name) return '?'
@@ -116,7 +85,6 @@ const userInitials = computed(() => {
   return (first + last).toUpperCase() || '?'
 })
 
-/** Ações do menu */
 const toggleUserMenu = (event: Event) => {
   event.stopPropagation()
   isUserMenuOpen.value = !isUserMenuOpen.value
@@ -137,7 +105,6 @@ const logout = async () => {
   router.push('/login')
 }
 
-// Diretiva para detectar clique fora do componente
 type ClickOutsideElement = HTMLElement & {
   clickOutsideEvent?: (event: Event) => void
 }
@@ -145,12 +112,10 @@ type ClickOutsideElement = HTMLElement & {
 const vClickOutside = {
   beforeMount(el: ClickOutsideElement, binding: any) {
     el.clickOutsideEvent = (event: Event) => {
-      // Verifica se o clique foi fora do elemento
       if (!el.contains(event.target as Node)) {
         binding.value(event)
       }
     }
-    // Usa capture phase para garantir que o evento seja processado antes
     document.addEventListener('click', el.clickOutsideEvent, true)
   },
   unmounted(el: ClickOutsideElement) {
@@ -166,6 +131,7 @@ const vClickOutside = {
 .fade-leave-active {
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;

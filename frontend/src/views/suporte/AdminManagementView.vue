@@ -1,20 +1,17 @@
 <template>
-  <BaseLayout>
+  <BaseLayout title="Administração do Suporte" icon="pi pi-shield">
     <div class="contents min-h-screen w-full bg-background">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-foreground mb-1">Painel do suporte</h2>
         <p class="text-sm text-muted-foreground font-medium m-0">Área restrita - SH3 Suporte</p>
       </div>
- <Sh3Button
-           class="!px-3 !py-2 shadow-md flex items-center gap-2 text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-all duration-200"
 
-          v-if="activeTab === 1 || activeTab === 2"
-          @click="onNew"
-        >
-          <i class="pi pi-plus"> {{ activeTabLabel }} </i>
-        </Sh3Button>
+      <Sh3Button
+        class="!px-3 !py-2 shadow-md flex items-center gap-2 text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-all duration-200"
+        v-if="activeTab === 1 || activeTab === 2" @click="onNew">
+        <i class="pi pi-plus"> {{ activeTabLabel }} </i>
+      </Sh3Button>
 
-      <!-- Navegação das Abas -->
       <div class="flex gap-2 mb-4 border-b-2 border-border">
         <button v-for="(tab, index) in tabs" :key="index" :class="[
           'bg-transparent border-none px-5 py-3 font-medium cursor-pointer border-b-[3px] transition-all duration-200',
@@ -26,16 +23,14 @@
         </button>
       </div>
 
-      <!-- Conteúdo das Abas -->
       <div class="tabs-content">
         <component :is="currentTabComponent" :key="activeTab" :users="users" :autarquias="autarquias" :modulos="modulos"
           :support-context="supportContext" :selected-autarquia-id="selectedAutarquiaId" :message="message"
-          :message-class="messageClass" @edit="handleEdit" @delete="handleDelete"
-          @assume-context="handleAssumeContext" @exit-context="exitContext"
-          @toggle-modulo-status="toggleModuloStatus" @update:selected-autarquia-id="selectedAutarquiaId = $event" />
+          :message-class="messageClass" @edit="handleEdit" @delete="handleDelete" @assume-context="handleAssumeContext"
+          @exit-context="exitContext" @toggle-modulo-status="toggleModuloStatus"
+          @update:selected-autarquia-id="selectedAutarquiaId = $event" />
       </div>
 
-      <!-- Formulário genérico -->
       <Sh3Form ref="genericForm" :entityName="activeTabLabel" :fields="currentFields" @save="onSave" />
     </div>
   </BaseLayout>
@@ -58,7 +53,6 @@ import BaseLayout from "@/components/layouts/BaseLayout.vue";
 import Sh3Form from "@/components/common/Sh3Form.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
 
-// Import dos componentes de tab
 import DashboardTab from "./tabs/DashboardTab.vue";
 import UsersTab from "./tabs/UserTab.vue";
 import AutarquiasTab from "./tabs/autarquia/AutarquiasTab.vue";
@@ -72,7 +66,6 @@ const router = useRouter();
 const tabs = ['Dashboard', 'Usuários', 'Autarquias', 'Módulos', 'Liberações', 'Modo Suporte'];
 const activeTab = ref(0);
 
-// Composables
 const { showMessage, message, messageClass } = useNotification();
 const { loadUsers, loadAutarquias, loadModulos, loadRoles, users, autarquias, modulos, roles, loading } = useDataLoader(showMessage);
 const { onSave } = useSaveHandler(activeTab, showMessage, { loadUsers, loadAutarquias, loadModulos });
@@ -83,15 +76,12 @@ const {
   exitContext
 } = useSupportContext(autarquias, showMessage, router);
 
-// State
 const genericForm = ref()
 
-// Composables para configuração de tabelas
 const userConfig = useUserTableConfig(roles, autarquias);
 const autarquiaConfig = useAutarquiaTableConfig();
 const moduloConfig = useModuloTableConfig();
 
-// Computed
 const activeTabLabel = computed(() => {
   const labels = ["Dashboard", "Usuário", "Autarquia", "Módulo", "Liberação", "Suporte"];
   return labels[activeTab.value] || "Item";
@@ -110,7 +100,6 @@ const currentTabComponent = computed(() => {
   return components[activeTab.value] || UsersTab;
 });
 
-// Configuração de campos de formulário para cada entidade
 const currentFields = computed(() => {
   switch (activeTab.value) {
     case 1:
@@ -124,12 +113,10 @@ const currentFields = computed(() => {
   }
 });
 
-// Methods
 function setActiveTab(index: number) {
   activeTab.value = index;
   loadCurrentTab();
 }
-
 
 async function loadCurrentTab() {
   if (activeTab.value === 1) {
@@ -148,8 +135,6 @@ function onNew() {
   genericForm.value?.open();
 }
 
-
-// Event handlers para tabela
 async function handleEdit(item: any) {
   if (activeTab.value === 1 && item.id) {
     try {
@@ -197,10 +182,6 @@ async function handleDelete(item: any) {
   }
 }
 
-// Nota: Os handlers de view-users e view-modules foram movidos para AutarquiasTab.vue
-// Os modais agora são gerenciados diretamente pela tab de autarquias
-
-// Módulos Functions
 async function toggleModuloStatus(modulo: Modulo) {
   try {
     loading.value = true;
@@ -220,7 +201,6 @@ async function toggleModuloStatus(modulo: Modulo) {
   } catch (error: unknown) {
     console.error("❌ Erro ao alterar status do módulo:", error);
 
-    // Reverter o status em caso de erro
     modulo.ativo = !modulo.ativo;
 
     const errorMessage = (error as any).response?.data?.message || "Erro ao alterar status do módulo.";
@@ -230,7 +210,6 @@ async function toggleModuloStatus(modulo: Modulo) {
   }
 }
 
-// Lifecycle
 onMounted(async () => {
   await loadRoles();
   await loadAutarquias();

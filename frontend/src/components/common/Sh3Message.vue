@@ -1,8 +1,8 @@
 <template>
   <div
     v-if="visible"
-    class="sh3-message rounded-lg px-5 py-4 font-medium border shadow-sm mb-4 transition-all duration-300"
-    :class="[type]"
+    class="rounded-lg px-5 py-4 font-medium border shadow-sm mb-4 transition-all duration-300"
+    :class="messageClasses"
     role="alert"
   >
     <div class="flex items-center justify-between gap-4">
@@ -68,31 +68,18 @@ const iconClass = computed(() => {
       return 'pi pi-info-circle'
   }
 })
+
+// Classes de estilo baseadas no tipo usando Tailwind
+const messageClasses = computed(() => {
+  switch (props.type) {
+    case 'success':
+      return 'bg-jade-50 border-jade-600 text-jade-800'
+    case 'error':
+      return 'bg-ruby-50 border-ruby-600 text-ruby-800'
+    case 'warn':
+      return 'bg-sulfur-50 border-sulfur-600 text-sulfur-900'
+    default:
+      return 'bg-selenium-50 border-selenium-600 text-selenium-800'
+  }
+})
 </script>
-
-<style scoped>
-/* Cores específicas por tipo usando paleta SH3 */
-.sh3-message.info {
-  background-color: hsl(199 95% 94%);
-  border-color: hsl(var(--info));
-  color: hsl(199 89% 32%);
-}
-
-.sh3-message.success {
-  background-color: hsl(174 70% 94%);
-  border-color: hsl(var(--success));
-  color: hsl(174 64% 26%);
-}
-
-.sh3-message.error {
-  background-color: hsl(0 86% 94%);
-  border-color: hsl(var(--destructive));
-  color: hsl(0 84% 40%);
-}
-
-.sh3-message.warn {
-  background-color: hsl(48 96% 94%);
-  border-color: hsl(var(--warning));
-  color: hsl(48 96% 20%);
-}
-</style>

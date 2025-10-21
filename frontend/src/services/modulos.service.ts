@@ -13,6 +13,14 @@ export interface ModuloListResponse {
   data: Modulo[]
 }
 
+export interface ModuloStatsResponse {
+  data: {
+    total: number
+    ativos: number
+    inativos: number
+  }
+}
+
 export const moduloService = {
   async list(autarquiaId?: number): Promise<Modulo[]> {
     const params = autarquiaId ? { autarquia_id: autarquiaId } : {}
@@ -41,6 +49,11 @@ export const moduloService = {
 
   async getAutarquias(id: number): Promise<any[]> {
     const response = await api.get(`/modulos/${id}/autarquias`)
+    return response.data.data
+  },
+
+  async getStats(): Promise<{ total: number; ativos: number; inativos: number }> {
+    const response = await api.get<ModuloStatsResponse>('/modulos/stats')
     return response.data.data
   },
 }

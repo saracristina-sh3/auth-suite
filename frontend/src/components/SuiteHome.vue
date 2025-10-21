@@ -1,16 +1,14 @@
 <template>
-  <BaseLayout>
+  <BaseLayout title="Bem-vindo ao Auth Suite" icon="pi pi-home">
     <div class="p-4 md:p-8 flex flex-col items-center min-h-[90vh]">
-      <!-- User Info -->
       <div class="flex items-center justify-center">
-        <UsuarioCard />
+        <Sh3Welcome />
       </div>
 
-      <!-- Seletor de Autarquia -->
       <div class="mt-6 w-full max-w-[600px]" v-if="currentUser">
-        <!-- Quando usuário tem apenas 1 autarquia -->
         <div v-if="autarquias.length === 1" class="w-full animate-fade-in">
-          <div class="bg-gradient-to-br from-primary to-primary-hover rounded-xl p-6 text-primary-foreground shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+          <div
+            class="bg-gradient-to-br from-primary to-primary-hover rounded-xl p-6 text-primary-foreground shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
             <div class="flex items-center gap-3">
               <i class="pi pi-building text-4xl"></i>
               <div>
@@ -21,7 +19,6 @@
           </div>
         </div>
 
-        <!-- Quando usuário tem múltiplas autarquias -->
         <div v-else-if="autarquias.length > 1" class="w-full animate-fade-in">
           <div class="bg-card border-2 border-border rounded-xl p-6 shadow-sm">
             <div class="flex items-center gap-3 mb-4">
@@ -29,28 +26,22 @@
               <span class="text-lg font-semibold text-foreground">Selecione a Autarquia</span>
             </div>
 
-            <Sh3Select
-              :field="{
-                name: 'autarquia_ativa',
-                label: '',
-                type: 'select',
-                placeholder: 'Escolha uma autarquia para trabalhar',
-                options: autarquias,
-                optionLabel: 'nome',
-                optionValue: 'id'
-              }"
-              v-model="autarquiaAtivaId"
-              @update:modelValue="handleAutarquiaChange"
-              :disabled="changingAutarquia"
-            />
+            <Sh3Select :field="{
+              name: 'autarquia_ativa',
+              label: '',
+              type: 'select',
+              placeholder: 'Escolha uma autarquia para trabalhar',
+              options: autarquias,
+              optionLabel: 'nome',
+              optionValue: 'id'
+            }" v-model="autarquiaAtivaId" @update:modelValue="handleAutarquiaChange" :disabled="changingAutarquia" />
 
-            <!-- Loading durante mudança -->
-            <div v-if="changingAutarquia" class="mt-4 p-4 flex items-center justify-center bg-muted rounded-lg text-primary text-sm font-medium animate-pulse">
+            <div v-if="changingAutarquia"
+              class="mt-4 p-4 flex items-center justify-center bg-muted rounded-lg text-primary text-sm font-medium animate-pulse">
               <Sh3ProgressSpinner size="small" />
               <span class="ml-2">Alterando autarquia e recarregando módulos...</span>
             </div>
 
-            <!-- Info da autarquia ativa -->
             <div v-else-if="autarquiaAtiva" class="mt-4 pt-4 border-t border-border">
               <span class="flex items-center gap-2 text-success text-sm">
                 <i class="pi pi-check-circle text-base"></i>
@@ -60,13 +51,12 @@
           </div>
         </div>
 
-        <!-- Loading de autarquias -->
-        <div v-else-if="loadingAutarquias" class="w-full p-6 flex items-center justify-center text-muted-foreground text-sm">
+        <Sh3LoadingState v-else-if="loadingAutarquias"
+          class="w-full p-6 flex items-center justify-center text-muted-foreground text-sm">
           <Sh3ProgressSpinner size="small" />
           <span class="ml-2">Carregando autarquias...</span>
-        </div>
+        </Sh3LoadingState>
 
-        <!-- Sem autarquias -->
         <div v-else class="w-full">
           <Sh3Message severity="warn" :closable="false">
             Você não está vinculado a nenhuma autarquia. Entre em contato com o administrador.
@@ -74,38 +64,24 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex flex-col items-center justify-center p-12 text-center">
+      <Sh3LoadingState v-if="loadingModulos" class="w-full flex flex-col items-center justify-center mt-12">
+        <span class="text-muted-foreground mt-3">Carregando módulos...</span>
         <Sh3ProgressSpinner size="small" />
-        <p class="text-muted-foreground mt-3">Carregando módulos...</p>
-      </div>
+      </Sh3LoadingState>
 
-      <!-- Error State -->
-      <div v-else-if="error" class="flex flex-col items-center justify-center p-12 text-center max-w-[500px]">
-        <Sh3Message severity="error" :closable="false">
-          {{ error }}
-        </Sh3Message>
-        <Sh3Button label="Tentar novamente" icon="pi pi-refresh" @click="reload" class="mt-3" />
-      </div>
-
-      <!-- Empty State -->
-      <div v-else-if="modulos.length === 0" class="flex flex-col items-center justify-center p-16 text-center">
-        <i class="pi pi-box text-6xl text-muted-foreground mb-3"></i>
-        <h3 class="text-xl font-semibold text-muted-foreground">Nenhum módulo disponível</h3>
-        <p class="text-muted-foreground">
-          Sua autarquia ainda não possui módulos liberados.<br />
-          Entre em contato com o administrador do sistema.
-        </p>
-      </div>
+      <Sh3ErrorState v-else-if="!loadingModulos && error" :message="error" buttonLabel="Tentar novamente"
+        @retry="reload" />
+      <Sh3EmptyState v-else-if="modulos.length === 0" icon="pi pi-box" iconClass="text-muted-foreground"
+        title="Nenhum módulo disponível"
+        description="Sua autarquia ainda não possui módulos liberados. Entre em contato com o administrador do sistema.">
+        <Sh3Button label="Recarregar Módulos" icon="pi pi-refresh" @click="reload" />
+      </Sh3EmptyState>
 
       <!-- Modules Grid -->
       <div v-else class="grid gap-3 md:gap-4 mt-6 w-full max-w-6xl">
-        <Sh3Card
-          v-for="modulo in modulos"
-          :key="modulo.id"
+        <Sh3Card v-for="modulo in modulos" :key="modulo.id"
           class="cursor-pointer transition-all duration-300 hover:shadow-2xl border-1 surface-border"
-          @click="handleItemClick(modulo.route)"
-        >
+          @click="handleItemClick(modulo.route)">
           <template #content>
             <div class="flex flex-column align-items-center gap-3 text-center p-3">
               <div class="text-primary text-4xl">
@@ -129,7 +105,7 @@ import { useModulos } from '@/composables/useModulos'
 import { useNotification } from '@/composables/useNotification'
 import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
-import UsuarioCard from './usuario/UsuarioCard.vue'
+import Sh3Welcome from './common/Sh3Welcome.vue'
 import Sh3Select from './common/Sh3Select.vue'
 import Sh3Card from './common/Sh3Card.vue'
 import Sh3ProgressSpinner from './common/Sh3ProgressSpinner.vue'
@@ -137,8 +113,11 @@ import Sh3Message from './common/Sh3Message.vue'
 import Sh3Button from './common/Sh3Button.vue'
 import type { User } from '@/types/auth'
 import BaseLayout from './layouts/BaseLayout.vue'
+import Sh3LoadingState from './common/state/Sh3LoadingState.vue'
+import Sh3EmptyState from './common/state/Sh3EmptyState.vue'
+import Sh3ErrorState from './common/state/Sh3ErrorState.vue'
 
-const { modulos, loading, error, reload } = useModulos()
+const { modulos, loadingModulos, error, reload } = useModulos()
 const { showMessage } = useNotification()
 const router = useRouter()
 
@@ -212,7 +191,7 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
     // Mostrar mensagem de sucesso
     const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
     showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
-  } catch  {
+  } catch {
     showMessage('error', 'Erro ao alterar autarquia. Tente novamente.')
   } finally {
     changingAutarquia.value = false
@@ -284,12 +263,12 @@ watch(autarquiaAtivaId, (newId) => {
 </script>
 
 <style scoped>
-/* Animação customizada não disponível no Tailwind */
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

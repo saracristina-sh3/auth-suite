@@ -1,6 +1,5 @@
 <template>
   <div @tab-change="$emit('tab-change', $event)">
-    <!-- Painel de seleção de contexto de autarquia -->
     <Sh3Card v-if="!supportContext" class="mb-4">
       <template #title>
         <div class="flex align-items-center gap-2">
@@ -14,10 +13,9 @@
           as permissões
         </p>
         <div class="flex gap-3">
-          <Sh3Select 
-            :modelValue="selectedAutarquiaId" 
-            @update:modelValue="$emit('update:selected-autarquia-id', $event)"
-            :field="{
+          
+          <Sh3Select :modelValue="selectedAutarquiaId"
+            @update:modelValue="$emit('update:selected-autarquia-id', $event)" :field="{
               name: 'autarquia',
               label: 'Autarquia',
               type: 'select',
@@ -25,22 +23,14 @@
               optionLabel: 'nome',
               optionValue: 'id',
               options: autarquias,
-            }" 
-            class="flex-1" 
-          />
+            }" class="flex-1" />
 
-          <Sh3Button
-            label="Acessar"
-            icon="pi pi-sign-in"
-            variant="primary"
-            @click="handleAssumeClick"
-            :disabled="!selectedAutarquiaId"
-          />
+          <Sh3Button label="Acessar" icon="pi pi-sign-in" variant="primary" @click="handleAssumeClick"
+            :disabled="!selectedAutarquiaId" />
         </div>
       </template>
     </Sh3Card>
 
-    <!-- Barra de contexto ativo -->
     <Message v-else severity="warn" :closable="false" class="mb-4">
       <div class="flex align-items-center justify-content-between w-full">
         <div class="flex align-items-center gap-3">
@@ -50,18 +40,13 @@
             <span class="ml-2">{{ supportContext.autarquia.nome }}</span>
           </div>
         </div>
-        <Sh3Button 
-          label="Sair do Modo Suporte" 
-          icon="pi pi-sign-out" 
-          variant="warning" 
-          outlined
-          @click="$emit('exit-context')" 
-        />
+        <Sh3Button label="Sair do Modo Suporte" icon="pi pi-sign-out" variant="warning" outlined
+          @click="$emit('exit-context')" />
       </div>
     </Message>
 
-    <!-- Mensagem de feedback -->
-    <div v-if="message" :class="['mb-4 p-3 rounded-md text-white font-medium', messageClass === 'message-success' ? 'bg-success' : messageClass === 'message-error' ? 'bg-destructive' : 'bg-muted-foreground']">
+    <div v-if="message"
+      :class="['mb-4 p-3 rounded-md text-white font-medium', messageClass === 'message-success' ? 'bg-success' : messageClass === 'message-error' ? 'bg-destructive' : 'bg-muted-foreground']">
       {{ message }}
     </div>
   </div>

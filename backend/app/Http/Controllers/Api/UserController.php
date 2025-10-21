@@ -160,4 +160,26 @@ class UserController extends Controller
             'data' => $modulos,
         ]);
     }
+
+    /**
+     * Retorna estatísticas dos usuários
+     */
+    public function stats(): JsonResponse
+    {
+        $total = User::count();
+        $ativos = User::where('is_active', true)->count();
+        $inativos = User::where('is_active', false)->count();
+        $superadmins = User::where('is_superadmin', true)->count();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estatísticas de usuários recuperadas com sucesso.',
+            'data' => [
+                'total' => $total,
+                'ativos' => $ativos,
+                'inativos' => $inativos,
+                'superadmins' => $superadmins,
+            ],
+        ]);
+    }
 }

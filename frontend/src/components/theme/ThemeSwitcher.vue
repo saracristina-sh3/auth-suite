@@ -16,7 +16,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
-// Ativa o modo escuro globalmente no app
 onMounted(() => {
   document.documentElement.classList.add('dark')
 })
