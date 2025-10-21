@@ -397,25 +397,26 @@ onMounted(() => {
 }
 
 .error-message {
-  background: #fee;
-  color: #c00;
+  background: hsl(0 86% 97%);
+  color: hsl(var(--destructive));
   padding: 1rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
+  border: 1px solid hsl(var(--destructive) / 0.3);
 }
 
 .loading {
   text-align: center;
   padding: 2rem;
-  color: #666;
+  color: hsl(var(--muted-foreground));
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #999;
-  background: #f9f9f9;
-  border-radius: 0.5rem;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted));
+  border-radius: var(--radius);
 }
 
 .autarquias-grid {
@@ -426,20 +427,20 @@ onMounted(() => {
 }
 
 .autarquia-card {
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
   padding: 1.5rem;
-  background: white;
+  background: hsl(var(--card));
   transition: all 0.2s;
 }
 
 .autarquia-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
 }
 
 .autarquia-card.default {
-  border-color: #3b82f6;
-  background: #eff6ff;
+  border-color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.05);
 }
 
 .card-header {
@@ -448,13 +449,13 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .card-header h3 {
   margin: 0;
   font-size: 1.125rem;
-  color: #333;
+  color: hsl(var(--card-foreground));
 }
 
 .card-body {
@@ -469,11 +470,11 @@ onMounted(() => {
 
 .info-row .label {
   font-weight: 500;
-  color: #666;
+  color: hsl(var(--muted-foreground));
 }
 
 .info-row .value {
-  color: #333;
+  color: hsl(var(--foreground));
 }
 
 .card-actions {
@@ -491,18 +492,18 @@ onMounted(() => {
 }
 
 .badge-primary {
-  background: #3b82f6;
-  color: white;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
 }
 
 .badge-success {
-  background: #10b981;
-  color: white;
+  background: hsl(var(--success));
+  color: hsl(var(--success-foreground));
 }
 
 .badge-danger {
-  background: #ef4444;
-  color: white;
+  background: hsl(var(--destructive));
+  color: hsl(var(--destructive-foreground));
 }
 
 .editor-header {
@@ -511,10 +512,11 @@ onMounted(() => {
 
 .editor-header h3 {
   margin: 0 0 0.5rem 0;
+  color: hsl(var(--foreground));
 }
 
 .help-text {
-  color: #666;
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
 }
 
@@ -522,33 +524,35 @@ onMounted(() => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1.5rem;
-  background: white;
-  border-radius: 0.5rem;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .editor-table th,
 .editor-table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .editor-table th {
-  background: #f9fafb;
+  background: hsl(var(--muted));
   font-weight: 600;
-  color: #374151;
+  color: hsl(var(--foreground));
 }
 
 .editor-table tbody tr:hover {
-  background: #f9fafb;
+  background: hsl(var(--accent));
 }
 
 .role-select {
   padding: 0.25rem 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid hsl(var(--input-border));
   border-radius: 0.25rem;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 .editor-actions {
@@ -563,7 +567,7 @@ onMounted(() => {
 .btn-warning {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -575,12 +579,12 @@ onMounted(() => {
 }
 
 .btn-primary {
-  background: #3b82f6;
-  color: white;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #2563eb;
+  background: hsl(var(--primary-hover));
 }
 
 .btn-primary:disabled {
@@ -589,30 +593,30 @@ onMounted(() => {
 }
 
 .btn-secondary {
-  background: #6b7280;
-  color: white;
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
 }
 
 .btn-secondary:hover {
-  background: #4b5563;
+  background: hsl(var(--secondary-hover));
 }
 
 .btn-info {
-  background: #0ea5e9;
-  color: white;
+  background: hsl(var(--info));
+  color: hsl(var(--info-foreground));
 }
 
 .btn-info:hover {
-  background: #0284c7;
+  background: hsl(var(--info-hover));
 }
 
 .btn-warning {
-  background: #f59e0b;
-  color: white;
+  background: hsl(var(--warning));
+  color: hsl(var(--warning-foreground));
 }
 
 .btn-warning:hover {
-  background: #d97706;
+  background: hsl(var(--warning-hover));
 }
 
 .stats {
@@ -623,9 +627,9 @@ onMounted(() => {
 }
 
 .stat-card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
   padding: 1.5rem;
   text-align: center;
 }
@@ -633,12 +637,12 @@ onMounted(() => {
 .stat-value {
   font-size: 2rem;
   font-weight: bold;
-  color: #3b82f6;
+  color: hsl(var(--primary));
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  color: #666;
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
 }
 </style>

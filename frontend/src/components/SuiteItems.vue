@@ -26,10 +26,3 @@ defineEmits<{
   click: [event: MouseEvent]
 }>();
 </script>
-
-<style scoped>
-/* CSS mínimo apenas para transição suave */
-.card {
-  transition: all 0.3s ease;
-}
-</style>

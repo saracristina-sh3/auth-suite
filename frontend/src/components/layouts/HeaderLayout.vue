@@ -1,12 +1,12 @@
 <template>
-  <header class="bg-white shadow-sm sticky top-0 z-10 w-full">
+  <header class="bg-card shadow-sm sticky top-0 z-10 w-full border-b border-border">
     <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
       <!-- Título e ícone -->
       <div class="flex items-center gap-3">
         <slot name="icon">
           <i v-if="icon" :class="['pi', icon, 'text-primary text-xl']"></i>
         </slot>
-        <h1 class="font-semibold text-lg text-gray-700 truncate">
+        <h1 class="font-semibold text-lg text-card-foreground truncate">
           <slot name="title">{{ title }}</slot>
         </h1>
       </div>
@@ -18,8 +18,7 @@
           <Sh3Button
             v-if="showNotifications"
             icon="pi pi-bell"
-            text
-            rounded
+            variant="text"
             aria-label="Notificações"
             @click="$emit('notify')"
           />
@@ -36,20 +35,20 @@
             <!-- Avatar + informações -->
             <button
               @click="toggleUserMenu"
-              class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1 transition-colors duration-150"
+              class="flex items-center gap-2 cursor-pointer hover:bg-accent rounded-lg px-2 py-1 transition-colors duration-150"
             >
               <Avatar
                 :label="userInitials"
                 shape="circle"
                 size="large"
-                class="bg-primary text-white"
+                class="bg-primary text-primary-foreground"
               />
               <div class="hidden sm:flex flex-col text-left">
-                <span class="font-medium text-gray-800 leading-tight">{{ user.name }}</span>
-                <small class="text-gray-500 truncate max-w-[120px]">{{ user.email }}</small>
+                <span class="font-medium text-foreground leading-tight">{{ user.name }}</span>
+                <small class="text-muted-foreground truncate max-w-[120px]">{{ user.email }}</small>
               </div>
               <i
-                class="pi pi-angle-down text-gray-500 transition-transform duration-200"
+                class="pi pi-angle-down text-muted-foreground transition-transform duration-200"
                 :class="{ 'rotate-180': isUserMenuOpen }"
               ></i>
             </button>
@@ -58,21 +57,21 @@
             <transition name="fade">
               <div
                 v-if="isUserMenuOpen"
-                class="absolute top-full right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20"
+                class="absolute top-full right-0 mt-2 w-56 bg-popover rounded-lg shadow-lg border border-border py-1 z-20"
               >
                 <button
                   @click="goToProfile"
-                  class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150"
+                  class="flex items-center w-full px-4 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors duration-150"
                 >
-                  <i class="pi pi-user mr-3 text-gray-400"></i>
+                  <i class="pi pi-user mr-3 text-muted-foreground"></i>
                   <span>Meu Perfil</span>
                 </button>
 
-                <div class="border-t border-gray-200 my-1"></div>
+                <div class="border-t border-border my-1"></div>
 
                 <button
                   @click="logout"
-                  class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150"
+                  class="flex items-center w-full px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors duration-150"
                 >
                   <i class="pi pi-sign-out mr-3"></i>
                   <span>Sair</span>

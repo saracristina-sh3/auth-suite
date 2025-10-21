@@ -13,7 +13,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-background">
     <HeaderLayout
       title="Meu Perfil"
       icon="pi-user"
@@ -27,31 +27,31 @@ onMounted(() => {
           <div class="space-y-6">
             <!-- Informações Pessoais -->
             <div>
-              <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
+              <h2 class="text-xl font-semibold text-foreground mb-4 border-b border-border pb-2">
                 Informações Pessoais
               </h2>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Nome -->
                 <div class="flex flex-col gap-2">
-                  <label class="text-sm font-medium text-gray-600">Nome</label>
-                  <div class="p-3 bg-gray-50 rounded-md border border-gray-200">
+                  <label class="text-sm font-medium text-muted-foreground">Nome</label>
+                  <div class="p-3 bg-muted rounded-md border border-border text-foreground">
                     {{ user?.name || '-' }}
                   </div>
                 </div>
 
                 <!-- Email -->
                 <div class="flex flex-col gap-2">
-                  <label class="text-sm font-medium text-gray-600">Email</label>
-                  <div class="p-3 bg-gray-50 rounded-md border border-gray-200">
+                  <label class="text-sm font-medium text-muted-foreground">Email</label>
+                  <div class="p-3 bg-muted rounded-md border border-border text-foreground">
                     {{ user?.email || '-' }}
                   </div>
                 </div>
 
                 <!-- Autarquia -->
                 <div class="flex flex-col gap-2" v-if="user?.autarquia">
-                  <label class="text-sm font-medium text-gray-600">Autarquia</label>
-                  <div class="p-3 bg-gray-50 rounded-md border border-gray-200 flex items-center gap-2">
+                  <label class="text-sm font-medium text-muted-foreground">Autarquia</label>
+                  <div class="p-3 bg-muted rounded-md border border-border flex items-center gap-2 text-foreground">
                     <i class="pi pi-building text-primary"></i>
                     {{ user.autarquia.nome }}
                   </div>
@@ -59,9 +59,9 @@ onMounted(() => {
 
                 <!-- Tipo de Usuário -->
                 <div class="flex flex-col gap-2">
-                  <label class="text-sm font-medium text-gray-600">Tipo de Usuário</label>
-                  <div class="p-3 bg-gray-50 rounded-md border border-gray-200 flex items-center gap-2">
-                    <i :class="['pi', user?.is_superadmin ? 'pi-shield text-orange-500' : 'pi-user text-primary']"></i>
+                  <label class="text-sm font-medium text-muted-foreground">Tipo de Usuário</label>
+                  <div class="p-3 bg-muted rounded-md border border-border flex items-center gap-2 text-foreground">
+                    <i :class="['pi', user?.is_superadmin ? 'pi-shield text-copper-500' : 'pi-user text-primary']"></i>
                     {{ user?.is_superadmin ? 'Super Administrador' : 'Usuário' }}
                   </div>
                 </div>
@@ -69,8 +69,8 @@ onMounted(() => {
             </div>
 
             <!-- Ações futuras -->
-            <div class="pt-4 border-t">
-              <p class="text-sm text-gray-500 italic">
+            <div class="pt-4 border-t border-border">
+              <p class="text-sm text-muted-foreground italic">
                 Em breve você poderá editar suas informações de perfil.
               </p>
             </div>
@@ -80,17 +80,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.space-y-6 > * + * {
-  margin-top: 1.5rem;
-}
-
-.gap-6 {
-  gap: 1.5rem;
-}
-
-.gap-2 {
-  gap: 0.5rem;
-}
-</style>

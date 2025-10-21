@@ -1,30 +1,30 @@
 <template>
-  <div class="overflow-x-auto border border-gray-200 rounded-lg">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
+  <div class="overflow-x-auto border border-border rounded-lg">
+    <table class="min-w-full divide-y divide-border">
+      <thead class="bg-muted">
         <tr>
           <th
             v-for="col in columns"
             :key="col.field"
-            class="px-4 py-2 text-left text-sm font-semibold text-gray-700"
+            class="px-4 py-2 text-left text-sm font-semibold text-foreground"
           >
             {{ col.header }}
           </th>
-          <th v-if="actions?.length" class="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+          <th v-if="actions?.length" class="px-4 py-2 text-left text-sm font-semibold text-foreground">
             Ações
           </th>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-100">
+      <tbody class="bg-card divide-y divide-border">
         <tr
           v-for="item in paginatedItems"
           :key="item[dataKey]"
-          class="hover:bg-gray-50 transition-colors"
+          class="hover:bg-muted transition-colors"
         >
           <td
             v-for="col in columns"
             :key="col.field"
-            class="px-4 py-2 text-sm text-gray-800 whitespace-nowrap"
+            class="px-4 py-2 text-sm text-foreground whitespace-nowrap"
           >
             <slot :name="`column-${col.field}`" :data="item">
               <template v-if="col.type === 'boolean'">
@@ -62,7 +62,7 @@
         </tr>
 
         <tr v-if="!paginatedItems.length">
-          <td :colspan="columns.length + 1" class="text-center py-6 text-gray-500">
+          <td :colspan="columns.length + 1" class="text-center py-6 text-muted-foreground">
             Nenhum registro encontrado.
           </td>
         </tr>
@@ -72,9 +72,9 @@
     <!-- Paginação -->
     <div
       v-if="paginated"
-      class="flex justify-between items-center px-4 py-3 border-t border-gray-200 bg-gray-50"
+      class="flex justify-between items-center px-4 py-3 border-t border-border bg-muted"
     >
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-muted-foreground">
         Mostrando {{ start + 1 }}–{{ end }} de {{ items.length }}
       </div>
       <div class="flex gap-1">
@@ -83,10 +83,10 @@
           :key="page"
           @click="currentPage = page"
           :class="[
-            'px-3 py-1 rounded text-sm',
+            'px-3 py-1 rounded text-sm transition-colors',
             page === currentPage
-              ? 'bg-blue-600 text-white'
-              : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-100'
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-card border border-border text-foreground hover:bg-muted'
           ]"
         >
           {{ page }}

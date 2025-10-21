@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50">
+  <div class="min-h-screen flex flex-col bg-background">
     <!-- Header -->
    <Sh3Header
     title="Gerenciamento do Sistema"
@@ -9,8 +9,8 @@
   >
     <!-- Exemplo de personalização com slot -->
     <template #actions>
-      <Sh3Button icon="pi pi-bell" text rounded @click="abrirNotificacoes" />
-      <Sh3Button icon="pi pi-cog" text rounded @click="abrirConfiguracoes" />
+      <Sh3Button icon="pi pi-bell" variant="text" @click="abrirNotificacoes" />
+      <Sh3Button icon="pi pi-cog" variant="text" @click="abrirConfiguracoes" />
     </template>
   </Sh3Header>
 
@@ -24,7 +24,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-gray-400 text-sm py-4">
+    <footer class="text-center text-muted-foreground text-sm py-4 border-t border-border">
       v0.1.2023
     </footer>
   </div>

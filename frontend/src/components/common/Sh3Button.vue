@@ -6,14 +6,14 @@
     @click="$emit('click')"
   >
     <!-- Ícone antes do texto -->
-    <i v-if="icon && iconPosition === 'left'" :class="['pi', icon]" />
+    <i v-if="icon && iconPosition === 'left'" :class="['pi', icon, 'text-base']" />
 
     <!-- Label ou slot -->
     <span v-if="label">{{ label }}</span>
     <slot v-else></slot>
 
     <!-- Ícone depois do texto -->
-    <i v-if="icon && iconPosition === 'right'" :class="['pi', icon]" />
+    <i v-if="icon && iconPosition === 'right'" :class="['pi', icon, 'text-base']" />
   </button>
 </template>
 
@@ -66,9 +66,3 @@ const buttonClasses = computed(() => {
   return [base, variants[props.variant], disabledStyle];
 });
 </script>
-
-<style scoped>
-button i {
-  font-size: 1rem;
-}
-</style>

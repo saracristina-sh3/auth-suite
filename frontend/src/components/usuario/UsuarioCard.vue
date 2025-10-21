@@ -1,13 +1,13 @@
 <template>
-  <div class="usuario-card">
-    <Avatar 
-              :label="userInitials" 
-              shape="circle" 
-              size="large" 
-              class="bg-primary text-white" 
-            />
-    <div class="greeting">
-      <h2>Olá, <span class="username">{{ user.name }}</span>!</h2>
+  <div class="flex flex-col items-center mb-2">
+    <Avatar
+      :label="userInitials"
+      shape="circle"
+      size="large"
+      class="bg-primary text-primary-foreground font-semibold !w-[70px] !h-[70px] !text-3xl"
+    />
+    <div class="mt-3 text-xl text-foreground">
+      <h2>Olá, <span class="text-primary font-semibold">{{ user.name }}</span>!</h2>
     </div>
   </div>
 </template>
@@ -27,35 +27,3 @@ const userInitials = computed(() => {
     .toUpperCase()
 })
 </script>
-
-<style scoped>
-.usuario-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.avatar {
-  background-color: #2a8b8b;
-  color: white;
-  font-weight: 600;
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
-}
-
-.greeting {
-  margin-top: 0.8rem;
-  font-size: 1.2rem;
-}
-
-.username {
-  color: var(--color-primary, #007ad9);
-  font-weight: 600;
-}
-</style>

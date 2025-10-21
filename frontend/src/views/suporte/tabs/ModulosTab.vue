@@ -12,27 +12,27 @@
         pode ativar/desativar globalmente.
       </template>
       <template #content>
-        <div class="modulos-grid">
-          <Sh3Card v-for="modulo in modulos" :key="modulo.id" class="modulo-card">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 mt-4">
+          <Sh3Card v-for="modulo in modulos" :key="modulo.id" class="transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
             <template #header>
-              <div class="modulo-header">
-                <img 
-                  v-if="modulo.icone" 
+              <div class="bg-gradient-to-br from-selenium-600 to-selenium-800 h-[120px] flex items-center justify-center rounded-t-lg">
+                <img
+                  v-if="modulo.icone"
                   :src="`/src/assets/icons/${modulo.icone}.svg`"
-                  :alt="`Ícone ${modulo.nome}`" 
-                  class="modulo-icon-svg" 
+                  :alt="`Ícone ${modulo.nome}`"
+                  class="w-20 h-20 object-contain brightness-0 invert"
                 />
-                <i v-else class="pi pi-box modulo-icon"></i>
+                <i v-else class="pi pi-box text-5xl text-white"></i>
               </div>
             </template>
             <template #title>{{ modulo.nome }}</template>
             <template #subtitle>{{ modulo.descricao }}</template>
             <template #content>
               <div class="flex align-items-center justify-content-between mt-3">
-                <span class="text-sm text-gray-600">Status:</span>
-                <Sh3ToggleSwitch 
-                  v-model="modulo.ativo" 
-                  @change="$emit('toggle-modulo-status', modulo)" 
+                <span class="text-sm text-muted-foreground">Status:</span>
+                <Sh3ToggleSwitch
+                  v-model="modulo.ativo"
+                  @change="$emit('toggle-modulo-status', modulo)"
                 />
               </div>
             </template>
@@ -58,42 +58,3 @@ defineEmits<{
   'toggle-modulo-status': [modulo: Modulo];
 }>();
 </script>
-
-<style scoped>
-.modulos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.modulo-card {
-  transition: all 0.3s ease;
-}
-
-.modulo-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.modulo-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px 8px 0 0;
-}
-
-.modulo-icon {
-  font-size: 3rem;
-  color: white;
-}
-
-.modulo-icon-svg {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-}
-</style>

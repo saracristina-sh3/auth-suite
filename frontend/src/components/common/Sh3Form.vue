@@ -1,10 +1,10 @@
 <template>
   <transition name="fade">
-    <div v-if="isOpen" class="modal-overlay" @click.self="close">
-      <div class="modal-content" :style="{ width: dialogWidth }">
-        <header class="modal-header">
-          <h2>{{ editingItem ? `Editar ${entityName}` : `Novo ${entityName}` }}</h2>
-          <button class="close-btn" @click="close">×</button>
+    <div v-if="isOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" @click.self="close">
+      <div class="bg-card text-card-foreground rounded-[var(--radius)] max-w-[90%] p-6 shadow-2xl" :style="{ width: dialogWidth }">
+        <header class="flex justify-between items-center border-b border-border mb-4 pb-3">
+          <h2 class="text-card-foreground text-xl font-semibold">{{ editingItem ? `Editar ${entityName}` : `Novo ${entityName}` }}</h2>
+          <button class="bg-transparent border-none text-2xl cursor-pointer text-muted-foreground transition-colors duration-200 hover:text-foreground" @click="close">×</button>
         </header>
 
         <form @submit.prevent="save" class="p-fluid modal-body">
@@ -60,9 +60,9 @@
             </template>
           </div>
 
-          <footer class="modal-footer">
-            <button type="button" class="btn-cancel" @click="close">Cancelar</button>
-            <button type="submit" class="btn-save">
+          <footer class="flex justify-end gap-4 mt-4 pt-4 border-t border-border">
+            <button type="button" class="bg-transparent border border-border text-foreground px-4 py-2 rounded-[var(--radius)] cursor-pointer transition-all duration-200 hover:bg-accent hover:border-border" @click="close">Cancelar</button>
+            <button type="submit" class="bg-primary text-primary-foreground border-none px-4 py-2 rounded-[var(--radius)] cursor-pointer transition-all duration-200 hover:bg-primary-hover">
               {{ editingItem ? 'Atualizar' : 'Criar' }}
             </button>
           </footer>
@@ -222,84 +222,11 @@ defineExpose({
 </script>
 
 <style scoped>
+/* Transições Vue necessárias */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.2s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
-}
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal-content {
-  background: hsl(var(--card));
-  color: hsl(var(--card-foreground));
-  border-radius: var(--radius);
-  max-width: 90%;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-xl);
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid hsl(var(--border));
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-}
-.modal-header h2 {
-  color: hsl(var(--card-foreground));
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: hsl(var(--muted-foreground));
-  transition: color 0.2s;
-}
-.close-btn:hover {
-  color: hsl(var(--foreground));
-}
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid hsl(var(--border));
-}
-.btn-cancel {
-  background: transparent;
-  border: 1px solid hsl(var(--border));
-  color: hsl(var(--foreground));
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-cancel:hover {
-  background: hsl(var(--accent));
-  border-color: hsl(var(--border));
-}
-.btn-save {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.btn-save:hover {
-  background: hsl(var(--primary-hover));
 }
 </style>

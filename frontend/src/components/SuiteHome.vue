@@ -1,32 +1,32 @@
 <template>
   <BaseLayout>
-    <div class="suite-container">
+    <div class="p-4 md:p-8 flex flex-col items-center min-h-[90vh]">
       <!-- User Info -->
-      <div class="user-info">
+      <div class="flex items-center justify-center">
         <UsuarioCard />
       </div>
 
       <!-- Seletor de Autarquia -->
-      <div class="autarquia-selector" v-if="currentUser">
+      <div class="mt-6 w-full max-w-[600px]" v-if="currentUser">
         <!-- Quando usuário tem apenas 1 autarquia -->
-        <div v-if="autarquias.length === 1" class="autarquia-single">
-          <div class="autarquia-card-single">
-            <div class="flex align-items-center gap-3">
-              <i class="pi pi-building icon-autarquia"></i>
+        <div v-if="autarquias.length === 1" class="w-full animate-fade-in">
+          <div class="bg-gradient-to-br from-primary to-primary-hover rounded-xl p-6 text-primary-foreground shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+            <div class="flex items-center gap-3">
+              <i class="pi pi-building text-4xl"></i>
               <div>
-                <p class="label-autarquia">Autarquia</p>
-                <p class="nome-autarquia">{{ autarquias[0]?.nome }}</p>
+                <p class="text-sm opacity-90 mb-1 font-medium uppercase tracking-wide">Autarquia</p>
+                <p class="text-2xl font-bold leading-tight">{{ autarquias[0]?.nome }}</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Quando usuário tem múltiplas autarquias -->
-        <div v-else-if="autarquias.length > 1" class="autarquia-multiple">
-          <div class="autarquia-selector-card">
-            <div class="selector-header">
-              <i class="pi pi-building icon-autarquia"></i>
-              <span class="selector-title">Selecione a Autarquia</span>
+        <div v-else-if="autarquias.length > 1" class="w-full animate-fade-in">
+          <div class="bg-card border-2 border-border rounded-xl p-6 shadow-sm">
+            <div class="flex items-center gap-3 mb-4">
+              <i class="pi pi-building text-3xl text-primary"></i>
+              <span class="text-lg font-semibold text-foreground">Selecione a Autarquia</span>
             </div>
 
             <Sh3Select
@@ -45,15 +45,15 @@
             />
 
             <!-- Loading durante mudança -->
-            <div v-if="changingAutarquia" class="autarquia-changing-feedback">
+            <div v-if="changingAutarquia" class="mt-4 p-4 flex items-center justify-center bg-muted rounded-lg text-primary text-sm font-medium animate-pulse">
               <Sh3ProgressSpinner size="small" />
               <span class="ml-2">Alterando autarquia e recarregando módulos...</span>
             </div>
 
             <!-- Info da autarquia ativa -->
-            <div v-else-if="autarquiaAtiva" class="autarquia-info-footer">
-              <span class="info-text">
-                <i class="pi pi-check-circle"></i>
+            <div v-else-if="autarquiaAtiva" class="mt-4 pt-4 border-t border-border">
+              <span class="flex items-center gap-2 text-success text-sm">
+                <i class="pi pi-check-circle text-base"></i>
                 Trabalhando em: <strong>{{ autarquiaAtiva.nome }}</strong>
               </span>
             </div>
@@ -61,13 +61,13 @@
         </div>
 
         <!-- Loading de autarquias -->
-        <div v-else-if="loadingAutarquias" class="autarquia-loading">
-          <ProgressSpinner size="small" />
+        <div v-else-if="loadingAutarquias" class="w-full p-6 flex items-center justify-center text-muted-foreground text-sm">
+          <Sh3ProgressSpinner size="small" />
           <span class="ml-2">Carregando autarquias...</span>
         </div>
 
         <!-- Sem autarquias -->
-        <div v-else class="autarquia-empty">
+        <div v-else class="w-full">
           <Sh3Message severity="warn" :closable="false">
             Você não está vinculado a nenhuma autarquia. Entre em contato com o administrador.
           </Sh3Message>
@@ -75,13 +75,13 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="loading-container">
+      <div v-if="loading" class="flex flex-col items-center justify-center p-12 text-center">
         <Sh3ProgressSpinner size="small" />
-        <p class="text-color-secondary mt-3">Carregando módulos...</p>
+        <p class="text-muted-foreground mt-3">Carregando módulos...</p>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="error-container">
+      <div v-else-if="error" class="flex flex-col items-center justify-center p-12 text-center max-w-[500px]">
         <Sh3Message severity="error" :closable="false">
           {{ error }}
         </Sh3Message>
@@ -89,10 +89,10 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="modulos.length === 0" class="empty-container">
-        <i class="pi pi-box text-6xl text-color-secondary mb-3"></i>
-        <h3 class="text-xl font-semibold text-color-secondary">Nenhum módulo disponível</h3>
-        <p class="text-color-secondary">
+      <div v-else-if="modulos.length === 0" class="flex flex-col items-center justify-center p-16 text-center">
+        <i class="pi pi-box text-6xl text-muted-foreground mb-3"></i>
+        <h3 class="text-xl font-semibold text-muted-foreground">Nenhum módulo disponível</h3>
+        <p class="text-muted-foreground">
           Sua autarquia ainda não possui módulos liberados.<br />
           Entre em contato com o administrador do sistema.
         </p>
@@ -212,7 +212,7 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
     // Mostrar mensagem de sucesso
     const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
     showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
-  } catch (err) {
+  } catch  {
     showMessage('error', 'Erro ao alterar autarquia. Tente novamente.')
   } finally {
     changingAutarquia.value = false
@@ -284,209 +284,7 @@ watch(autarquiaAtivaId, (newId) => {
 </script>
 
 <style scoped>
-.suite-container {
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 90vh;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Seletor de Autarquia */
-.autarquia-selector {
-  margin-top: 1.5rem;
-  width: 100%;
-  max-width: 600px;
-}
-
-/* Autarquia Única */
-.autarquia-single {
-  width: 100%;
-}
-
-.autarquia-card-single {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
-  padding: 1.5rem;
-  color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  transition: transform 0.2s;
-}
-
-.autarquia-card-single:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
-
-.autarquia-card-single .icon-autarquia {
-  font-size: 2.5rem;
-}
-
-.autarquia-card-single .label-autarquia {
-  font-size: 0.875rem;
-  opacity: 0.9;
-  margin: 0 0 0.25rem 0;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.autarquia-card-single .nome-autarquia {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-}
-
-/* Múltiplas Autarquias */
-.autarquia-multiple {
-  width: 100%;
-}
-
-.autarquia-selector-card {
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.selector-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.selector-header .icon-autarquia {
-  font-size: 1.75rem;
-  color: #667eea;
-}
-
-.selector-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #374151;
-}
-
-.autarquia-info-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.info-text {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #10b981;
-  font-size: 0.875rem;
-}
-
-.info-text i {
-  font-size: 1rem;
-}
-
-/* Feedback durante mudança de autarquia */
-.autarquia-changing-feedback {
-  margin-top: 1rem;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f3f4f6;
-  border-radius: 8px;
-  color: #667eea;
-  font-size: 0.875rem;
-  font-weight: 500;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-/* Loading e Empty States */
-.autarquia-loading,
-.autarquia-empty {
-  width: 100%;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
-  font-size: 0.875rem;
-}
-
-.autarquia-empty {
-  padding: 0;
-}
-
-/* Estados de Loading/Error/Empty */
-.loading-container,
-.error-container,
-.empty-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1rem;
-  text-align: center;
-}
-
-.error-container {
-  max-width: 500px;
-}
-
-.empty-container {
-  padding: 4rem 1rem;
-}
-
-/* Grid de Módulos */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .suite-container {
-    padding: 1rem 0.5rem;
-  }
-
-  .autarquia-selector {
-    max-width: 100%;
-  }
-
-  .autarquia-card-single {
-    padding: 1.25rem;
-  }
-
-  .autarquia-card-single .nome-autarquia {
-    font-size: 1.25rem;
-  }
-
-  .selector-title {
-    font-size: 1rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Animações */
+/* Animação customizada não disponível no Tailwind */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -498,8 +296,7 @@ watch(autarquiaAtivaId, (newId) => {
   }
 }
 
-.autarquia-single,
-.autarquia-multiple {
+.animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
 </style>

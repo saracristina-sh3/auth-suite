@@ -61,7 +61,7 @@
     </Message>
 
     <!-- Mensagem de feedback -->
-    <div v-if="message" :class="['message', messageClass]">
+    <div v-if="message" :class="['mb-4 p-3 rounded-md text-white font-medium', messageClass === 'message-success' ? 'bg-success' : messageClass === 'message-error' ? 'bg-destructive' : 'bg-muted-foreground']">
       {{ message }}
     </div>
   </div>
@@ -96,25 +96,3 @@ function handleAssumeClick() {
   emit('assume-context');
 }
 </script>
-
-<style scoped>
-.message {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  color: white;
-  font-weight: 500;
-}
-
-.message-success {
-  background-color: #16a34a;
-}
-
-.message-error {
-  background-color: #dc2626;
-}
-
-.message-info {
-  background-color: #6b7280;
-}
-</style>

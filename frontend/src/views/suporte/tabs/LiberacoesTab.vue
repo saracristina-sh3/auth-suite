@@ -7,7 +7,7 @@
         (contratos/planos)
       </template>
       <template #content>
-        <p class="text-center text-gray-500 my-5">
+        <p class="text-center text-muted-foreground my-5">
           Interface em desenvolvimento...
         </p>
       </template>

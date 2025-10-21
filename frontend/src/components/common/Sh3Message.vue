@@ -1,15 +1,15 @@
 <template>
   <div
     v-if="visible"
-    class="sh3-message"
+    class="sh3-message rounded-lg px-5 py-4 font-medium border shadow-sm mb-4 transition-all duration-300"
     :class="[type]"
     role="alert"
   >
-    <div class="sh3-message-content">
+    <div class="flex items-center justify-between gap-4">
       <!-- Ícone (automático conforme o tipo) -->
-      <div class="left">
-        <i :class="iconClass" class="icon"></i>
-        <div class="text">
+      <div class="flex items-center gap-3">
+        <i :class="iconClass" class="text-2xl"></i>
+        <div>
           <slot />
         </div>
       </div>
@@ -17,7 +17,7 @@
       <!-- Botão de fechar (opcional) -->
       <button
         v-if="closable"
-        class="close-btn"
+        class="bg-transparent border-none text-inherit text-xl cursor-pointer px-2 py-1 transition-opacity duration-200 hover:opacity-70"
         @click="closeMessage"
         aria-label="Fechar"
       >
@@ -71,34 +71,7 @@ const iconClass = computed(() => {
 </script>
 
 <style scoped>
-.sh3-message {
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-  font-weight: 500;
-  border: 1px solid;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-}
-
-.sh3-message-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.icon {
-  font-size: 1.5rem;
-}
-
-/* Cores por tipo usando paleta SH3 */
+/* Cores específicas por tipo usando paleta SH3 */
 .sh3-message.info {
   background-color: hsl(199 95% 94%);
   border-color: hsl(var(--info));
@@ -121,19 +94,5 @@ const iconClass = computed(() => {
   background-color: hsl(48 96% 94%);
   border-color: hsl(var(--warning));
   color: hsl(48 96% 20%);
-}
-
-.close-btn {
-  background: transparent;
-  border: none;
-  color: inherit;
-  font-size: 1.25rem;
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  transition: opacity 0.2s ease;
-}
-
-.close-btn:hover {
-  opacity: 0.7;
 }
 </style>

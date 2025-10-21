@@ -40,18 +40,7 @@ import Sh3Table from '@/components/common/Sh3Table.vue'
 import type { ColumnConfig } from '@/types/columnTypes'
 import type { ActionConfig } from '@/types/actionTypes'
 
-interface Props {
-  title: string
-  items: any[]
-  columns: ColumnConfig[]
-  actions?: ActionConfig[]
-  dataKey?: string
-  rows?: number
-  loading?: boolean
-  actionsColumnStyle?: string
-}
-
-const props = withDefaults(
+withDefaults(
   defineProps<{
     title?: string
     items: any[]
@@ -69,18 +58,10 @@ const props = withDefaults(
   }
 )
 
-
-const emit = defineEmits<{
+defineEmits<{
   edit: [item: any]
   delete: [item: any]
   viewUsers: [item: any]
   viewModules: [item: any]
 }>()
 </script>
-
-<style scoped>
-/* Opcional: leve estilo de espaçamento */
-.w-full {
-  width: 100%;
-}
-</style>

@@ -1,23 +1,31 @@
 <template>
   <BaseLayout>
-    <div class="admin-container">
-      <div class="admin-header">
+    <div class="contents min-h-screen w-full bg-background">
+      <div class="flex justify-between items-center mb-6">
         <div>
-          <h2 class="admin-title">Painel do suporte</h2>
-          <p class="admin-subtitle">Área restrita - SH3 Suporte</p>
+          <h2 class="text-2xl font-bold text-foreground mb-1">Painel do suporte</h2>
+          <p class="text-sm text-muted-foreground font-medium m-0">Área restrita - SH3 Suporte</p>
         </div>
-        <!-- Botão de criar apenas para Usuários e Autarquias -->
-        <Sh3Button v-if="activeTab === 0 || activeTab === 1" @click="onNew">
-          + {{ activeTabLabel }}
+        <!-- Botão flutuante fixo no canto inferior direito -->
+        <Sh3Button
+          v-if="activeTab === 1 || activeTab === 2"
+          @click="onNew"
+        >
+          <i class="pi pi-plus">+ {{ activeTabLabel }} </i>
         </Sh3Button>
       </div>
 
       <!-- Navegação das Abas -->
-      <div class="tabs-nav">
-        <button 
-          v-for="(tab, index) in tabs" 
-          :key="index" 
-          :class="['tab-button', { active: activeTab === index }]"
+      <div class="flex gap-2 mb-4 border-b-2 border-border">
+        <button
+          v-for="(tab, index) in tabs"
+          :key="index"
+          :class="[
+            'bg-transparent border-none px-5 py-3 font-medium cursor-pointer border-b-[3px] transition-all duration-200',
+            activeTab === index
+              ? 'text-primary border-b-primary'
+              : 'text-muted-foreground border-b-transparent hover:text-foreground'
+          ]"
           @click="setActiveTab(index)"
         >
           {{ tab }}
@@ -76,16 +84,17 @@ import Sh3Form from "@/components/common/Sh3Form.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
 
 // Import dos componentes de tab
-import UsersTab from "@/components/support/tabs/UserTab.vue";
-import AutarquiasTab from "@/components/support/tabs/AutarquiasTab.vue";
-import ModulosTab from "@/components/support/tabs/ModulosTab.vue";
-import LiberacoesTab from "@/components/support/tabs/LiberacoesTab.vue";
-import SupportContextTab from "@/components/support/tabs/SupportContextTab.vue";
+import DashboardTab from "./tabs/DashboardTab.vue";
+import UsersTab from "./tabs/UserTab.vue";
+import AutarquiasTab from "./tabs/AutarquiasTab.vue";
+import ModulosTab from "./tabs/ModulosTab.vue";
+import LiberacoesTab from "./tabs/LiberacoesTab.vue";
+import SupportContextTab from "./tabs/SupportContextTab.vue";
 
 import type {  Modulo } from "@/types/auth";
 
 const router = useRouter();
-const tabs = ['Usuários', 'Autarquias', 'Módulos', 'Liberações', 'Modo Suporte'];
+const tabs = ['Dashboard', 'Usuários', 'Autarquias', 'Módulos', 'Liberações', 'Modo Suporte'];
 const activeTab = ref(0);
 
 // Composables
@@ -116,6 +125,7 @@ const activeTabLabel = computed(() => {
 
 const currentTabComponent = computed(() => {
   const components = [
+    DashboardTab,
     UsersTab,
     AutarquiasTab,
     ModulosTab,
@@ -249,7 +259,6 @@ async function toggleModuloStatus(modulo: Modulo) {
   }
 }
 
-
 // Lifecycle
 onMounted(async () => {
   await loadRoles();
@@ -257,80 +266,3 @@ onMounted(async () => {
   await loadCurrentTab();
 });
 </script>
-
-<style scoped>
-.admin-container {
-  display: contents;
-  min-height: 100vh;
-  width: 100%;
-  background: var(--color-background);
-}
-
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.admin-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1f2937;
-  margin-bottom: 0.25rem;
-}
-
-.admin-subtitle {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-  margin: 0;
-}
-
-.tabs-nav {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.tab-button {
-  background: none;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  font-weight: 500;
-  color: #6b7280;
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.tab-button:hover {
-  color: #111827;
-}
-
-.tab-button.active {
-  color: #2563eb;
-  border-color: #2563eb;
-}
-
-.message {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  color: white;
-  font-weight: 500;
-}
-
-.message-success {
-  background-color: #16a34a;
-}
-
-.message-error {
-  background-color: #dc2626;
-}
-
-.message-info {
-  background-color: #6b7280;
-}
-</style>
