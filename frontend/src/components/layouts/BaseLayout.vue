@@ -6,7 +6,6 @@
     icon="pi-building"
     :user="user"
     @notify="abrirNotificacoes"
-    @userClick="abrirMenuUsuario"
   >
     <!-- Exemplo de personalização com slot -->
     <template #actions>
@@ -38,6 +37,5 @@ import Sh3Header from '@/components/layouts/HeaderLayout.vue'
 
 const user = JSON.parse(localStorage.getItem('user_data') || '{}')
 const abrirNotificacoes = () => console.log('🔔 Notificações clicadas')
-const abrirMenuUsuario = () => console.log('👤 Menu do usuário aberto')
 const abrirConfiguracoes = () => console.log('⚙️ Configurações abertas')
 </script>
