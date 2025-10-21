@@ -98,29 +98,29 @@ const iconClass = computed(() => {
   font-size: 1.5rem;
 }
 
-/* Cores por tipo */
+/* Cores por tipo usando paleta SH3 */
 .sh3-message.info {
-  background-color: #e0f2fe;
-  border-color: #38bdf8;
-  color: #0369a1;
+  background-color: hsl(199 95% 94%);
+  border-color: hsl(var(--info));
+  color: hsl(199 89% 32%);
 }
 
 .sh3-message.success {
-  background-color: #dcfce7;
-  border-color: #22c55e;
-  color: #166534;
+  background-color: hsl(174 70% 94%);
+  border-color: hsl(var(--success));
+  color: hsl(174 64% 26%);
 }
 
 .sh3-message.error {
-  background-color: #fee2e2;
-  border-color: #ef4444;
-  color: #991b1b;
+  background-color: hsl(0 86% 94%);
+  border-color: hsl(var(--destructive));
+  color: hsl(0 84% 40%);
 }
 
 .sh3-message.warn {
-  background-color: #fef9c3;
-  border-color: #facc15;
-  color: #92400e;
+  background-color: hsl(48 96% 94%);
+  border-color: hsl(var(--warning));
+  color: hsl(48 96% 20%);
 }
 
 .close-btn {

@@ -20,15 +20,15 @@ const props = defineProps<{
 const severityClass = computed(() => {
   switch (props.severity) {
     case 'success':
-      return 'bg-green-100 text-green-800'
+      return 'bg-jade-100 text-jade-800 border border-jade-300'
     case 'info':
-      return 'bg-blue-100 text-blue-800'
+      return 'bg-selenium-100 text-selenium-800 border border-selenium-300'
     case 'warn':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'bg-sulfur-100 text-sulfur-800 border border-sulfur-300'
     case 'danger':
-      return 'bg-red-100 text-red-800'
+      return 'bg-ruby-100 text-ruby-800 border border-ruby-300'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'bg-muted text-muted-foreground border border-border'
   }
 })
 </script>

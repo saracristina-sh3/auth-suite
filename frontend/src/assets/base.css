@@ -1,385 +1,210 @@
-/* Adicione estas linhas no INÍCIO do base.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
+/* Importar componentes de cores */
+@import './styles/components/_badge.css';
+@import './styles/components/_button.css';
+@import './styles/components/_message.css';
+@import './styles/components/_password.css';
+@import './styles/components/_tag.css';
 
 :root {
-  /* Cores primárias - Selenium */
-  --selenium-50: #f0f9ff;
-  --selenium-100: #e0f2fe;
-  --selenium-200: #bae6fd;
-  --selenium-300: #7dd3fc;
-  --selenium-400: #38bdf8;
-  --selenium-500: #0ea5e9;
-  --selenium-600: #0284c7;
-  --selenium-700: #0369a1;
-  --selenium-800: #075985;
-  --selenium-900: #0c4a6e;
-  --selenium-950: #082f49;
+  /* ============================================================================
+   Cores Semânticas Base - Tema Claro
+  ============================================================================ */
 
-  /* Cores secundárias - Copper */
-  --copper-50: #fdf8f6;
-  --copper-100: #f2e8e5;
-  --copper-200: #eaddd7;
-  --copper-300: #e0cec7;
-  --copper-400: #d2bab0;
-  --copper-500: #bfa094;
-  --copper-600: #a18072;
-  --copper-700: #977669;
-  --copper-800: #846358;
-  --copper-900: #43302b;
-  --copper-950: #2c1f1c;
+  /* Cores de fundo */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
 
-  --emerald-50: #f0f9ff;
-  --emerald-100: #e0f2fe;
-  --emerald-200: #bae6fd;
-  --emerald-300: #7dd3fc;
-  --emerald-400: #38bdf8;
-  --emerald-500: #0ea5e9;
-  --emerald-600: #0284c7;
-  --emerald-700: #0369a1;
-  --emerald-800: #075985;
-  --emerald-900: #0c4a6e;
-  --emerald-950: #082f49;
+  /* Cores de cards e superfícies */
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
 
+  /* Cores primárias (Jade - Verde-azulado) */
+  --primary: 174 64% 36%;
+  --primary-foreground: 0 0% 100%;
+  --primary-hover: 174 64% 31%;
+  --primary-active: 174 64% 26%;
+  --primary-disabled: 174 30% 60%;
 
-  /* Cores de borda */
-  --color-border: var(--selenium-200);
-  --color-border-hover: var(--selenium-300);
+  /* Cores secundárias (Selenium - Azul) */
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 0 0% 100%;
+  --secondary-hover: 199 89% 43%;
+  --secondary-active: 199 89% 38%;
+  --secondary-disabled: 199 40% 70%;
 
-  /* Cores de texto */
-  --color-heading: var(--selenium-950);
-  --color-text: var(--selenium-800);
+  /* Cores de acento (Jade suave) */
+  --accent: 174 44% 95%;
+  --accent-foreground: 174 64% 26%;
 
-  /* Cores do sistema - usando Selenium como primária */
-  --color-primary: var(--selenium-600);
-  --color-primary-soft: var(--selenium-500);
-  --color-primary-mute: var(--selenium-400);
+  /* Cores destrutivas (Ruby - Vermelho) */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-hover: 0 84% 55%;
+  --destructive-active: 0 84% 50%;
 
-  --color-secondary: var(--copper-500);
-  --color-accent: var(--copper-600);
+  /* Cores de aviso (Sulfur - Amarelo) */
+  --warning: 48 96% 53%;
+  --warning-foreground: 48 96% 10%;
+  --warning-hover: 48 96% 48%;
 
-  /* Cores para estados interativos */
-  --color-primary-hover: var(--selenium-700);
-  --color-primary-active: var(--selenium-800);
-  --color-primary-inverse: #ffffff;
+  /* Cores de sucesso (Jade) */
+  --success: 174 64% 36%;
+  --success-foreground: 0 0% 100%;
+  --success-hover: 174 64% 31%;
 
-  --color-highlight-bg: var(--selenium-950);
-  --color-highlight-focus-bg: var(--selenium-700);
-  --color-highlight-text: #ffffff;
-  --color-highlight-focus-text: #ffffff;
+  /* Cores de informação (Selenium) */
+  --info: 199 89% 48%;
+  --info-foreground: 0 0% 100%;
+  --info-hover: 199 89% 43%;
 
-  --section-gap: 160px;
+  /* Cores muted/desabilitadas */
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
 
-  /* Gradientes atualizados */
-  --gradient-primary: linear-gradient(135deg, var(--selenium-700) 0%, var(--selenium-500) 100%);
-  --gradient-secondary: linear-gradient(135deg, var(--selenium-500) 0%, var(--copper-500) 100%);
-  --gradient-copper: linear-gradient(135deg, var(--copper-600) 0%, var(--copper-400) 100%);
+  /* Cores de borda e input */
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --input-border: 240 5.9% 85%;
+  --input-focus: 174 64% 36%;
+  --ring: 174 64% 36%;
+
+  /* Raio de borda */
+  --radius: 0.5rem;
+
+  /* Sidebar */
+  --sidebar-background: 240 4.8% 95.9%;
+  --sidebar-foreground: 240 5.9% 10%;
+  --sidebar-primary: 199 89% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 199 89% 48%;
+
+  /* ============================================================================
+   Cores de Estados - Reutilizáveis
+  ============================================================================ */
+
+  /* Estados de hover genéricos */
+  --hover-overlay: 0 0% 0% / 0.05;
+  --active-overlay: 0 0% 0% / 0.1;
+
+  /* Estados de foco */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
 }
 
-/* Classes utilitárias para as cores */
-.primary-50 { color: var(--selenium-50); }
-.primary-100 { color: var(--selenium-100); }
-.primary-200 { color: var(--selenium-200); }
-.primary-300 { color: var(--selenium-300); }
-.primary-400 { color: var(--selenium-400); }
-.primary-500 { color: var(--selenium-500); }
-.primary-600 { color: var(--selenium-600); }
-.primary-700 { color: var(--selenium-700); }
-.primary-800 { color: var(--selenium-800); }
-.primary-900 { color: var(--selenium-900); }
-.primary-950 { color: var(--selenium-950); }
+/* ============================================================================
+   Tema Escuro
+  ============================================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Cores de fundo */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-.secondary-50 { color: var(--copper-50); }
-.secondary-100 { color: var(--copper-100); }
-.secondary-200 { color: var(--copper-200); }
-.secondary-300 { color: var(--copper-300); }
-.secondary-400 { color: var(--copper-400); }
-.secondary-500 { color: var(--copper-500); }
-.secondary-600 { color: var(--copper-600); }
-.secondary-700 { color: var(--copper-700); }
-.secondary-800 { color: var(--copper-800); }
-.secondary-900 { color: var(--copper-900); }
-.secondary-950 { color: var(--copper-950); }
+    /* Cores de cards e superfícies */
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-/* Background colors */
-.bg-primary-50 { background-color: var(--selenium-50); }
-.bg-primary-100 { background-color: var(--selenium-100); }
-.bg-primary-200 { background-color: var(--selenium-200); }
-.bg-primary-300 { background-color: var(--selenium-300); }
-.bg-primary-400 { background-color: var(--selenium-400); }
-.bg-primary-500 { background-color: var(--selenium-500); }
-.bg-primary-600 { background-color: var(--selenium-600); }
-.bg-primary-700 { background-color: var(--selenium-700); }
-.bg-primary-800 { background-color: var(--selenium-800); }
-.bg-primary-900 { background-color: var(--selenium-900); }
-.bg-primary-950 { background-color: var(--selenium-950); }
+    /* Cores primárias (Jade - mais claro no escuro) */
+    --primary: 174 64% 50%;
+    --primary-foreground: 240 5.9% 10%;
+    --primary-hover: 174 64% 55%;
+    --primary-active: 174 64% 60%;
+    --primary-disabled: 174 30% 40%;
 
-.bg-secondary-50 { background-color: var(--copper-50); }
-.bg-secondary-100 { background-color: var(--copper-100); }
-.bg-secondary-200 { background-color: var(--copper-200); }
-.bg-secondary-300 { background-color: var(--copper-300); }
-.bg-secondary-400 { background-color: var(--copper-400); }
-.bg-secondary-500 { background-color: var(--copper-500); }
-.bg-secondary-600 { background-color: var(--copper-600); }
-.bg-secondary-700 { background-color: var(--copper-700); }
-.bg-secondary-800 { background-color: var(--copper-800); }
-.bg-secondary-900 { background-color: var(--copper-900); }
-.bg-secondary-950 { background-color: var(--copper-950); }
+    /* Cores secundárias (Selenium - mais claro no escuro) */
+    --secondary: 199 89% 58%;
+    --secondary-foreground: 240 5.9% 10%;
+    --secondary-hover: 199 89% 63%;
+    --secondary-active: 199 89% 68%;
+    --secondary-disabled: 199 40% 50%;
 
-/* Header Layout Styles */
-.header-layout {
-  background-color: var(--color-background);
-  border-bottom: 1px solid var(--color-border);
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    /* Cores de acento */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Cores destrutivas (Ruby) */
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 240 5.9% 10%;
+    --destructive-hover: 0 84% 70%;
+    --destructive-active: 0 84% 75%;
+
+    /* Cores de aviso (Sulfur) */
+    --warning: 48 96% 60%;
+    --warning-foreground: 240 5.9% 10%;
+    --warning-hover: 48 96% 65%;
+
+    /* Cores de sucesso (Jade) */
+    --success: 174 64% 50%;
+    --success-foreground: 240 5.9% 10%;
+    --success-hover: 174 64% 55%;
+
+    /* Cores de informação (Selenium) */
+    --info: 199 89% 58%;
+    --info-foreground: 240 5.9% 10%;
+    --info-hover: 199 89% 63%;
+
+    /* Cores muted/desabilitadas */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* Cores de borda e input */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --input-border: 240 3.7% 25%;
+    --input-focus: 174 64% 50%;
+    --ring: 174 64% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 199 89% 58%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 199 89% 58%;
+
+    /* Sombras no tema escuro - mais suaves */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+  }
 }
 
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 1.5rem;
-  height: 4rem;
-}
-
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.header-logo {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: var(--color-primary);
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.header-logo i {
-  color: var(--color-primary-inverse);
-  font-size: 1.125rem;
-}
-
-.header-brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.header-system-name {
-  font-weight: 600;
-  font-size: 1.125rem;
-  color: var(--color-heading);
+/* Reset e estilos base */
+* {
+  box-sizing: border-box;
   margin: 0;
-  line-height: 1.2;
+  padding: 0;
 }
 
-.header-system-description {
-  font-size: 0.875rem;
-  color: var(--color-text);
-  opacity: 0.7;
-  margin: 0;
-  line-height: 1.2;
+body {
+  font-family: 'Lato', sans-serif;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
 }
 
-.header-user-area {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: relative;
-}
-
-.header-notification-btn {
-  position: relative;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  color: var(--color-text);
-  opacity: 0.7;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-notification-btn:hover {
-  background-color: var(--color-background-soft);
-  opacity: 1;
-}
-
-.header-notification-badge {
-  position: absolute;
-  top: -0.25rem;
-  right: -0.25rem;
-  background: var(--color-accent);
-  color: var(--color-primary-inverse);
-  border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  line-height: 1;
-}
-
-.header-user-profile {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  user-select: none;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.header-user-profile:hover {
-  background-color: var(--color-background-soft);
-}
-
-.header-user-avatar {
-  background: var(--color-primary) !important;
-  color: var(--color-primary-inverse) !important;
-  flex-shrink: 0;
-}
-
-.header-user-info {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  min-width: 0;
-}
-
-.header-user-name {
-  font-weight: 500;
-  color: var(--color-heading);
-  font-size: 0.875rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.header-user-email {
-  color: var(--color-text);
-  opacity: 0.7;
-  font-size: 0.75rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.header-dropdown-icon {
-  color: var(--color-text);
-  opacity: 0.7;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.header-rotate-180 {
-  transform: rotate(180deg);
-}
-
-.header-user-menu {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  margin-top: 0.5rem;
-  width: 14rem;
-  background: var(--color-background);
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border: 1px solid var(--color-border);
-  padding: 0.25rem 0;
-  z-index: 50;
-  animation: headerSlideDown 0.1s ease-out;
-}
-
-@keyframes headerSlideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-0.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.header-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  color: var(--color-text);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s ease;
-  text-align: left;
-}
-
-.header-menu-item:hover {
-  background-color: var(--color-background-soft);
-}
-
-.header-menu-item i {
-  color: var(--color-text);
-  opacity: 0.7;
-  width: 1rem;
-  font-size: 0.875rem;
-}
-
-.header-logout-btn {
-  color: var(--color-accent);
-}
-
-.header-logout-btn:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-}
-
-.header-logout-btn i {
-  color: var(--color-accent);
-}
-
-.header-menu-divider {
-  border-top: 1px solid var(--color-border);
-  margin: 0.25rem 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .header-content {
-    padding: 0 1rem;
-  }
-  
-  .header-system-description {
-    display: none;
-  }
-  
-  .header-user-info {
-    display: none;
-  }
-  
-  .header-user-profile {
-    padding: 0.25rem;
-  }
+/* Garantir que elementos de foco usem a cor do ring */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
 }

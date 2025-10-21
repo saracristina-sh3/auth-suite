@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import SuiteView from '../views/SuiteView.vue'
 import LoginView from '../views/LoginView.vue'
 import FrotaView from '@/views/FrotaView.vue'
+import PerfilView from '@/views/usuarios/PerfilView.vue'
 import { authService } from '@/services/auth.service'
 import AdminManagementView from '@/views/suporte/AdminManagementView.vue'
 
@@ -10,7 +11,7 @@ interface RouteMeta {
   requiresAuth?: boolean
   requiresGuest?: boolean
   requiresRole?: string
-  requiresSH3?: boolean // Requires SH3 autarquia (support team)
+  requiresSH3?: boolean
 }
 
 const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
@@ -36,6 +37,12 @@ const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
     path: '/frota',
     name: 'frota',
     component: FrotaView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/perfil',
+    name: 'perfil',
+    component: PerfilView,
     meta: { requiresAuth: true }
   },
   {

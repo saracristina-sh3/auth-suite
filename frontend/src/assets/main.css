@@ -8,20 +8,21 @@
 }
 
 /* Garantir que o tema claro seja aplicado */
-body {  color: var(--color-text) !important;
+body {
+  color: hsl(var(--foreground)) !important;
+  background-color: hsl(var(--background));
 }
 
 a,
 .green {
   text-decoration: none;
-  color: var(--color-primary);
+  color: hsl(white) !important;
   transition: 0.4s;
   padding: 3px;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: rgba(15, 118, 110, 0.1);
+    background-color: color-mix(in srgb, hsl(white) 10%, transparent);
   }
 }
-

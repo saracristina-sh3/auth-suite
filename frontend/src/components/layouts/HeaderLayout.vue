@@ -15,12 +15,12 @@
       <div class="flex items-center gap-4">
         <!-- Slot de ações customizadas -->
         <slot name="actions">
-          <Sh3Button 
+          <Sh3Button
             v-if="showNotifications"
-            icon="pi pi-bell" 
-            text 
-            rounded 
-            aria-label="Notificações" 
+            icon="pi pi-bell"
+            text
+            rounded
+            aria-label="Notificações"
             @click="$emit('notify')"
           />
         </slot>
@@ -30,13 +30,14 @@
           <div
             v-if="user"
             class="flex items-center gap-2 cursor-pointer select-none"
-            @click="$emit('userClick')"
+            @click="toggleUserMenu"
+            ref="userMenuButton"
           >
-            <Avatar 
-              :label="userInitials" 
-              shape="circle" 
-              size="large" 
-              class="bg-primary text-white" 
+            <Avatar
+              :label="userInitials"
+              shape="circle"
+              size="large"
+              class="bg-primary text-white"
             />
             <div class="flex flex-col">
               <span class="font-medium">{{ user.name }}</span>
@@ -44,6 +45,13 @@
             </div>
             <i class="pi pi-angle-down text-gray-500"></i>
           </div>
+
+          <!-- Menu do usuário -->
+          <Menu
+            ref="userMenu"
+            :model="userMenuItems"
+            :popup="true"
+          />
         </slot>
       </div>
     </div>
@@ -51,8 +59,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Sh3Button from '@/components/common/Sh3Button.vue'
+import Menu from 'primevue/menu'
+import { authService } from '@/services/auth.service'
 
 const props = defineProps({
   title: {
@@ -73,6 +84,9 @@ const props = defineProps({
   }
 })
 
+const router = useRouter()
+const userMenu = ref()
+const userMenuButton = ref()
 
 const userInitials = computed(() => {
   if (!props.user?.name) return '?'
@@ -82,4 +96,29 @@ const userInitials = computed(() => {
     .join('')
     .toUpperCase()
 })
+
+const userMenuItems = ref([
+  {
+    label: 'Meu Perfil',
+    icon: 'pi pi-user',
+    command: () => {
+      router.push('/perfil')
+    }
+  },
+  {
+    separator: true
+  },
+  {
+    label: 'Sair',
+    icon: 'pi pi-sign-out',
+    command: () => {
+      authService.logout()
+      router.push('/login')
+    }
+  }
+])
+
+const toggleUserMenu = (event: Event) => {
+  userMenu.value.toggle(event)
+}
 </script>

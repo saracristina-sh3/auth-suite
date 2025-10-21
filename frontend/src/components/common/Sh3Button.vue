@@ -43,22 +43,22 @@ defineEmits(["click"]);
 
 const buttonClasses = computed(() => {
   const base =
-    "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all focus:outline-none";
+    "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-all focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2";
 
   const variants: Record<string, string> = {
     primary: props.outlined
-      ? "border border-blue-500 text-blue-600 bg-transparent hover:bg-blue-50"
-      : "bg-blue-600 text-white hover:bg-blue-700",
+      ? "border border-primary text-primary bg-transparent hover:bg-primary/10 active:bg-primary/20"
+      : "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active disabled:bg-primary-disabled",
     secondary: props.outlined
-      ? "border border-gray-400 text-gray-700 bg-transparent hover:bg-gray-50"
-      : "bg-gray-200 text-gray-800 hover:bg-gray-300",
+      ? "border border-secondary text-secondary bg-transparent hover:bg-secondary/10 active:bg-secondary/20"
+      : "bg-secondary text-secondary-foreground hover:bg-secondary-hover active:bg-secondary-active disabled:bg-secondary-disabled",
     danger: props.outlined
-      ? "border border-red-500 text-red-600 bg-transparent hover:bg-red-50"
-      : "bg-red-600 text-white hover:bg-red-700",
+      ? "border border-destructive text-destructive bg-transparent hover:bg-destructive/10 active:bg-destructive/20"
+      : "bg-destructive text-destructive-foreground hover:bg-destructive-hover active:bg-destructive-active",
     warning: props.outlined
-      ? "border border-yellow-500 text-yellow-600 bg-transparent hover:bg-yellow-50"
-      : "bg-yellow-500 text-white hover:bg-yellow-600",
-    text: "bg-transparent text-blue-600 hover:bg-blue-50",
+      ? "border border-sulfur-500 text-sulfur-700 bg-transparent hover:bg-sulfur-50 active:bg-sulfur-100"
+      : "bg-sulfur-500 text-sulfur-950 hover:bg-sulfur-600 active:bg-sulfur-700",
+    text: "bg-transparent text-primary hover:bg-primary/10 active:bg-primary/20",
   };
 
   const disabledStyle = props.disabled ? "opacity-50 cursor-not-allowed" : "";

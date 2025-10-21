@@ -1,0 +1,24 @@
+/* Button Component Styles */
+.btn-primary {
+  background-color: var(--selenium-500);
+  border-color: var(--selenium-500);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--selenium-600);
+  border-color: var(--selenium-600);
+}
+
+.btn-success {
+  background-color: var(--jade-600);
+  border-color: var(--jade-600);
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background-color: var(--jade-500);
+  border-color: var(--jade-500);
+}
+
+/* ... outros estilos de botão baseados no button.ts */

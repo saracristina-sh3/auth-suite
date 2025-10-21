@@ -1,8 +1,8 @@
 <template>
   <div class="field">
-    <label :for="field.name" class="block font-medium mb-2">
+    <label :for="field.name" class="block font-medium mb-2 text-foreground">
       {{ field.label }}
-      <span v-if="field.required" class="text-red-500">*</span>
+      <span v-if="field.required" class="text-destructive">*</span>
     </label>
 
     <!-- Multi-Select com Checkboxes -->
@@ -247,21 +247,24 @@ onBeforeUnmount(() => {
 
 /* Select Simples */
 select {
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border: 1px solid hsl(var(--input-border));
+  border-radius: var(--radius);
   padding: 0.5rem 0.75rem;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 select:disabled {
-  background-color: #f9f9f9;
-  color: #999;
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6;
+  border-color: hsl(var(--input-focus));
+  box-shadow: 0 0 0 var(--focus-ring-width) hsl(var(--ring) / 0.2);
 }
 
 /* Multi-Select Container */
@@ -275,20 +278,21 @@ select:focus {
   justify-content: space-between;
   min-height: 42px;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  background: white;
+  border: 1px solid hsl(var(--input-border));
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .multi-select-header:hover {
-  border-color: #9ca3af;
+  border-color: hsl(var(--border));
 }
 
 .multi-select-header:focus-within {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6;
+  border-color: hsl(var(--input-focus));
+  box-shadow: 0 0 0 var(--focus-ring-width) hsl(var(--ring) / 0.2);
 }
 
 .selected-display {
@@ -297,7 +301,7 @@ select:focus {
 }
 
 .placeholder {
-  color: #9ca3af;
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
 }
 
@@ -310,8 +314,8 @@ select:focus {
 .selected-tag {
   display: inline-block;
   padding: 0.125rem 0.5rem;
-  background: #3b82f6;
-  color: white;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -320,8 +324,8 @@ select:focus {
 .more-count {
   display: inline-block;
   padding: 0.125rem 0.5rem;
-  background: #6b7280;
-  color: white;
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
   border-radius: 0.25rem;
   font-size: 0.75rem;
 }
@@ -333,10 +337,10 @@ select:focus {
   left: 0;
   right: 0;
   margin-top: 0.25rem;
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
   z-index: 50;
   max-height: 300px;
   display: flex;
@@ -346,21 +350,23 @@ select:focus {
 /* Search Box */
 .search-box {
   padding: 0.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .search-input {
   width: 100%;
   padding: 0.375rem 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid hsl(var(--input-border));
   border-radius: 0.25rem;
   font-size: 0.875rem;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6;
+  border-color: hsl(var(--input-focus));
+  box-shadow: 0 0 0 1px hsl(var(--ring) / 0.2);
 }
 
 /* Options List */
@@ -377,26 +383,28 @@ select:focus {
   padding: 0.5rem 0.75rem;
   cursor: pointer;
   transition: background 0.15s;
+  color: hsl(var(--foreground));
 }
 
 .option-item:hover {
-  background: #f3f4f6;
+  background: hsl(var(--accent));
 }
 
 .option-item input[type="checkbox"] {
   cursor: pointer;
+  accent-color: hsl(var(--primary));
 }
 
 .option-label {
   flex: 1;
   font-size: 0.875rem;
-  color: #374151;
+  color: hsl(var(--foreground));
 }
 
 .empty-message {
   padding: 1rem;
   text-align: center;
-  color: #9ca3af;
+  color: hsl(var(--muted-foreground));
   font-size: 0.875rem;
 }
 
@@ -405,26 +413,26 @@ select:focus {
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem;
-  border-top: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-top: 1px solid hsl(var(--border));
+  background: hsl(var(--muted));
 }
 
 .action-btn {
   flex: 1;
   padding: 0.375rem 0.75rem;
-  background: white;
-  border: 1px solid #d1d5db;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
-  color: #374151;
+  color: hsl(var(--foreground));
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .action-btn:hover {
-  background: #f3f4f6;
-  border-color: #9ca3af;
+  background: hsl(var(--accent));
+  border-color: hsl(var(--border));
 }
 
 /* Scrollbar customizado */
@@ -433,15 +441,15 @@ select:focus {
 }
 
 .options-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: hsl(var(--muted));
 }
 
 .options-list::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: hsl(var(--border));
   border-radius: 3px;
 }
 
 .options-list::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: hsl(var(--muted-foreground));
 }
 </style>
