@@ -142,7 +142,7 @@ class AutarquiaController extends Controller
     public function usuarios(Autarquia $autarquia): JsonResponse
     {
         $usuarios = $autarquia->users()
-            ->select('id', 'name', 'email', 'cpf', 'role', 'is_active')
+            ->select('users.id', 'users.name', 'users.email', 'users.cpf', 'users.role', 'users.is_active')
             ->get();
 
         return response()->json([

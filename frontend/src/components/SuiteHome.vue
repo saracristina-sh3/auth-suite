@@ -102,7 +102,7 @@
       <div v-else class="grid gap-3 md:gap-4 mt-6 w-full max-w-6xl">
         <Sh3Card
           v-for="modulo in modulos"
-          :key="modulo.key"
+          :key="modulo.id"
           class="cursor-pointer transition-all duration-300 hover:shadow-2xl border-1 surface-border"
           @click="handleItemClick(modulo.route)"
         >
@@ -112,8 +112,8 @@
                 <component v-if="typeof modulo.icon !== 'string'" :is="modulo.icon" />
                 <i v-else :class="modulo.icon"></i>
               </div>
-              <h3 class="text-lg font-semibold m-0">{{ modulo.title }}</h3>
-              <p class="text-color-secondary line-height-3 m-0">{{ modulo.description }}</p>
+              <h3 class="text-lg font-semibold m-0">{{ modulo.nome }}</h3>
+              <p class="text-color-secondary line-height-3 m-0">{{ modulo.descricao }}</p>
             </div>
           </template>
         </Sh3Card>

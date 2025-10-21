@@ -1,6 +1,6 @@
 <template>
-  <header class="bg-card shadow-sm sticky top-0 z-10 w-full border-b border-border">
-    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
+  <header class="background-grayscale shadow-sm sticky top-0 z-10 w-full border-b border-border">
+    <div class="max-w-4xl mx-auto flex justify-between items-center px-6 py-3">
       <!-- Título e ícone -->
       <div class="flex items-center gap-3">
         <slot name="icon">

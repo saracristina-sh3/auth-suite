@@ -18,8 +18,8 @@ export function useSaveHandler(
 
   async function onSave(data: any): Promise<void> {
     try {
-      if (activeTab.value === 0) {
-        // Salvar usuário
+      if (activeTab.value === 1) {
+        // Salvar usuário (tab index 1)
         let userId: number;
 
         if (data.id) {
@@ -61,8 +61,8 @@ export function useSaveHandler(
         }
 
         await loadUsers();
-      } else if (activeTab.value === 1) {
-        // Salvar autarquia
+      } else if (activeTab.value === 2) {
+        // Salvar autarquia (tab index 2)
         if (data.id) {
           await autarquiaService.update(data.id, data);
           showMessage("success", "Autarquia atualizada com sucesso.");
@@ -71,8 +71,8 @@ export function useSaveHandler(
           showMessage("success", "Autarquia criada com sucesso.");
         }
         await loadAutarquias();
-      } else if (activeTab.value === 2) {
-        // Salvar módulo
+      } else if (activeTab.value === 3) {
+        // Salvar módulo (tab index 3)
         if (data.id) {
           await moduloService.update(data.id, data);
           showMessage("success", "Módulo atualizado com sucesso.");

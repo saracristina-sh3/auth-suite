@@ -41,8 +41,13 @@ export const autarquiaService = {
     return response.data.data
   },
 
-  async getUsuarios(id: number): Promise<any[]> {
+  async getUsers(id: number): Promise<any[]> {
     const response = await api.get(`/autarquias/${id}/usuarios`)
     return response.data.data
+  },
+
+  // Alias para compatibilidade
+  async getUsuarios(id: number): Promise<any[]> {
+    return this.getUsers(id)
   },
 }

@@ -6,17 +6,16 @@ export interface Autarquia {
 }
 
 export interface Modulo {
-  id: number;
-  nome: string;
-  descricao?: string;
-  icone?: string;
-  ativo: boolean;
-  // Legacy fields for compatibility with existing UI
-  key?: string;
-  title?: string;
-  description?: string;
-  icon?: string;
-  route?: string;
+  id: number
+  nome: string
+  descricao?: string
+  icone?: string
+  ativo: boolean
+  pivot?: {
+    ativo: boolean
+    created_at: string
+    updated_at: string
+  }
 }
 
 export interface User {
