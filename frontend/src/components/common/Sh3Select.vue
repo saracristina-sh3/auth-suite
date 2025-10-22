@@ -6,10 +6,10 @@
     </label>
 
     <!-- Multi-Select com Checkboxes -->
-    <div v-if="field.multiple" class="relative">
+    <div v-if="field.multiple" class="relative multi-select-container">
       <div
         class="flex items-center justify-between min-h-[42px] px-3 py-2 border border-input rounded bg-background text-foreground cursor-pointer transition-all duration-200 hover:border-border focus-within:border-ring focus-within:shadow-[0_0_0_2px] focus-within:shadow-ring/20"
-        @click="toggleDropdown"
+        @click.stop="toggleDropdown"
       >
         <div class="flex-1 overflow-hidden">
           <span v-if="selectedLabels.length === 0" class="text-muted-foreground text-sm">
