@@ -22,13 +22,6 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       event: 'edit',
       tooltip: 'Editar',
       class: 'p-button-primary'
-    },
-    {
-      name: 'delete',
-      icon: 'pi pi-trash',
-      event: 'delete',
-      tooltip: 'Excluir',
-      class: 'p-button-danger'
     }
   ]
 

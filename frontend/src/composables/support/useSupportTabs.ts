@@ -59,7 +59,7 @@ export function useSupportTabs(options: UseSupportTabsOptions) {
     {
       label: 'Módulos',
       path: '/suporteSH3/modulos',
-      allowsNew: true,
+      allowsNew: false, // Módulos são fixos do sistema, não podem ser criados pelo usuário
       singularLabel: 'Módulo'
     },
     {

@@ -5,51 +5,33 @@
         <h2 class="text-2xl font-bold text-foreground mb-1">Painel do suporte</h2>
         <p class="text-sm text-muted-foreground font-medium m-0">Área restrita - SH3 Suporte</p>
       </div>
+      <div class="flex justify-end mb-4">
+        <Sh3Button
+          class="!px-3 !py-2 shadow-md flex items-center gap-2 text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-all duration-200"
+          v-if="showNewButton" @click="onNew">
+          <i class="pi pi-plus"> {{ activeTabLabel }} </i>
+        </Sh3Button>
+      </div>
 
-      <Sh3Button
-        class="!px-3 !py-2 shadow-md flex items-center gap-2 text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-all duration-200"
-        v-if="showNewButton" @click="onNew">
-        <i class="pi pi-plus"> {{ activeTabLabel }} </i>
-      </Sh3Button>
 
       <div class="flex gap-2 mb-4 border-b-2 border-border">
-        <router-link
-          v-for="tab in tabs"
-          :key="tab.path"
-          :to="tab.path"
-          custom
-          v-slot="{ navigate, isActive }"
-        >
-          <button
-            @click="navigate"
-            :class="[
-              'bg-transparent border-none px-5 py-3 font-medium cursor-pointer border-b-[3px] transition-all duration-200',
-              isActive
-                ? 'text-primary border-b-primary'
-                : 'text-muted-foreground border-b-transparent hover:text-foreground'
-            ]"
-          >
+        <router-link v-for="tab in tabs" :key="tab.path" :to="tab.path" custom v-slot="{ navigate, isActive }">
+          <button @click="navigate" :class="[
+            'bg-transparent border-none px-5 py-3 font-medium cursor-pointer border-b-[3px] transition-all duration-200',
+            isActive
+              ? 'text-primary border-b-primary'
+              : 'text-muted-foreground border-b-transparent hover:text-foreground'
+          ]">
             {{ tab.label }}
           </button>
         </router-link>
       </div>
 
       <div class="tabs-content">
-        <router-view
-          :users="users"
-          :autarquias="autarquias"
-          :modulos="modulos"
-          :support-context="supportContext"
-          :selected-autarquia-id="selectedAutarquiaId"
-          :message="message"
-          :message-class="messageClass"
-          @edit="handleEdit"
-          @delete="handleDelete"
-          @assume-context="handleAssumeContext"
-          @exit-context="exitContext"
-          @toggle-modulo-status="toggleModuloStatus"
-          @update:selected-autarquia-id="selectedAutarquiaId = $event"
-        />
+        <router-view :users="users" :autarquias="autarquias" :modulos="modulos" :support-context="supportContext"
+          :selected-autarquia-id="selectedAutarquiaId" :message="message" :message-class="messageClass"
+          @edit="handleEdit" @assume-context="handleAssumeContext" @exit-context="exitContext"
+          @toggle-modulo-status="toggleModuloStatus" @update:selected-autarquia-id="selectedAutarquiaId = $event" />
       </div>
 
       <Sh3Form ref="genericForm" :entityName="activeTabLabel" :fields="currentFields" @save="onSave" />
@@ -61,16 +43,15 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { userService } from "@/services/user.service";
-import { autarquiaService } from "@/services/autarquia.service";
 import { moduloService } from "@/services/modulos.service";
 import { useUserTableConfig } from "@/config/useUserTableConfig";
 import { useAutarquiaTableConfig } from "@/config/useAutarquiaTableConfig";
 import { useModuloTableConfig } from "@/config/useModuloTableConfig";
-import { useSaveHandler } from "@/composables/useSaveHandler";
+import { useSaveHandler } from "@/composables/common/useSaveHandler";
 import { useNotification } from "@/composables/common/useNotification";
 import { useDataLoader } from "@/composables/common/useDataLoader";
-import { useSupportContext } from "@/composables/useSupportContext";
-import { useSupportTabs } from "@/composables/useSupportTabs";
+import { useSupportContext } from "@/composables/support/useSupportContext";
+import { useSupportTabs } from "@/composables/support/useSupportTabs";
 import BaseLayout from "@/components/layouts/BaseLayout.vue";
 import Sh3Form from "@/components/common/Sh3Form.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
@@ -94,7 +75,6 @@ const userConfig = useUserTableConfig(roles, autarquias);
 const autarquiaConfig = useAutarquiaTableConfig();
 const moduloConfig = useModuloTableConfig();
 
-// Configurar tabs com callback de mudança
 const {
   tabs,
   currentTabName,
@@ -107,7 +87,6 @@ const {
   autarquiaFields: autarquiaConfig.fields,
   moduloFields: moduloConfig.fields,
   onTabChange: async (tabName) => {
-    // Carregar dados automaticamente quando a tab muda
     if (tabName === 'usuarios') {
       await loadUsers()
     } else if (tabName === 'autarquias') {
@@ -141,33 +120,6 @@ async function handleEdit(item: any) {
     }
   } else {
     genericForm.value?.open(item);
-  }
-}
-
-async function handleDelete(item: any) {
-  const entityName = activeTabLabel.value;
-  if (!confirm(`Excluir ${entityName.toLowerCase()} "${item.nome || item.name}"?`)) {
-    return;
-  }
-
-  try {
-    if (currentTabName.value === 'usuarios') {
-      await userService.remove(item.id);
-      showMessage("success", "Usuário removido com sucesso.");
-      await loadUsers();
-    } else if (currentTabName.value === 'autarquias') {
-      await autarquiaService.delete(item.id);
-      showMessage("success", "Autarquia removida com sucesso.");
-      await loadAutarquias();
-    } else if (currentTabName.value === 'modulos') {
-      await moduloService.delete(item.id);
-      showMessage("success", "Módulo removido com sucesso.");
-      await loadModulos();
-    }
-  } catch (error: any) {
-    console.error("Erro ao excluir:", error);
-    const errorMessage = error.response?.data?.message || "Erro ao excluir.";
-    showMessage("error", errorMessage);
   }
 }
 
