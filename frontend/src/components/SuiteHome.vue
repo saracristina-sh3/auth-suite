@@ -102,7 +102,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useModulos } from '@/composables/useModulos'
-import { useNotification } from '@/composables/useNotification'
+import { useNotification } from '@/composables/common/useNotification'
 import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
 import Sh3Welcome from './common/Sh3Welcome.vue'

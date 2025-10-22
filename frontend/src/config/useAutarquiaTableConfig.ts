@@ -30,13 +30,6 @@ export function useAutarquiaTableConfig() {
       event: 'viewModules',
       tooltip: 'Ver Módulos',
       class: 'p-button-secondary'
-    },
-    {
-      name: 'delete',
-      icon: 'pi pi-trash',
-      event: 'delete',
-      tooltip: 'Excluir',
-      class: 'p-button-danger'
     }
   ]
 
