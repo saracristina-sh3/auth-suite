@@ -29,7 +29,7 @@ const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
   },
   {
     path: '/about',
-    name: 'about',
+    name: 'Sobre',
     component: () => import('@/views/AboutView.vue'),
     meta: { requiresAuth: true }
   },
@@ -47,9 +47,47 @@ const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
   },
   {
     path: '/suporteSH3',
-    name: 'suporte-sh3',
     component: AdminManagementView,
-    meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+    meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true },
+    redirect: '/suporteSH3/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        name: 'suporte-dashboard',
+        component: () => import('@/views/suporte/tabs/DashboardTab.vue'),
+        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+      },
+      {
+        path: 'usuarios',
+        name: 'suporte-usuarios',
+        component: () => import('@/views/suporte/tabs/UserTab.vue'),
+        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+      },
+      {
+        path: 'autarquias',
+        name: 'suporte-autarquias',
+        component: () => import('@/views/suporte/tabs/autarquia/AutarquiasTab.vue'),
+        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+      },
+      {
+        path: 'modulos',
+        name: 'suporte-modulos',
+        component: () => import('@/views/suporte/tabs/ModulosTab.vue'),
+        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+      },
+      {
+        path: 'liberacoes',
+        name: 'suporte-liberacoes',
+        component: () => import('@/views/suporte/tabs/LiberacoesTab.vue'),
+        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+      },
+      {
+        path: 'modo-suporte',
+        name: 'suporte-contexto',
+        component: () => import('@/views/suporte/tabs/SupportContextTab.vue'),
+        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',
