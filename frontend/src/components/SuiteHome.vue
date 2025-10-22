@@ -78,7 +78,7 @@
       </Sh3EmptyState>
 
       <!-- Modules Grid -->
-      <div v-else class="grid gap-3 md:gap-4 mt-6 w-full max-w-6xl">
+      <div v-else class="grid grid-cols-4 gap-3 md:gap-4 mt-6 w-full max-w-4xl">
         <Sh3Card v-for="modulo in modulos" :key="modulo.id"
           class="cursor-pointer transition-all duration-300 hover:shadow-2xl border-1 surface-border"
           @click="handleItemClick(modulo.route)">
