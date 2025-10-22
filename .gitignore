@@ -5,3 +5,9 @@
 .env.local
 
 docs/
+node_modules/      
+__pycache__/       
+*.log              
+dist/             
+build/            
+.idea/           
