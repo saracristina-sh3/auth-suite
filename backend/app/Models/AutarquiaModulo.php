@@ -12,9 +12,9 @@ class AutarquiaModulo extends Model
 
     protected $table = 'autarquia_modulo';
 
-    // Chave primária composta
-    protected $primaryKey = ['autarquia_id', 'modulo_id'];
-    public $incrementing = false;
+    // Usar chave primária padrão (id) - Eloquent gerencia automaticamente
+    // protected $primaryKey = 'id'; // Não é necessário declarar, é o padrão
+    // public $incrementing = true; // Não é necessário declarar, é o padrão
 
     protected $fillable = [
         'autarquia_id',
@@ -55,43 +55,18 @@ class AutarquiaModulo extends Model
     }
 
     /**
-     * Override do método getKeyName para chave composta
+     * Scope: Liberações por autarquia
      */
-    public function getKeyName()
+    public function scopeByAutarquia($query, int $autarquiaId)
     {
-        return $this->primaryKey;
+        return $query->where('autarquia_id', $autarquiaId);
     }
 
     /**
-     * Override do método setKeysForSaveQuery para chave composta
+     * Scope: Liberações por módulo
      */
-    protected function setKeysForSaveQuery($query)
+    public function scopeByModulo($query, int $moduloId)
     {
-        $keys = $this->getKeyName();
-        if (!is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * Override do método getKeyForSaveQuery para chave composta
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
+        return $query->where('modulo_id', $moduloId);
     }
 }

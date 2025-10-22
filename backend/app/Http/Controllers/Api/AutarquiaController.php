@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Autarquia;
+use App\Models\AutarquiaModulo;
+use App\Models\Modulo;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -66,6 +68,18 @@ class AutarquiaController extends Controller
         ]);
 
         $autarquia = Autarquia::create($validated);
+
+        // Criar vínculos automáticos com todos os módulos (inativos)
+        $modulos = Modulo::all();
+        foreach ($modulos as $modulo) {
+            AutarquiaModulo::firstOrCreate([
+                'autarquia_id' => $autarquia->id,
+                'modulo_id' => $modulo->id,
+            ], [
+                'ativo' => false,
+                'data_liberacao' => null,
+            ]);
+        }
 
         return response()->json([
             'success' => true,

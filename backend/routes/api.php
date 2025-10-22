@@ -87,10 +87,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // ====================================
     Route::prefix('autarquia-modulo')->group(function () {
         Route::get('/', [AutarquiaModuloController::class, 'index']);
-        Route::post('/', [AutarquiaModuloController::class, 'store']);
-        Route::post('/bulk', [AutarquiaModuloController::class, 'bulkStore']);
+        Route::put('/bulk', [AutarquiaModuloController::class, 'bulkUpdate']);
         Route::put('/{autarquiaId}/{moduloId}', [AutarquiaModuloController::class, 'update']);
-        Route::delete('/{autarquiaId}/{moduloId}', [AutarquiaModuloController::class, 'destroy']);
     });
 
     // ====================================

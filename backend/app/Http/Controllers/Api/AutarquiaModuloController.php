@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Autarquia;
 use App\Models\AutarquiaModulo;
-use App\Models\Modulo;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -45,157 +43,139 @@ class AutarquiaModuloController extends Controller
     }
 
     /**
-     * Libera um módulo para uma autarquia
-     */
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'autarquia_id' => 'required|exists:autarquias,id',
-            'modulo_id' => 'required|exists:modulos,id',
-            'data_liberacao' => 'nullable|date',
-            'ativo' => 'boolean',
-        ]);
-
-        // Verificar se já existe a liberação
-        $existe = AutarquiaModulo::where('autarquia_id', $validated['autarquia_id'])
-            ->where('modulo_id', $validated['modulo_id'])
-            ->first();
-
-        if ($existe) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Este módulo já está liberado para esta autarquia.',
-            ], 422);
-        }
-
-        $liberacao = AutarquiaModulo::create([
-            'autarquia_id' => $validated['autarquia_id'],
-            'modulo_id' => $validated['modulo_id'],
-            'data_liberacao' => $validated['data_liberacao'] ?? now(),
-            'ativo' => $validated['ativo'] ?? true,
-        ]);
-
-        $liberacao->load(['autarquia:id,nome', 'modulo:id,nome,icone']);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulo liberado para autarquia com sucesso.',
-            'data' => $liberacao,
-        ], 201);
-    }
-
-    /**
-     * Atualiza a liberação de um módulo para uma autarquia
+     * Atualiza o status de liberação de um módulo para uma autarquia
      */
     public function update(Request $request, int $autarquiaId, int $moduloId): JsonResponse
     {
         $validated = $request->validate([
-            'ativo' => 'sometimes|boolean',
-            'data_liberacao' => 'sometimes|date',
+            'ativo' => 'required|boolean',
         ]);
 
-        $liberacao = AutarquiaModulo::where('autarquia_id', $autarquiaId)
-            ->where('modulo_id', $moduloId)
-            ->firstOrFail();
+        // Criar ou atualizar o registro
+        $liberacao = AutarquiaModulo::updateOrCreate(
+            [
+                'autarquia_id' => $autarquiaId,
+                'modulo_id' => $moduloId,
+            ],
+            [
+                'ativo' => $validated['ativo'],
+                'data_liberacao' => $validated['ativo'] ? now() : null,
+            ]
+        );
 
-        $liberacao->update($validated);
         $liberacao->load(['autarquia:id,nome', 'modulo:id,nome,icone']);
 
         return response()->json([
             'success' => true,
-            'message' => 'Liberação atualizada com sucesso.',
+            'message' => 'Status de liberação atualizado com sucesso.',
             'data' => $liberacao,
         ]);
     }
 
     /**
-     * Remove a liberação de um módulo para uma autarquia
+     * Atualiza o status de múltiplos módulos para uma autarquia
      */
-    public function destroy(int $autarquiaId, int $moduloId): JsonResponse
-    {
-        $liberacao = AutarquiaModulo::where('autarquia_id', $autarquiaId)
-            ->where('modulo_id', $moduloId)
-            ->firstOrFail();
+public function bulkUpdate(Request $request): JsonResponse
+{
+    $validated = $request->validate([
+        'autarquia_id' => 'required|exists:autarquias,id',
+        'modulos' => 'required|array',
+        'modulos.*.modulo_id' => 'required',
+        'modulos.*.ativo' => 'required|boolean',
+    ]);
 
-        // Verificar se existem permissões de usuários vinculadas
-        $temPermissoes = DB::table('usuario_modulo_permissao')
-            ->where('autarquia_id', $autarquiaId)
-            ->where('modulo_id', $moduloId)
-            ->exists();
+    $autarquiaId = (int) $validated['autarquia_id'];
+    $modulos = $validated['modulos'];
 
-        if ($temPermissoes) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não é possível remover a liberação pois existem permissões de usuários vinculadas.',
-            ], 422);
-        }
+    $atualizados = [];
+    $erros = [];
 
-        $liberacao->delete();
+    \Log::info('📦 Payload recebido no bulkUpdate', $request->all());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Liberação removida com sucesso.',
-        ]);
-    }
-
-    /**
-     * Libera múltiplos módulos para uma autarquia
-     */
-    public function bulkStore(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'autarquia_id' => 'required|exists:autarquias,id',
-            'modulo_ids' => 'required|array',
-            'modulo_ids.*' => 'required|exists:modulos,id',
-        ]);
-
-        $autarquiaId = $validated['autarquia_id'];
-        $moduloIds = $validated['modulo_ids'];
-
-        $liberados = [];
-        $erros = [];
-
-        DB::beginTransaction();
-        try {
-            foreach ($moduloIds as $moduloId) {
-                // Verificar se já existe
-                $existe = AutarquiaModulo::where('autarquia_id', $autarquiaId)
-                    ->where('modulo_id', $moduloId)
-                    ->first();
-
-                if ($existe) {
-                    $modulo = Modulo::find($moduloId);
-                    $erros[] = "Módulo '{$modulo->nome}' já liberado";
-                    continue;
+    DB::beginTransaction();
+    try {
+        foreach ($modulos as $index => $moduloData) {
+            try {
+                // 🔍 Garantir formato válido
+                if (!is_array($moduloData)) {
+                    throw new \Exception("O módulo no índice {$index} não é um array válido");
                 }
 
-                $liberacao = AutarquiaModulo::create([
+                // Forçar tipos
+                $moduloId = isset($moduloData['modulo_id'])
+                    ? (int) (is_array($moduloData['modulo_id']) ? ($moduloData['modulo_id'][0] ?? 0) : $moduloData['modulo_id'])
+                    : 0;
+
+                $ativo = (bool) ($moduloData['ativo'] ?? false);
+
+                if (!$moduloId) {
+                    throw new \Exception("modulo_id ausente ou inválido no índice {$index}");
+                }
+
+                // ✅ Criar ou atualizar
+                $liberacao = AutarquiaModulo::updateOrCreate(
+                    [
+                        'autarquia_id' => $autarquiaId,
+                        'modulo_id' => $moduloId,
+                    ],
+                    [
+                        'ativo' => $ativo,
+                        'data_liberacao' => $ativo ? now() : null,
+                    ]
+                );
+
+                $liberacao->loadMissing(['modulo:id,nome,icone']);
+                $atualizados[] = $liberacao;
+
+                \Log::info('✅ Módulo atualizado', [
                     'autarquia_id' => $autarquiaId,
                     'modulo_id' => $moduloId,
-                    'data_liberacao' => now(),
-                    'ativo' => true,
+                    'ativo' => $ativo,
                 ]);
-
-                $liberacao->load(['modulo:id,nome,icone']);
-                $liberados[] = $liberacao;
+            } catch (\Throwable $e) {
+                \Log::error('❌ Erro ao processar módulo', [
+                    'index' => $index,
+                    'dados' => $moduloData,
+                    'erro' => $e->getMessage(),
+                ]);
+                $erros[] = [
+                    'index' => $index,
+                    'modulo_id' => $moduloData['modulo_id'] ?? null,
+                    'erro' => $e->getMessage(),
+                ];
             }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Módulos liberados com sucesso.',
-                'data' => [
-                    'liberados' => $liberados,
-                    'erros' => $erros,
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao liberar módulos: ' . $e->getMessage(),
-            ], 500);
         }
+
+        DB::commit();
+
+        $status = count($erros) ? 207 : 200;
+
+        return response()->json([
+            'success' => count($erros) === 0,
+            'message' => count($erros)
+                ? 'Alguns módulos não puderam ser atualizados.'
+                : 'Módulos atualizados com sucesso.',
+            'data' => [
+                'atualizados' => $atualizados,
+                'erros' => $erros,
+            ],
+        ], $status);
+    } catch (\Throwable $e) {
+        DB::rollBack();
+
+        \Log::critical('🔥 Erro fatal em bulkUpdate', [
+            'autarquia_id' => $autarquiaId,
+            'erro' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro interno ao atualizar liberações: ' . $e->getMessage(),
+        ], 500);
     }
+}
+
+
+
 }
