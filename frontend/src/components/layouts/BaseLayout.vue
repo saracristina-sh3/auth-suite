@@ -1,65 +1,45 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
-    <!-- 🔹 Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-10">
-      <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3">
-        <div class="flex items-center gap-3">
-          <h1 class="font-semibold text-lg text-gray-700">Painel do suporte</h1>
-        </div>
+  <div class="min-h-screen flex flex-col bg-background">
+    <!-- Header -->
+    <Sh3Header
+      :title="title"
+      :icon="icon"
+      :user="user"
+      @notify="abrirNotificacoes"
+    >
+      <template #actions>
+        <Sh3Button icon="pi pi-bell" variant="text" @click="abrirNotificacoes" />
+        <Sh3Button icon="pi pi-cog" variant="text" @click="abrirConfiguracoes" />
+      </template>
+    </Sh3Header>
 
-        <div class="flex items-center gap-4">
-          <Button icon="pi pi-bell" text rounded aria-label="Notificações" />
-          <div class="flex items-center gap-2 cursor-pointer select-none">
-            <Avatar :label="userInitials" shape="circle" size="large" class="bg-teal-600 text-white" />
-            <div class="flex flex-col">
-              <span class="font-medium">{{ user?.name }}</span>
-              <small class="text-gray-500">{{ user?.email }}</small>
-            </div>
-            <i class="pi pi-angle-down text-gray-500"></i>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- 🔹 Main Content -->
-    <main class="flex-1 flex flex-col items-center py-10 px-6">
-      <div class="w-full max-w-6xl bg-white rounded-2xl shadow-sm p-8">
-        <slot />
-      </div>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center py-8 px-6">
+      <Sh3Card class="w-full max-w-10xl">
+        <template #content>
+          <slot />
+        </template>
+      </Sh3Card>
     </main>
 
-    <!-- 🔹 Footer -->
-    <footer class="text-center text-gray-400 text-sm py-4">
+    <!-- Footer -->
+    <footer class="text-center text-muted-foreground text-sm py-4 border-t border-border">
       v0.1.2023
     </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import  Avatar  from 'primevue/avatar'
-import  Button  from 'primevue/button'
+import Sh3Button from '@/components/common/Sh3Button.vue'
+import Sh3Card from '@/components/common/Sh3Card.vue'
+import Sh3Header from '@/components/layouts/HeaderLayout.vue'
+
+const props = defineProps<{
+  title?: string
+  icon?: string
+}>()
 
 const user = JSON.parse(localStorage.getItem('user_data') || '{}')
-
-const userInitials = computed(() => {
-  if (!user?.name) return '?'
-  return user.name
-    .split(' ')
-    .map((n: string) => n[0])
-    .join('')
-    .substring(0, 2)
-    .toUpperCase()
-})
+const abrirNotificacoes = () => console.log('🔔 Notificações clicadas')
+const abrirConfiguracoes = () => console.log('⚙️ Configurações abertas')
 </script>
-
-<style scoped>
-/* 🔹 Animações suaves */
-main {
-  transition: all 0.3s ease;
-}
-
-header {
-  backdrop-filter: blur(8px);
-}
-</style>

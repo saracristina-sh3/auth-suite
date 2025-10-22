@@ -1,24 +1,29 @@
 import './assets/main.css'
-
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-
 import App from './App.vue'
 import router from './router'
+import './assets/main.css'
 
+// PrimeVue
 import PrimeVue from 'primevue/config'
-import { Select, Card, PanelMenu, Avatar } from 'primevue'
+import 'primeicons/primeicons.css' 
+import ThemeSwitcher from './components/theme/ThemeSwitcher.vue';
+
+
 
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-app.use(PrimeVue)
+app.use(PrimeVue, {
+  components: {
+    panelmenu: true,
+    drawer: true
+  }
+})
 
-// Registre os componentes individualmente - use 'Card' como nome
-app.component('Card', Card)
-app.component('PanelMenu', PanelMenu)
-app.component('Avatar', Avatar)
-app.component('Select', Select)
+
+app.component('ThemeSwitcher', ThemeSwitcher);
 
 app.mount('#app')

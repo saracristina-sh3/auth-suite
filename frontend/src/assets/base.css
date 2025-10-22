@@ -1,281 +1,210 @@
-/* Adicione estas linhas no INÍCIO do base.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Nova paleta de cores com melhor contraste */
+/* Importar componentes de cores */
+@import './styles/components/_badge.css';
+@import './styles/components/_button.css';
+@import './styles/components/_message.css';
+@import './styles/components/_password.css';
+@import './styles/components/_tag.css';
+
 :root {
-  /* Cores base - Mais escuras para melhor contraste */
-  --vt-c-white: #ffffff;
-  --vt-c-white-soft: #f8fafc;
-  --vt-c-white-mute: #f1f5f9;
+  /* ============================================================================
+   Cores Semânticas Base - Tema Claro
+  ============================================================================ */
 
-  --vt-c-black: #0a0f1c;
-  --vt-c-black-soft: #151a2d;
-  --vt-c-black-mute: #2a3245;
+  /* Cores de fundo */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
 
-  /* Cores primárias - Azul turquesa escuro */
-  --vt-c-turquoise-dark: #0f766e;
-  --vt-c-turquoise: #14b8a6;
-  --vt-c-turquoise-light: #2dd4bf;
+  /* Cores de cards e superfícies */
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
 
-  /* Cores secundárias */
-  --vt-c-primary: #2563eb;
-  --vt-c-primary-soft: #3b82f6;
-  --vt-c-primary-mute: #60a5fa;
+  /* Cores primárias (Jade - Verde-azulado) */
+  --primary: 174 64% 36%;
+  --primary-foreground: 0 0% 100%;
+  --primary-hover: 174 64% 31%;
+  --primary-active: 174 64% 26%;
+  --primary-disabled: 174 30% 60%;
 
-  /* Cores de acento */
-  --vt-c-accent: #7c3aed;
-  --vt-c-accent-soft: #8b5cf6;
-  --vt-c-accent-mute: #a78bfa;
+  /* Cores secundárias (Selenium - Azul) */
+  --secondary: 199 89% 48%;
+  --secondary-foreground: 0 0% 100%;
+  --secondary-hover: 199 89% 43%;
+  --secondary-active: 199 89% 38%;
+  --secondary-disabled: 199 40% 70%;
 
-  /* Escala de cinza com melhor contraste */
-  --vt-c-gray-50: #f8fafc;
-  --vt-c-gray-100: #f1f5f9;
-  --vt-c-gray-200: #e2e8f0;
-  --vt-c-gray-300: #cbd5e1;
-  --vt-c-gray-400: #94a3b8;
-  --vt-c-gray-500: #64748b;
-  --vt-c-gray-600: #475569;
-  --vt-c-gray-700: #334155;
-  --vt-c-gray-800: #1e293b;
-  --vt-c-gray-900: #0f172a;
+  /* Cores de acento (Jade suave) */
+  --accent: 174 44% 95%;
+  --accent-foreground: 174 64% 26%;
 
-  /* Divisores mais visíveis */
-  --vt-c-divider-light-1: rgba(100, 116, 139, 0.4);
-  --vt-c-divider-light-2: rgba(100, 116, 139, 0.2);
-  --vt-c-divider-dark-1: rgba(148, 163, 184, 0.6);
-  --vt-c-divider-dark-2: rgba(148, 163, 184, 0.4);
+  /* Cores destrutivas (Ruby - Vermelho) */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-hover: 0 84% 55%;
+  --destructive-active: 0 84% 50%;
 
-  /* Texto - CORRIGIDO e mais escuro */
-  --vt-c-text-light-1: var(--vt-c-gray-900);  /* Texto principal muito mais escuro */
-  --vt-c-text-light-2: var(--vt-c-gray-700);  /* Texto secundário mais escuro */
-  --vt-c-text-dark-1: var(--vt-c-gray-100);
-  --vt-c-text-dark-2: var(--vt-c-gray-300);
+  /* Cores de aviso (Sulfur - Amarelo) */
+  --warning: 48 96% 53%;
+  --warning-foreground: 48 96% 10%;
+  --warning-hover: 48 96% 48%;
+
+  /* Cores de sucesso (Jade) */
+  --success: 174 64% 36%;
+  --success-foreground: 0 0% 100%;
+  --success-hover: 174 64% 31%;
+
+  /* Cores de informação (Selenium) */
+  --info: 199 89% 48%;
+  --info-foreground: 0 0% 100%;
+  --info-hover: 199 89% 43%;
+
+  /* Cores muted/desabilitadas */
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+
+  /* Cores de borda e input */
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --input-border: 240 5.9% 85%;
+  --input-focus: 174 64% 36%;
+  --ring: 174 64% 36%;
+
+  /* Raio de borda */
+  --radius: 0.5rem;
+
+  /* Sidebar */
+  --sidebar-background: 240 4.8% 95.9%;
+  --sidebar-foreground: 240 5.9% 10%;
+  --sidebar-primary: 199 89% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 199 89% 48%;
+
+  /* ============================================================================
+   Cores de Estados - Reutilizáveis
+  ============================================================================ */
+
+  /* Estados de hover genéricos */
+  --hover-overlay: 0 0% 0% / 0.05;
+  --active-overlay: 0 0% 0% / 0.1;
+
+  /* Estados de foco */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
 }
 
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white-soft);
-  --color-background-soft: var(--vt-c-white);
-  --color-background-mute: var(--vt-c-white-mute);
+/* ============================================================================
+   Tema Escuro
+  ============================================================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Cores de fundo */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
+    /* Cores de cards e superfícies */
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-  --color-heading: var(--vt-c-text-light-1);  /* Agora usa gray-900 - bem escuro */
-  --color-text: var(--vt-c-text-light-2);     /* Agora usa gray-700 - mais escuro */
+    /* Cores primárias (Jade - mais claro no escuro) */
+    --primary: 174 64% 50%;
+    --primary-foreground: 240 5.9% 10%;
+    --primary-hover: 174 64% 55%;
+    --primary-active: 174 64% 60%;
+    --primary-disabled: 174 30% 40%;
 
-  /* Cores do sistema - usando turquesa */
-  --color-primary: var(--vt-c-turquoise-dark);
-  --color-primary-soft: var(--vt-c-turquoise);
-  --color-primary-mute: var(--vt-c-turquoise-light);
+    /* Cores secundárias (Selenium - mais claro no escuro) */
+    --secondary: 199 89% 58%;
+    --secondary-foreground: 240 5.9% 10%;
+    --secondary-hover: 199 89% 63%;
+    --secondary-active: 199 89% 68%;
+    --secondary-disabled: 199 40% 50%;
 
-  --color-secondary: var(--vt-c-secondary);
-  --color-accent: var(--vt-c-accent);
+    /* Cores de acento */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-  --section-gap: 160px;
+    /* Cores destrutivas (Ruby) */
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 240 5.9% 10%;
+    --destructive-hover: 0 84% 70%;
+    --destructive-active: 0 84% 75%;
 
-  /* Gradientes */
-  --gradient-primary: linear-gradient(135deg, var(--vt-c-turquoise-dark) 0%, var(--vt-c-turquoise) 100%);
-  --gradient-secondary: linear-gradient(135deg, var(--vt-c-turquoise) 0%, var(--vt-c-primary-soft) 100%);
+    /* Cores de aviso (Sulfur) */
+    --warning: 48 96% 60%;
+    --warning-foreground: 240 5.9% 10%;
+    --warning-hover: 48 96% 65%;
+
+    /* Cores de sucesso (Jade) */
+    --success: 174 64% 50%;
+    --success-foreground: 240 5.9% 10%;
+    --success-hover: 174 64% 55%;
+
+    /* Cores de informação (Selenium) */
+    --info: 199 89% 58%;
+    --info-foreground: 240 5.9% 10%;
+    --info-hover: 199 89% 63%;
+
+    /* Cores muted/desabilitadas */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* Cores de borda e input */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --input-border: 240 3.7% 25%;
+    --input-focus: 174 64% 50%;
+    --ring: 174 64% 50%;
+
+    /* Sidebar */
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 199 89% 58%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 199 89% 58%;
+
+    /* Sombras no tema escuro - mais suaves */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+  }
 }
 
-/* Forçar tema claro sempre */
-:root {
-  --color-background: var(--vt-c-white-soft);
-  --color-background-soft: var(--vt-c-white);
-  --color-background-mute: var(--vt-c-white-mute);
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-2);
-}
-
-/* Resto do CSS permanece igual... */
-*,
-*::before,
-*::after {
+/* Reset e estilos base */
+* {
   box-sizing: border-box;
   margin: 0;
-  font-weight: 450;
+  padding: 0;
 }
 
 body {
-  min-height: 100vh;
-  color: var(--color-text);
-  background: var(--color-background);
-  transition:
-    color 0.5s ease,
-    background-color 0.5s ease;
-  line-height: 1.7;
-  font-family:
-    'Inter var',
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 16px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-feature-settings: 'cv11', 'ss01';
-  letter-spacing: -0.01em;
+  font-family: 'Lato', sans-serif;
+  line-height: 1.6;
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
 }
 
-/* Melhorias para tipografia - CONTRASTE MELHORADO */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-heading);
-  font-weight: 650;
-  line-height: 1.3;
-  letter-spacing: -0.025em;
-}
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 750;
-  color: var(--vt-c-gray-900);
-}
-
-h2 {
-  font-size: 2rem;
-  color: var(--vt-c-gray-900);
-}
-
-h3 {
-  font-size: 1.5rem;
-  color: var(--vt-c-gray-800);
-}
-
-/* Texto de parágrafos mais escuro */
-p, li, span {
-  color: var(--vt-c-gray-700);
-}
-
-/* Links modernos com melhor contraste */
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: all 0.2s ease;
-  font-weight: 550;
-}
-
-a:hover {
-  color: var(--color-primary-soft);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* Botões base */
-button {
-  font-family: inherit;
-  font-weight: 550;
-  transition: all 0.2s ease;
-}
-
-/* Resto do CSS permanece igual... */
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-background-soft);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-hover);
-}
-
-/* Seleção de texto */
-::selection {
-  background-color: var(--color-primary-mute);
-  color: var(--color-heading);
-}
-
-/* Foco visível para acessibilidade */
-:focus-visible {
-  outline: 2px solid var(--color-primary);
+/* Garantir que elementos de foco usem a cor do ring */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* Sombras mais definidas */
-.shadow-soft {
-  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.08);
-}
-
-/* Cards modernos com melhor contraste */
-.card {
-  background: var(--color-background-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  border-color: var(--color-primary-soft);
-  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.08);
-}
-
-/* Utilitários de texto para forçar contraste */
-.text-high-contrast {
-  color: var(--vt-c-gray-900) !important;
-}
-
-.text-medium-contrast {
-  color: var(--vt-c-gray-700) !important;
-}
-
-/* Gradientes utilitários */
-.gradient-primary {
-  background: var(--gradient-primary);
-}
-
-.gradient-secondary {
-  background: var(--gradient-secondary);
-}
-
-/* Animações suaves */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
 }

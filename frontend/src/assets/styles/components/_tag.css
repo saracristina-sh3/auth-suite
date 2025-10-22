@@ -1,0 +1,43 @@
+/* Tag Component Styles */
+.tag-success {
+  background: var(--jade-100);
+  color: var(--jade-700);
+}
+
+.tag-info {
+  background: var(--selenium-100);
+  color: var(--selenium-700);
+}
+
+.tag-warning {
+  background: var(--sulfur-100);
+  color: var(--sulfur-700);
+}
+
+.tag-danger {
+  background: var(--ruby-100);
+  color: var(--ruby-700);
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  .tag-success {
+    background: color-mix(in srgb, var(--jade-500), transparent 84%);
+    color: var(--jade-300);
+  }
+  
+  .tag-info {
+    background: color-mix(in srgb, var(--selenium-500), transparent 84%);
+    color: var(--selenium-300);
+  }
+  
+  .tag-warning {
+    background: color-mix(in srgb, var(--sulfur-500), transparent 84%);
+    color: var(--sulfur-300);
+  }
+  
+  .tag-danger {
+    background: color-mix(in srgb, var(--ruby-500), transparent 84%);
+    color: var(--ruby-300);
+  }
+}

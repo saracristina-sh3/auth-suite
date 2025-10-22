@@ -1,0 +1,91 @@
+/* colors.css */
+:root {
+  /* Cores SH3 */
+  --selenium-50: #f0f9ff;
+  --selenium-100: #e0f2fe;
+  --selenium-200: #bae6fd;
+  --selenium-300: #7dd3fc;
+  --selenium-400: #38bdf8;
+  --selenium-500: #0ea5e9;
+  --selenium-600: #0284c7;
+  --selenium-700: #0369a1;
+  --selenium-800: #075985;
+  --selenium-900: #0c4a6e;
+  --selenium-950: #082f49;
+
+  --copper-50: #fef7ee;
+  --copper-100: #fdedd5;
+  --copper-200: #fbd8ab;
+  --copper-300: #f8bb76;
+  --copper-400: #f49340;
+  --copper-500: #f1731a;
+  --copper-600: #e25710;
+  --copper-700: #bc3f10;
+  --copper-800: #953314;
+  --copper-900: #782c14;
+  --copper-950: #411409;
+
+  /* Cores Actions */
+  --jade-50: #f0fdf9;
+  --jade-100: #ccfbef;
+  --jade-200: #99f6e0;
+  --jade-300: #5eead4;
+  --jade-400: #2dd4bf;
+  --jade-500: #14b8a6;
+  --jade-600: #0d9488;
+  --jade-700: #0f766e;
+  --jade-800: #115e59;
+  --jade-900: #134e4a;
+  --jade-950: #042f2e;
+
+  --ruby-50: #fef2f2;
+  --ruby-100: #fee2e2;
+  --ruby-200: #fecaca;
+  --ruby-300: #fca5a5;
+  --ruby-400: #f87171;
+  --ruby-500: #ef4444;
+  --ruby-600: #dc2626;
+  --ruby-700: #b91c1c;
+  --ruby-800: #991b1b;
+  --ruby-900: #7f1d1d;
+  --ruby-950: #450a0a;
+
+  --sulfur-50: #fefce8;
+  --sulfur-100: #fef9c3;
+  --sulfur-200: #fef08a;
+  --sulfur-300: #fde047;
+  --sulfur-400: #facc15;
+  --sulfur-500: #eab308;
+  --sulfur-600: #ca8a04;
+  --sulfur-700: #a16207;
+  --sulfur-800: #854d0e;
+  --sulfur-900: #713f12;
+  --sulfur-950: #422006;
+
+  /* Cores Modules - adicione todas as cores dos módulos aqui */
+  --contabil-50: #f0f8fb;
+  --contabil-100: #d9eef4;
+  --contabil-200: #b8dce9;
+  --contabil-300: #87c3d9;
+  --contabil-400: #4ea0c2;
+  --contabil-500: #3282a5;
+  --contabil-600: #2d6b8d;
+  --contabil-700: #2a5874;
+  --contabil-800: #2a4a60;
+  --contabil-900: #273f52;
+  --contabil-950: #152837;
+
+  --pessoal-50: #f1fafa;
+  --pessoal-100: #dbf1f2;
+  --pessoal-200: #bae3e7;
+  --pessoal-300: #8bcfd5;
+  --pessoal-400: #54b1bc;
+  --pessoal-500: #3995a1;
+  --pessoal-600: #327988;
+  --pessoal-700: #2e6470;
+  --pessoal-800: #2d535d;
+  --pessoal-900: #294650;
+  --pessoal-950: #1d3a44;
+
+  /* Adicione todas as outras cores dos módulos... */
+}

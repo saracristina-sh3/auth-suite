@@ -1,8 +1,8 @@
-# Documentação - Sistema de Login
+# DocumentaÃ§Ã£o - Sistema de Login
 
-## Visão Geral
+## Visï¿½o Geral
 
-O sistema de autenticação utiliza **Laravel Sanctum** no backend e **Vue 3 + Axios** no frontend, rodando em containers Docker.
+O sistema de autenticaï¿½ï¿½o utiliza **Laravel Sanctum** no backend e **Vue 3 + Axios** no frontend, rodando em containers Docker.
 
 ## Arquitetura
 
@@ -10,17 +10,17 @@ O sistema de autenticação utiliza **Laravel Sanctum** no backend e **Vue 3 + Axi
 - **Container**: `gestao_frota_app_local`
 - **Porta**: 8000
 - **Endpoints**:
-  - `POST /api/login` - Autenticação
-  - `GET /api/user` - Dados do usuário autenticado
-  - `POST /api/logout` - Encerrar sessão
+  - `POST /api/login` - Autenticaï¿½ï¿½o
+  - `GET /api/user` - Dados do usuï¿½rio autenticado
+  - `POST /api/logout` - Encerrar sessï¿½o
 
 ### Frontend (Vue 3 + Vite)
 - **Desenvolvimento Local**: porta 5173
-- **Produção**: Servido pelo backend via Apache
+- **Produï¿½ï¿½o**: Servido pelo backend via Apache
 
-## Configuração do Ambiente
+## Configuraï¿½ï¿½o do Ambiente
 
-### 1. Variáveis de Ambiente
+### 1. Variï¿½veis de Ambiente
 
 #### Backend (/.env)
 ```env
@@ -44,9 +44,9 @@ SUPERADMIN_PASSWORD=admin123
 VITE_API_URL=http://localhost:8000/api
 ```
 
-### 2. Configuração CORS
+### 2. Configuraï¿½ï¿½o CORS
 
-O CORS está configurado em [backend/config/cors.php](../backend/config/cors.php):
+O CORS estï¿½ configurado em [backend/config/cors.php](../backend/config/cors.php):
 
 ```php
 'paths' => ['api/*', 'sanctum/csrf-cookie', 'graphql'],
@@ -56,9 +56,9 @@ O CORS está configurado em [backend/config/cors.php](../backend/config/cors.php)
 'supports_credentials' => false,
 ```
 
-### 3. Configuração Sanctum
+### 3. Configuraï¿½ï¿½o Sanctum
 
-Domínios stateful configurados em [backend/config/sanctum.php](../backend/config/sanctum.php#L18-L23):
+Domï¿½nios stateful configurados em [backend/config/sanctum.php](../backend/config/sanctum.php#L18-L23):
 
 ```php
 'stateful' => [
@@ -80,21 +80,21 @@ Domínios stateful configurados em [backend/config/sanctum.php](../backend/config
 # Na raiz do projeto
 docker compose up -d
 
-# Verificar se os containers estão rodando
+# Verificar se os containers estï¿½o rodando
 docker compose ps
 ```
 
-Os seguintes containers serão iniciados:
+Os seguintes containers serï¿½o iniciados:
 - **gestao_frota_db_local** - PostgreSQL (porta 5432)
-- **gestao_frota_init_local** - Inicialização (migrations e seeds)
+- **gestao_frota_init_local** - Inicializaï¿½ï¿½o (migrations e seeds)
 - **gestao_frota_frontend_local** - Build do frontend
-- **gestao_frota_app_local** - Aplicação principal (porta 8000)
+- **gestao_frota_app_local** - Aplicaï¿½ï¿½o principal (porta 8000)
 
-### 2. Acessar a Aplicação
+### 2. Acessar a Aplicaï¿½ï¿½o
 
-**Produção (via Docker):**
+**Produï¿½ï¿½o (via Docker):**
 - URL: http://localhost:8000
-- O frontend já está buildado e servido pelo backend
+- O frontend jï¿½ estï¿½ buildado e servido pelo backend
 
 **Desenvolvimento Frontend (com hot-reload):**
 ```bash
@@ -104,15 +104,15 @@ npm run dev
 ```
 - URL: http://localhost:5173/login
 
-### 3. Credenciais Padrão
+### 3. Credenciais Padrï¿½o
 
 Conforme configurado no `.env`:
 - **Email**: admin@empresa.com
 - **Senha**: admin123
 
-### 4. Criar Usuário Manualmente (Opcional)
+### 4. Criar Usuï¿½rio Manualmente (Opcional)
 
-Se necessário criar outro usuário:
+Se necessï¿½rio criar outro usuï¿½rio:
 
 ```bash
 # Acessar o container
@@ -132,29 +132,29 @@ $user->save();
 exit
 ```
 
-## Fluxo de Autenticação
+## Fluxo de Autenticaï¿½ï¿½o
 
-1. **Usuário** preenche email/senha no formulário
+1. **Usuï¿½rio** preenche email/senha no formulï¿½rio
 2. **Frontend** envia `POST /api/login` com credenciais
 3. **Backend** valida no banco de dados
-4. **Backend** retorna `{token, user}` se válido
+4. **Backend** retorna `{token, user}` se vï¿½lido
 5. **Frontend** armazena token no `localStorage`
 6. **Frontend** configura header `Authorization: Bearer {token}`
-7. **Frontend** redireciona para página principal
-8. Requisições subsequentes incluem o token automaticamente
+7. **Frontend** redireciona para pï¿½gina principal
+8. Requisiï¿½ï¿½es subsequentes incluem o token automaticamente
 
-## Implementação
+## Implementaï¿½ï¿½o
 
 ### Frontend
 
-#### Serviço de Autenticação
+#### Serviï¿½o de Autenticaï¿½ï¿½o
 Arquivo: [frontend/src/services/auth.service.ts](../frontend/src/services/auth.service.ts)
 
 **Principais funcionalidades:**
-- Configura `baseURL` a partir da variável de ambiente `VITE_API_URL`
-- Interceptor que adiciona token em todas requisições
+- Configura `baseURL` a partir da variï¿½vel de ambiente `VITE_API_URL`
+- Interceptor que adiciona token em todas requisiï¿½ï¿½es
 - Interceptor que trata erro 401 (redireciona para login)
-- Tratamento de erros com mensagens específicas do Laravel
+- Tratamento de erros com mensagens especï¿½ficas do Laravel
 
 ```typescript
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -212,7 +212,7 @@ Route::post('/login', function (Request $request) {
 
     if (! $user || ! Hash::check($request->password, $user->password)) {
         throw ValidationException::withMessages([
-            'email' => ['Credenciais inválidas.'],
+            'email' => ['Credenciais invï¿½lidas.'],
         ]);
     }
 
@@ -225,7 +225,7 @@ Route::post('/login', function (Request $request) {
 });
 ```
 
-## Configuração Vite (Desenvolvimento)
+## Configuraï¿½ï¿½o Vite (Desenvolvimento)
 
 Arquivo: [frontend/vite.config.ts](../frontend/vite.config.ts#L18-L29)
 
@@ -244,16 +244,16 @@ server: {
 }
 ```
 
-O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000).
+O proxy redireciona requisiï¿½ï¿½es `/api/*` do frontend (5173) para o backend (8000).
 
-## Solução de Problemas
+## Soluï¿½ï¿½o de Problemas
 
 ### Erro: "Network Error" ou "Failed to fetch"
 
-**Causa**: Frontend não consegue conectar ao backend.
+**Causa**: Frontend nï¿½o consegue conectar ao backend.
 
-**Solução**:
-1. Verificar se o container está rodando:
+**Soluï¿½ï¿½o**:
+1. Verificar se o container estï¿½ rodando:
    ```bash
    docker compose ps
    ```
@@ -263,7 +263,7 @@ O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000
    docker compose logs -f app
    ```
 
-3. Verificar variável `VITE_API_URL` em `/frontend/.env`:
+3. Verificar variï¿½vel `VITE_API_URL` em `/frontend/.env`:
    ```env
    VITE_API_URL=http://localhost:8000/api
    ```
@@ -273,11 +273,11 @@ O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000
    curl http://localhost:8000/api/user
    ```
 
-### Erro: "Credenciais inválidas"
+### Erro: "Credenciais invï¿½lidas"
 
 **Causa**: Email ou senha incorretos.
 
-**Solução**:
+**Soluï¿½ï¿½o**:
 1. Verificar credenciais no `.env` (raiz do projeto):
    ```env
    SUPERADMIN_EMAIL=admin@empresa.com
@@ -297,11 +297,11 @@ O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000
    exit
    ```
 
-### Erro 401 em requisições autenticadas
+### Erro 401 em requisiï¿½ï¿½es autenticadas
 
-**Causa**: Token inválido ou expirado.
+**Causa**: Token invï¿½lido ou expirado.
 
-**Solução**:
+**Soluï¿½ï¿½o**:
 1. Limpar localStorage no console do navegador:
    ```javascript
    localStorage.clear()
@@ -309,13 +309,13 @@ O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000
 
 2. Fazer login novamente
 
-3. Verificar no Network DevTools se o header `Authorization` está sendo enviado
+3. Verificar no Network DevTools se o header `Authorization` estï¿½ sendo enviado
 
 ### CORS Error
 
-**Causa**: Configuração CORS restritiva.
+**Causa**: Configuraï¿½ï¿½o CORS restritiva.
 
-**Solução**:
+**Soluï¿½ï¿½o**:
 1. Verificar [backend/config/cors.php](../backend/config/cors.php)
 2. Em desenvolvimento, `allowed_origins` deve ser `['*']`
 3. Reiniciar container:
@@ -323,13 +323,13 @@ O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000
    docker compose restart app
    ```
 
-### Frontend não reconhece variável VITE_API_URL
+### Frontend nï¿½o reconhece variï¿½vel VITE_API_URL
 
-**Causa**: Vite não recarregou variáveis de ambiente.
+**Causa**: Vite nï¿½o recarregou variï¿½veis de ambiente.
 
-**Solução**:
+**Soluï¿½ï¿½o**:
 1. Parar o servidor de desenvolvimento (Ctrl+C)
-2. Verificar se `/frontend/.env` existe e contém:
+2. Verificar se `/frontend/.env` existe e contï¿½m:
    ```env
    VITE_API_URL=http://localhost:8000/api
    ```
@@ -338,7 +338,7 @@ O proxy redireciona requisições `/api/*` do frontend (5173) para o backend (8000
    npm run dev
    ```
 
-## Comandos Úteis Docker
+## Comandos ï¿½teis Docker
 
 ```bash
 # Ver logs do container
@@ -371,7 +371,7 @@ docker compose ps
 docker compose logs -f
 ```
 
-## Segurança em Produção
+## Seguranï¿½a em Produï¿½ï¿½o
 
 ### 1. CORS Restritivo
 ```php
@@ -380,37 +380,37 @@ docker compose logs -f
 'supports_credentials' => true,
 ```
 
-### 2. HTTPS Obrigatório
-Sempre usar conexões seguras em produção.
+### 2. HTTPS Obrigatï¿½rio
+Sempre usar conexï¿½es seguras em produï¿½ï¿½o.
 
-### 3. Expiração de Tokens
+### 3. Expiraï¿½ï¿½o de Tokens
 ```php
 // backend/config/sanctum.php
 'expiration' => 60, // 60 minutos
 ```
 
 ### 4. Rate Limiting
-Limitar tentativas de login para prevenir força bruta.
+Limitar tentativas de login para prevenir forï¿½a bruta.
 
-### 5. Variáveis de Ambiente
+### 5. Variï¿½veis de Ambiente
 - Nunca commitar arquivos `.env`
-- Usar valores seguros em produção
+- Usar valores seguros em produï¿½ï¿½o
 - Rotacionar `APP_KEY` regularmente
 
 ## Arquivos Importantes
 
-| Arquivo | Descrição |
+| Arquivo | Descriï¿½ï¿½o |
 |---------|-----------|
 | [backend/routes/api.php](../backend/routes/api.php) | Rotas da API |
-| [backend/config/cors.php](../backend/config/cors.php) | Configuração CORS |
-| [backend/config/sanctum.php](../backend/config/sanctum.php) | Configuração Sanctum |
-| [frontend/src/services/auth.service.ts](../frontend/src/services/auth.service.ts) | Serviço de autenticação |
+| [backend/config/cors.php](../backend/config/cors.php) | Configuraï¿½ï¿½o CORS |
+| [backend/config/sanctum.php](../backend/config/sanctum.php) | Configuraï¿½ï¿½o Sanctum |
+| [frontend/src/services/auth.service.ts](../frontend/src/services/auth.service.ts) | Serviï¿½o de autenticaï¿½ï¿½o |
 | [frontend/src/views/LoginView.vue](../frontend/src/views/LoginView.vue) | Componente de login |
-| [frontend/vite.config.ts](../frontend/vite.config.ts) | Configuração Vite + Proxy |
-| [frontend/.env](../frontend/.env) | Variáveis de ambiente frontend |
-| [docker-compose.yaml](../docker-compose.yaml) | Configuração Docker |
+| [frontend/vite.config.ts](../frontend/vite.config.ts) | Configuraï¿½ï¿½o Vite + Proxy |
+| [frontend/.env](../frontend/.env) | Variï¿½veis de ambiente frontend |
+| [docker-compose.yaml](../docker-compose.yaml) | Configuraï¿½ï¿½o Docker |
 
-## Referências
+## Referï¿½ncias
 
 - [Laravel Sanctum](https://laravel.com/docs/sanctum)
 - [Axios Interceptors](https://axios-http.com/docs/interceptors)
