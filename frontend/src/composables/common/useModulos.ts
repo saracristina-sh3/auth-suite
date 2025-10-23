@@ -1,14 +1,18 @@
 // src/composables/useModulos.ts
 import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { moduloService } from '@/services/modulos.service'
 import { authService } from '@/services/auth.service'
 import { supportService } from '@/services/support.service'
 import type { ModuloWithUI } from '@/types/modulos.types'
 import { iconMap, routeMap } from '@/constants/modulos.constants'
+import { useAutarquiaStore } from '@/stores/autarquia.store'
 
 const modulos = ref<ModuloWithUI[]>([])
 const loadingModulos = ref(true)
 const error = ref<string | null>(null)
+const autarquiaStore = useAutarquiaStore()
+const { autarquiaId, autarquia } = storeToRefs(autarquiaStore)
 
 export function useModulos() {
   const loadModulos = async () => {
@@ -42,24 +46,33 @@ export function useModulos() {
       }
 
       // 👤 MODO NORMAL: Buscar módulos pela autarquia do usuário
-      const user = authService.getUserFromStorage()
-
-      if (!user) {
+      if (!authService.isAuthenticated()) {
         error.value = 'Usuário não autenticado'
         modulos.value = []
         return
       }
 
-      // Carregar módulos baseado na autarquia do usuário
-      let data
-      if (user.autarquia_ativa_id) {
-        console.log('👤 Carregando módulos da autarquia:', user.autarquia?.nome)
-        data = await moduloService.list(user.autarquia_ativa_id)
-      } else {
-        error.value = 'Usuário não possui autarquia associada'
-        modulos.value = []
-        return
+      let autarquiaIdValue = autarquiaId.value
+
+      if (!autarquiaIdValue) {
+        try {
+          // Buscamos a autarquia diretamente do backend para garantir alinhamento com a sessão atual
+          await autarquiaStore.fetchAutarquia()
+          autarquiaIdValue = autarquiaId.value
+        } catch (storeError) {
+          console.error('❌ Erro ao sincronizar contexto da autarquia antes de carregar módulos:', storeError)
+        }
       }
+
+        if (!autarquiaIdValue) {
+          error.value = 'Não foi possível determinar a autarquia ativa.'
+          modulos.value = []
+          return
+        }
+
+        let data
+        console.log('👤 Carregando módulos da autarquia ativa em sessão:', autarquiaIdValue)
+        data = await moduloService.list(autarquiaIdValue)
 
       // Mapeia os módulos com ícones e rotas
       modulos.value = data
@@ -73,7 +86,7 @@ export function useModulos() {
           description: modulo.descricao || `Módulo ${modulo.nome}`
         }))
 
-      console.log('✅ Módulos carregados para autarquia:', user.autarquia?.nome, modulos.value)
+        console.log('✅ Módulos carregados para autarquia:', autarquia.value?.nome, modulos.value)
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Erro ao carregar módulos'
       console.error('❌ Erro ao carregar módulos:', err)

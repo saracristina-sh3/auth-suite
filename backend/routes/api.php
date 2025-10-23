@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AutarquiaController;
 use App\Http\Controllers\Api\ModulosController;
 use App\Http\Controllers\Api\AutarquiaModuloController;
 use App\Http\Controllers\Api\UsuarioModuloPermissaoController;
+use App\Http\Controllers\Api\SessionAutarquiaController;
 
 Route::get('/', fn() => response()->json(['message' => 'API is running']));
 
@@ -20,7 +21,7 @@ Route::post('/register', [AuthController::class, 'register']);
 // ====================================
 // ROTAS AUTENTICADAS
 // ====================================
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum', 'autarquia.session'])->group(function () {
 
     // Autenticação
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -114,3 +115,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/roles', [RoleController::class, 'index']);
 
 });
+    // Sessão de autarquia - mantém contexto isolado por usuário autenticado
+    Route::get('/session/autarquia', [SessionAutarquiaController::class, 'show']);
+    Route::post('/session/autarquia', [SessionAutarquiaController::class, 'store']);
+

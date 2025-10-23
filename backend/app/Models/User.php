@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Session;
 
 class User extends Authenticatable
 {
@@ -251,8 +252,7 @@ class User extends Authenticatable
             return false;
         }
 
-        $this->autarquia_ativa_id = $autarquiaId;
-        $this->save();
+        $this->setAutarquiaContext($autarquiaId);
 
         return true;
     }
@@ -275,5 +275,44 @@ class User extends Authenticatable
             ->first()?->pivot;
 
         return $pivot?->role ?? $this->role;
+    }
+
+    public function getAutarquiaSessionKey(): string
+    {
+        return 'autarquia_ativa_id_user_' . $this->id;
+    }
+
+    /**
+     * Centraliza a escrita da autarquia ativa garantindo isolamento por usuário e gravação na sessão.
+     */
+    public function setAutarquiaContext(?int $autarquiaId, bool $persistSession = true): void
+    {
+        // Mantemos o atributo em memória para que relacionamentos funcionem durante o request
+        $this->setAttribute('autarquia_ativa_id', $autarquiaId);
+
+        if (!$persistSession) {
+            return;
+        }
+
+        // Namespacing por usuário garante isolamento mesmo com múltiplos tokens
+        $sessionKey = $this->getAutarquiaSessionKey();
+
+        if ($autarquiaId === null) {
+            Session::forget($sessionKey);
+        } else {
+            Session::put($sessionKey, $autarquiaId);
+        }
+
+        if (!Session::isStarted()) {
+            Session::start();
+        }
+
+        // Persistimos imediatamente para evitar race condition entre requisições paralelas
+        Session::save();
+    }
+
+    public function clearAutarquiaContext(): void
+    {
+        $this->setAutarquiaContext(null);
     }
 }

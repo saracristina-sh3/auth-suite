@@ -38,11 +38,26 @@ class AuthController extends Controller
     ], 401);
 }
 
+        // Garante que temos a lista de autarquias para definir o contexto em sessão
+        $user->loadMissing('autarquias');
+
+        $autarquiaPadrao = $user->getOriginal('autarquia_ativa_id')
+            ?? $user->autarquias->first(fn($autarquia) => (bool) ($autarquia->pivot->is_default ?? false))?->id
+            ?? $user->autarquias->first()?->id;
+
+        if ($autarquiaPadrao) {
+            // Persistimos na sessão para que requisições subsequentes usem o mesmo contexto
+            $user->setAutarquiaContext($autarquiaPadrao);
+            $user->loadMissing('autarquiaAtiva');
+        } else {
+            $user->clearAutarquiaContext();
+        }
+
         // Create real Sanctum token
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        // Load autarquia ativa e autarquias vinculadas
-        $user->load(['autarquiaAtiva', 'autarquias']);
+        // Load autarquia ativa e autarquias vinculadas (já carregadas acima, mas loadMissing evita consultas extras)
+        $user->loadMissing(['autarquiaAtiva', 'autarquias']);
 
         \Log::info('✅ Login bem-sucedido', [
             'user_id' => $user->id,
@@ -96,7 +111,16 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        if ($user) {
+            $user->currentAccessToken()->delete();
+            // Ao encerrar a sessão removemos o contexto para evitar vazamento entre logins
+            $user->clearAutarquiaContext();
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json([
             'message' => 'Logged out successfully'
@@ -105,8 +129,14 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $user = $request->user();
+
+        if ($user) {
+            $user->loadMissing('autarquiaAtiva');
+        }
+
         return response()->json([
-            'user' => $request->user()
+            'user' => $user
         ]);
     }
 
@@ -172,6 +202,8 @@ class AuthController extends Controller
             'context_autarquia_ativa_id' => $autarquia->id
         ])->plainTextToken;
 
+        $user->setAutarquiaContext($autarquia->id);
+
         \Log::info('✅ Contexto de autarquia assumido com sucesso', [
             'user_id' => $user->id,
             'autarquia_ativa_id' => $autarquia->id,
@@ -231,6 +263,12 @@ class AuthController extends Controller
 
         // Recarrega o usuário com sua autarquia ativa
         $user->load(['autarquiaAtiva', 'autarquias']);
+
+        if ($user->autarquia_ativa_id) {
+            $user->setAutarquiaContext($user->autarquia_ativa_id);
+        } else {
+            $user->clearAutarquiaContext();
+        }
 
         \Log::info('✅ Retornado ao contexto original', [
             'user_id' => $user->id,
@@ -303,10 +341,12 @@ class AuthController extends Controller
                 });
         }
 
+        $autarquiaAtivaId = $request->session()->get($user->getAutarquiaSessionKey());
+
         return response()->json([
             'success' => true,
             'autarquias' => $autarquias,
-            'autarquia_ativa_id' => $user->autarquia_ativa_id ?? $user->autarquia_ativa_id,
+            'autarquia_ativa_id' => $autarquiaAtivaId,
         ]);
     }
 

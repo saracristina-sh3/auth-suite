@@ -34,9 +34,10 @@
               options: autarquias,
               optionLabel: 'nome',
               optionValue: 'id'
-            }" v-model="autarquiaAtivaId" @update:modelValue="handleAutarquiaChange" :disabled="changingAutarquia" />
+            }" v-model="selectedAutarquiaId" @update:modelValue="handleAutarquiaChange"
+              :disabled="changingAutarquia || autarquiaContextLoading" />
 
-            <div v-if="changingAutarquia"
+            <div v-if="changingAutarquia || autarquiaContextLoading"
               class="mt-4 p-4 flex items-center justify-center bg-muted rounded-lg text-primary text-sm font-medium animate-pulse">
               <Sh3ProgressSpinner size="small" />
               <span class="ml-2">Alterando autarquia e recarregando módulos...</span>
@@ -126,11 +127,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useModulos } from '@/composables/common/useModulos'
 import { useNotification } from '@/composables/common/useNotification'
 import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
+import { useAutarquiaStore } from '@/stores/autarquia.store'
 import Sh3Welcome from './common/Sh3Welcome.vue'
 import Sh3Select from './common/Sh3Select.vue'
 import Sh3Card from './common/Sh3Card.vue'
@@ -147,15 +150,24 @@ const { modulos, loadingModulos, error, reload } = useModulos()
 const { showMessage } = useNotification()
 const router = useRouter()
 
+// Pinia centraliza o contexto da autarquia e reflete o valor salvo no backend
+const autarquiaStore = useAutarquiaStore()
+const { autarquiaId: storeAutarquiaId, autarquia: storeAutarquia, loading: autarquiaContextLoading } =
+  storeToRefs(autarquiaStore)
+
 const currentUser = ref<User | null>(null)
 const autarquias = ref<AutarquiaWithPivot[]>([])
-const autarquiaAtivaId = ref<number | null>(null)
+const selectedAutarquiaId = ref<number | null>(storeAutarquiaId.value ?? null)
 const loadingAutarquias = ref(false)
-const changingAutarquia = ref(false) 
+const changingAutarquia = ref(false)
 
 const autarquiaAtiva = computed(() => {
-  if (!autarquiaAtivaId.value) return null
-  return autarquias.value.find(a => a.id === autarquiaAtivaId.value) || null
+  if (storeAutarquia.value) {
+    return storeAutarquia.value
+  }
+
+  if (!selectedAutarquiaId.value) return null
+  return autarquias.value.find(a => a.id === selectedAutarquiaId.value) || null
 })
 
 async function loadUserAutarquias() {
@@ -165,6 +177,7 @@ async function loadUserAutarquias() {
     return
   }
 
+  currentUser.value = user
   loadingAutarquias.value = true
 
   try {
@@ -174,16 +187,14 @@ async function loadUserAutarquias() {
 
     console.log('📦 Autarquias carregadas:', autarquias.value)
 
-    if (user.autarquia_ativa_id) {
-      autarquiaAtivaId.value = user.autarquia_ativa_id
-    } else if (autarquias.value.length === 1 && autarquias.value[0]) {
-      autarquiaAtivaId.value = autarquias.value[0].id
-      await updateActiveAutarquia(autarquias.value[0].id)
-    } else if (autarquias.value.length > 0) {
-      const defaultAutarquia = autarquias.value.find(a => a.pivot.is_default)
-      if (defaultAutarquia) {
-        autarquiaAtivaId.value = defaultAutarquia.id
-        await updateActiveAutarquia(defaultAutarquia.id)
+    const sessionAutarquia = await autarquiaStore.fetchAutarquia()
+
+    if (!sessionAutarquia) {
+      const fallbackAutarquia =
+        autarquias.value.find(a => a.pivot.is_default) || autarquias.value[0] || null
+
+      if (fallbackAutarquia) {
+        await autarquiaStore.setAutarquia(fallbackAutarquia.id)
       }
     }
   } catch (err) {
@@ -201,56 +212,19 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
   changingAutarquia.value = true
 
   try {
-    await updateActiveAutarquia(id)
+    const contexto = await autarquiaStore.setAutarquia(id)
+    selectedAutarquiaId.value = id
 
     await reload()
 
-    const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
+    const autarquiaNome = contexto?.nome || autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
     showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
-  } catch {
+  } catch (error) {
+    console.error('❌ Erro ao alterar autarquia:', error)
+    selectedAutarquiaId.value = storeAutarquiaId.value ?? null
     showMessage('error', 'Erro ao alterar autarquia. Tente novamente.')
   } finally {
     changingAutarquia.value = false
-  }
-}
-
-async function updateActiveAutarquia(autarquiaId: number) {
-  const user = authService.getUserFromStorage()
-  if (!user || !user.id) return
-
-  const previousAutarquiaId = user.autarquia_ativa_id
-
-  try {
-    const autarquiaAtualizada = autarquias.value.find(a => a.id === autarquiaId)
-    const updatedUserData = {
-      ...user,
-      autarquia_ativa_id: autarquiaId,
-      autarquia_ativa: autarquiaAtualizada || null
-    }
-    localStorage.setItem('user_data', JSON.stringify(updatedUserData))
-    currentUser.value = updatedUserData
-
-    console.log('💾 localStorage atualizado com autarquia:', autarquiaId)
-
-    await userService.updateActiveAutarquia(user.id, autarquiaId)
-
-    console.log('✅ Autarquia ativa sincronizada com backend e persistida')
-  } catch (err) {
-    console.error('❌ Erro ao atualizar autarquia ativa:', err)
-
-    if (previousAutarquiaId) {
-      const autarquiaAnterior = autarquias.value.find(a => a.id === previousAutarquiaId)
-      const rollbackUserData = {
-        ...user,
-        autarquia_ativa_id: previousAutarquiaId,
-        autarquia_ativa: autarquiaAnterior || null
-      }
-      localStorage.setItem('user_data', JSON.stringify(rollbackUserData))
-      currentUser.value = rollbackUserData
-      autarquiaAtivaId.value = previousAutarquiaId
-    }
-
-    throw err
   }
 }
 
@@ -265,7 +239,8 @@ onMounted(async () => {
   await loadUserAutarquias()
 })
 
-watch(autarquiaAtivaId, (newId) => {
+watch(storeAutarquiaId, (newId) => {
+  selectedAutarquiaId.value = newId ?? null
   if (newId && modulos.value.length === 0) {
     reload()
   }
