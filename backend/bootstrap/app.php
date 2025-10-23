@@ -25,6 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->group('api', [
+            // 🔄 Habilitamos cookies e sessão também para a API para persistir o contexto da autarquia
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\Http\Middleware\HandleCors::class,
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -33,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // ✅ Aliases
         $middleware->alias([
             'superadmin' => \App\Http\Middleware\SuperAdminMiddleware::class,
+            'autarquia.session' => \App\Http\Middleware\LoadAutarquiaFromSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
