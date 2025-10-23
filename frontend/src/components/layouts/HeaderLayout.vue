@@ -1,5 +1,5 @@
 <template>
-  <header class="background-grayscale shadow-sm sticky top-0 z-10 w-full border-b border-border">
+  <header class="bg-gray-50 shadow-sm sticky top-0 z-10 w-full border-b border-border">
     <div class="max-w-8xl mx-auto flex justify-between items-center px-6 py-3">
       <div class="flex items-center gap-3">
         <slot name="icon">

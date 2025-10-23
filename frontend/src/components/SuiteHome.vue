@@ -77,22 +77,34 @@
         <Sh3Button label="Recarregar Módulos" icon="pi pi-refresh" @click="reload" />
       </Sh3EmptyState>
 
-      <!-- Modules Grid -->
-      <div v-else class="grid grid-cols-3 gap-3 md:gap-4 mt-6 w-full max-w-4xl">
-        <Sh3Card v-for="modulo in modulos" :key="modulo.id"
-          class="cursor-pointer transition-all duration-300 hover:shadow-2xl border-1 surface-border"
-          @click="handleItemClick(modulo.route)">
-          <template #content>
-            <div class="flex flex-column align-items-center gap-3 text-center p-3">
-              <div class="text-primary text-4xl">
-                <component v-if="typeof modulo.icon !== 'string'" :is="modulo.icon" />
-                <i v-else :class="modulo.icon"></i>
+      <!-- Modules Grid - Cards com ícones e espaçamentos reduzidos -->
+      <div v-else class="w-full max-w-6xl mt-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+           <Sh3Card v-for="modulo in modulos" :key="modulo.id"
+            class="cursor-pointer transition-all duration-200 hover:shadow-lg border border-border rounded-lg bg-card hover:bg-card-hover h-full"
+            @click="handleItemClick(modulo.route)">
+            <template #content>
+              <div class="flex flex-col items-center text-center h-full">
+                <div class="text-primary text-xl mb-1">
+                  <component v-if="typeof modulo.icon !== 'string'" :is="modulo.icon" />
+                  <i v-else :class="modulo.icon"></i>
+                </div>
+                <h3 class="text-sm font-semibold mb-1 text-foreground line-clamp-2 leading-tight">
+                  {{ modulo.nome }}
+                </h3>
+                <p class="text-muted-foreground text-xs leading-relaxed flex-grow line-clamp-3">
+                  {{ modulo.descricao }}
+                </p>
               </div>
-              <h3 class="text-lg font-semibold m-0">{{ modulo.nome }}</h3>
-              <p class="text-color-secondary line-height-3 m-0">{{ modulo.descricao }}</p>
-            </div>
-          </template>
-        </Sh3Card>
+            </template>
+            <template #footer>
+              <span class="text-primary text-xs font-medium flex items-center justify-center gap-1">
+                Acessar
+                <i class="pi pi-arrow-right text-xs"></i>
+              </span>
+            </template>
+          </Sh3Card>
+        </div>
       </div>
     </div>
   </BaseLayout>
@@ -261,5 +273,19 @@ watch(autarquiaAtivaId, (newId) => {
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
