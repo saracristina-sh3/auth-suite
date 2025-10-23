@@ -39,18 +39,19 @@ services:
   build-backend:
     <<: *backend-common
     container_name: auth_suite_init_${APP_ENV}
+    user: "1000:1000"
     command: >
       bash -c "cd /api &&
               chown -R appuser:appuser /api/storage /api/bootstrap/cache &&
               chmod -R 775 /api/storage /api/bootstrap/cache &&
-              composer install && 
-              php artisan migrate --force && 
+              composer install &&
+              php artisan migrate --force &&
               php artisan db:seed --force &&
               php artisan optimize"
 
   build-frontend:
     image: node:22-bullseye
-    container_name: auth_suite_build_frontend_${APP_ENV} 
+    container_name: auth_suite_build_frontend_${APP_ENV}
     working_dir: /tmp/build
     volumes:
       - ./frontend:/src:ro
@@ -61,27 +62,42 @@ services:
               npm ci --ignore-scripts --legacy-peer-deps &&
               npm run build"
 
-  frontend:
-    image: nginx:alpine
-    container_name: auth_suite_frontend_${APP_ENV}
-    ports:
-      - "3000:80"
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html
-    depends_on:
-      build-frontend:
-        condition: service_completed_successfully
-
   app:
     <<: *backend-common
     container_name: auth_suite_app_${APP_ENV}
-    ports:
-      - "${APP_PORT}:80"
+    user: "1000:1000"
+    expose:
+      - "9000"
     depends_on:
       build-backend:
         condition: service_completed_successfully
+      db:
+        condition: service_healthy
+    command: ["/usr/local/bin/start.sh"]
+    healthcheck:
+      test: ["CMD", "php", "-v"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: auth_suite_nginx_${APP_ENV}
+    ports:
+      - "3000:443"
+      - "3080:80"
+    volumes:
+      - ./backend:/api
+      - ./frontend/dist:/public
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./.docker/nginx/ssl:/etc/nginx/ssl
+      - ./.docker/nginx/entrypoint.sh:/entrypoint.sh:ro
+    depends_on:
+      app:
+        condition: service_healthy
       build-frontend:
         condition: service_completed_successfully
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
 
 volumes:
   db_data:

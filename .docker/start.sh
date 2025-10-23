@@ -1,37 +1,43 @@
 #!/bin/bash
+set -e
 
-# Define as variáveis de ambiente do Apache
-export APACHE_RUN_USER=appuser
-export APACHE_RUN_GROUP=appuser
+echo "🚀 Corrigindo permissões e iniciando PHP-FPM..."
 
-# Corrige permissões dos diretórios do Laravel
+# 🔧 Ajuste fino das permissões do Laravel
+echo "🔧 Ajustando permissões do Laravel..."
+find /api/storage /api/bootstrap/cache -type d -exec chmod 775 {} \;
+find /api/storage /api/bootstrap/cache -type f -exec chmod 664 {} \;
+chown -R appuser:appuser /api/storage /api/bootstrap/cache
+
+# Corrige permissões básicas (garantia extra)
 if [ -d "/api/storage" ]; then
     chown -R appuser:appuser /api/storage /api/bootstrap/cache
     chmod -R 775 /api/storage /api/bootstrap/cache
 fi
 
-# Corrige permissão do arquivo .env (CRÍTICO!)
+# Corrige permissões do arquivo .env
 if [ -f "/api/.env" ]; then
     chown appuser:appuser /api/.env
     chmod 644 /api/.env
 fi
 
-# Limpa o cache do Laravel
 cd /api
-sudo -u appuser php artisan config:clear
-sudo -u appuser php artisan route:clear
-sudo -u appuser php artisan cache:clear
-sudo -u appuser php artisan view:clear
 
-# Gera a APP_KEY se não existir (CRÍTICO!)
-if ! grep -q "APP_KEY=base64:" /api/.env; then
+# 🔄 Limpa caches antigos
+sudo -u appuser php artisan config:clear || true
+sudo -u appuser php artisan route:clear || true
+sudo -u appuser php artisan cache:clear || true
+sudo -u appuser php artisan view:clear || true
+
+# 🔑 Gera APP_KEY se não existir
+if ! grep -q "APP_KEY=base64:" /api/.env 2>/dev/null; then
     echo "🔑 Gerando APP_KEY..."
     sudo -u appuser php artisan key:generate
 fi
 
-# Recria o cache
-sudo -u appuser php artisan config:cache
-sudo -u appuser php artisan route:cache
+# 🔒 Recria caches otimizados
+sudo -u appuser php artisan config:cache || true
+sudo -u appuser php artisan route:cache || true
 
-# Inicia o Apache
-exec apache2-foreground
+echo "✅ Laravel pronto. Iniciando PHP-FPM..."
+exec php-fpm

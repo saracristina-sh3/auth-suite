@@ -10,4 +10,5 @@ __pycache__/
 *.log              
 dist/             
 build/            
-.idea/           
+.idea/           .docker/nginx/ssl/
+.docker/nginx/ssl/
