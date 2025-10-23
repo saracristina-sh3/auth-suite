@@ -20,6 +20,9 @@ class Cors
             'http://localhost:3000',
             'http://127.0.0.1:5173',
             'http://127.0.0.1:3000',
+            'http://192.168.14.230:3000',
+        'http://192.168.14.230'
+
         ];
 
         $origin = $request->headers->get('Origin');
@@ -31,7 +34,7 @@ class Cors
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
         $response->headers->set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, X-Token-Auth, Authorization, X-CSRF-TOKEN, Accept');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
-        $response->headers->set('Access-Control-Max-Age', '200'); // Cache preflight por 200 segundos
+        $response->headers->set('Access-Control-Max-Age', '200');
 
         return $response;
     }

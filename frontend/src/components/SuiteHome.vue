@@ -78,7 +78,7 @@
       </Sh3EmptyState>
 
       <!-- Modules Grid -->
-      <div v-else class="grid grid-cols-4 gap-3 md:gap-4 mt-6 w-full max-w-4xl">
+      <div v-else class="grid grid-cols-3 gap-3 md:gap-4 mt-6 w-full max-w-4xl">
         <Sh3Card v-for="modulo in modulos" :key="modulo.id"
           class="cursor-pointer transition-all duration-300 hover:shadow-2xl border-1 surface-border"
           @click="handleItemClick(modulo.route)">
@@ -101,7 +101,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useModulos } from '@/composables/useModulos'
+import { useModulos } from '@/composables/common/useModulos'
 import { useNotification } from '@/composables/common/useNotification'
 import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
@@ -121,20 +121,17 @@ const { modulos, loadingModulos, error, reload } = useModulos()
 const { showMessage } = useNotification()
 const router = useRouter()
 
-// Estado
 const currentUser = ref<User | null>(null)
 const autarquias = ref<AutarquiaWithPivot[]>([])
 const autarquiaAtivaId = ref<number | null>(null)
 const loadingAutarquias = ref(false)
-const changingAutarquia = ref(false) // Loading durante mudança de autarquia
+const changingAutarquia = ref(false) 
 
-// Computed
 const autarquiaAtiva = computed(() => {
   if (!autarquiaAtivaId.value) return null
   return autarquias.value.find(a => a.id === autarquiaAtivaId.value) || null
 })
 
-// Métodos
 async function loadUserAutarquias() {
   const user = authService.getUserFromStorage()
   if (!user || !user.id) {
@@ -147,21 +144,16 @@ async function loadUserAutarquias() {
   try {
     console.log('🔄 Carregando autarquias do usuário:', user.id)
 
-    // Buscar autarquias do usuário
     autarquias.value = await userService.getUserAutarquias(user.id)
 
     console.log('📦 Autarquias carregadas:', autarquias.value)
 
-    // Definir autarquia ativa
     if (user.autarquia_ativa_id) {
-      // Se o usuário já tem uma autarquia ativa definida
       autarquiaAtivaId.value = user.autarquia_ativa_id
     } else if (autarquias.value.length === 1 && autarquias.value[0]) {
-      // Se tem apenas uma autarquia, seleciona automaticamente
       autarquiaAtivaId.value = autarquias.value[0].id
       await updateActiveAutarquia(autarquias.value[0].id)
     } else if (autarquias.value.length > 0) {
-      // Se tem múltiplas, verifica se tem uma padrão
       const defaultAutarquia = autarquias.value.find(a => a.pivot.is_default)
       if (defaultAutarquia) {
         autarquiaAtivaId.value = defaultAutarquia.id
@@ -185,10 +177,8 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
   try {
     await updateActiveAutarquia(id)
 
-    // Recarregar módulos para a nova autarquia
     await reload()
 
-    // Mostrar mensagem de sucesso
     const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
     showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
   } catch {
@@ -202,11 +192,9 @@ async function updateActiveAutarquia(autarquiaId: number) {
   const user = authService.getUserFromStorage()
   if (!user || !user.id) return
 
-  // Guardar ID anterior para rollback em caso de erro
   const previousAutarquiaId = user.autarquia_ativa_id
 
   try {
-    // 💾 Atualizar localStorage PRIMEIRO (persistência otimista)
     const autarquiaAtualizada = autarquias.value.find(a => a.id === autarquiaId)
     const updatedUserData = {
       ...user,
@@ -218,14 +206,12 @@ async function updateActiveAutarquia(autarquiaId: number) {
 
     console.log('💾 localStorage atualizado com autarquia:', autarquiaId)
 
-    // 🔄 Sincronizar com backend
     await userService.updateActiveAutarquia(user.id, autarquiaId)
 
     console.log('✅ Autarquia ativa sincronizada com backend e persistida')
   } catch (err) {
     console.error('❌ Erro ao atualizar autarquia ativa:', err)
 
-    // 🔙 Rollback: Reverter localStorage para valor anterior
     if (previousAutarquiaId) {
       const autarquiaAnterior = autarquias.value.find(a => a.id === previousAutarquiaId)
       const rollbackUserData = {
@@ -248,13 +234,11 @@ const handleItemClick = (route?: string) => {
   }
 }
 
-// Lifecycle
 onMounted(async () => {
   currentUser.value = authService.getUserFromStorage()
   await loadUserAutarquias()
 })
 
-// Watch para recarregar módulos quando autarquia mudar
 watch(autarquiaAtivaId, (newId) => {
   if (newId && modulos.value.length === 0) {
     reload()

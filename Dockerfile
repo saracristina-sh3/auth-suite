@@ -40,7 +40,8 @@ RUN sed -i 's/^User.*/User appuser/' /etc/apache2/apache2.conf && \
 # Verifica se a configuração foi aplicada
 RUN cat /etc/apache2/apache2.conf | grep -i "^User\|^Group"
 
-# --- CONFIGURAÇÃO DEFINITIVA DO APACHE - APENAS API ---
+# --- CONFIGURAÇÃO DEFINITIVA DO APACHE - APENAS API --- 
+    #Comentar todas as linhas abaixo se for usar o Apache para servir frontend e backend juntos (Produção)
 RUN rm -f /etc/apache2/sites-available/000-default.conf
 RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf
 RUN echo '    ServerName localhost' >> /etc/apache2/sites-available/000-default.conf

@@ -25,6 +25,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // Proxy para a API do backend - comentar se for usar CORS (Produção)
     proxy: {
       '/api': {
         target: process.env.VITE_API_URL || 'http://localhost:8000',
