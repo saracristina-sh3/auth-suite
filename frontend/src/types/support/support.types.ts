@@ -1,4 +1,5 @@
-import type { Autarquia, Modulo } from '@/types/auth'
+import type { Autarquia } from '@/types/autarquia.types'
+import type { Modulo } from '@/types/modulos.types'
 
 export interface SupportContext {
   autarquia: Autarquia
@@ -26,5 +27,5 @@ export interface ExitContextResponse {
   success: boolean
   message: string
   token: string
-  user: any
+  user: unknown
 }

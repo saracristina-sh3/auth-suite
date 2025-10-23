@@ -195,7 +195,8 @@ import Sh3Message from '@/components/common/Sh3Message.vue'
 import { autarquiaService } from '@/services/autarquia.service'
 import { moduloService } from '@/services/modulos.service'
 import { autarquiaModuloService, type BulkUpdateModulo } from '@/services/autarquia-modulo.service'
-import type { Autarquia, Modulo } from '@/types/auth'
+import type { Autarquia } from '@/types/autarquia.types'
+import type { Modulo } from '@/types/modulos.types'
 
 // Emits
 defineEmits<{

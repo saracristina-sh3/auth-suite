@@ -1,6 +1,7 @@
 import api from './auth.service'
-import type { Autarquia, Modulo } from '@/types/auth'
-import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/supportTypes'
+import type { Autarquia } from '@/types/autarquia.types'
+import type { Modulo } from '@/types/modulos.types'
+import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/support.types'
 
 
 class SupportService {

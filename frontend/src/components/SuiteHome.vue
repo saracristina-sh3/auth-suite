@@ -42,7 +42,7 @@
               <span class="ml-2">Alterando autarquia e recarregando módulos...</span>
             </div>
 
-            <div v-else-if="autarquiaAtiva" class="mt-4 pt-4 border-t border-border">
+            <div v-if="autarquiaAtiva" class="mt-4 pt-4 border-t border-border">
               <span class="flex items-center gap-2 text-success text-sm">
                 <i class="pi pi-check-circle text-base"></i>
                 Trabalhando em: <strong>{{ autarquiaAtiva.nome }}</strong>
@@ -79,29 +79,43 @@
 
       <!-- Modules Grid - Cards com ícones e espaçamentos reduzidos -->
       <div v-else class="w-full max-w-6xl mt-6">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 mt-4">
            <Sh3Card v-for="modulo in modulos" :key="modulo.id"
-            class="cursor-pointer transition-all duration-200 hover:shadow-lg border border-border rounded-lg bg-card hover:bg-card-hover h-full"
+            class="cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full"
             @click="handleItemClick(modulo.route)">
-            <template #content>
-              <div class="flex flex-col items-center text-center h-full">
+            
+            <!-- Header com ícone -->
+            <template #header>
+              <div class="flex flex-col items-center text-center p-3 h-full">
                 <div class="text-primary text-xl mb-1">
                   <component v-if="typeof modulo.icon !== 'string'" :is="modulo.icon" />
                   <i v-else :class="modulo.icon"></i>
                 </div>
-                <h3 class="text-sm font-semibold mb-1 text-foreground line-clamp-2 leading-tight">
-                  {{ modulo.nome }}
-                </h3>
-                <p class="text-muted-foreground text-xs leading-relaxed flex-grow line-clamp-3">
-                  {{ modulo.descricao }}
-                </p>
               </div>
             </template>
+            
+            <!-- Título -->
+            <template #title>
+              <h3 class="text-base font-semibold text-foreground line-clamp-2 leading-tight text-center">
+                {{ modulo.nome }}
+              </h3>
+            </template>
+            
+            <!-- Subtítulo/Descrição -->
+            <template #subtitle>
+              <p class="text-muted-foreground text-sm leading-relaxed line-clamp-3 text-center">
+                {{ modulo.descricao }}
+              </p>
+            </template>
+            
+            <!-- Footer com Acessar -->
             <template #footer>
-              <span class="text-primary text-xs font-medium flex items-center justify-center gap-1">
-                Acessar
-                <i class="pi pi-arrow-right text-xs"></i>
-              </span>
+              <div class="text-center">
+                <span class="text-primary text-sm font-medium flex items-center justify-center gap-1">
+                  Acessar
+                  <i class="pi pi-arrow-right text-xs"></i>
+                </span>
+              </div>
             </template>
           </Sh3Card>
         </div>
@@ -123,7 +137,7 @@ import Sh3Card from './common/Sh3Card.vue'
 import Sh3ProgressSpinner from './common/Sh3ProgressSpinner.vue'
 import Sh3Message from './common/Sh3Message.vue'
 import Sh3Button from './common/Sh3Button.vue'
-import type { User } from '@/types/auth'
+import type { User } from '@/types/auth.types'
 import BaseLayout from './layouts/BaseLayout.vue'
 import Sh3LoadingState from './common/state/Sh3LoadingState.vue'
 import Sh3EmptyState from './common/state/Sh3EmptyState.vue'

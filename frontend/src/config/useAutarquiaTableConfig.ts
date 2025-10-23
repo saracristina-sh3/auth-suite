@@ -1,5 +1,5 @@
 // src/composables/useAutarquiaTableConfig.ts
-import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/table'
+import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/table.types'
 
 export function useAutarquiaTableConfig() {
   const columns: ColumnConfig[] = [

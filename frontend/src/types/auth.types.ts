@@ -1,22 +1,5 @@
 // src/types/auth.ts
-export interface Autarquia {
-  id: number;
-  nome: string;
-  ativo: boolean;
-}
-
-export interface Modulo {
-  id: number
-  nome: string
-  descricao?: string
-  icone?: string
-  ativo: boolean
-  pivot?: {
-    ativo: boolean
-    created_at: string
-    updated_at: string
-  }
-}
+import type { Autarquia } from "@/types/autarquia.types";
 
 export interface User {
   id: number;
@@ -55,6 +38,6 @@ export interface SupportModeUser extends User {
   _support_mode: true;
   role: 'admin';
   is_superadmin: false;
-  autarquia: Autarquia; // Sempre presente em modo suporte
+  autarquia: Autarquia; 
   autarquia_ativa_id: number;
 }

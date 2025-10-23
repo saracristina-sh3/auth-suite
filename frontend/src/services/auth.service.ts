@@ -1,5 +1,5 @@
 import axios, { type AxiosError } from 'axios'
-import type { LoginCredentials, AuthResponse, User } from '@/types/auth'
+import type { LoginCredentials, AuthResponse, User } from '@/types/auth.types'
 import { supportService } from './support.service'
 
 interface ApiError {

@@ -100,8 +100,8 @@
 import { computed, ref } from 'vue'
 import Sh3Tag from './Sh3Tag.vue'
 import Sh3Button from './Sh3Button.vue'
-import type { ColumnConfig } from '@/types/columnTypes'
-import type { ActionConfig } from '@/types/actionTypes'
+import type { ColumnConfig } from '@/types/column.types'
+import type { ActionConfig } from '@/types/action.types'
 
 const props = withDefaults(
   defineProps<{

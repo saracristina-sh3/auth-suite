@@ -54,7 +54,7 @@ import Sh3EmptyState from '@/components/common/state/Sh3EmptyState.vue'
 import Sh3LoadingState from '@/components/common/state/Sh3LoadingState.vue'
 import Sh3ErrorState from '@/components/common/state/Sh3ErrorState.vue'
 import { autarquiaService } from '@/services/autarquia.service'
-import type { Autarquia } from '@/types/auth'
+import type { Autarquia } from '@/types/autarquia.types'
 import { useUserTableConfig } from "@/config/useUserTableConfig";
 
 interface User {

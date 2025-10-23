@@ -1,5 +1,5 @@
 import { icons } from './icons'
-import type { ActionConfig } from '@/types/actionTypes'
+import type { ActionConfig } from '@/types/action.types'
 
 /**
  * Ações padrão da tabela de Autarquias

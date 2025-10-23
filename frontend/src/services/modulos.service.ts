@@ -1,6 +1,6 @@
 // src/services/modulo.service.ts
 import api from './auth.service'
-import type { Modulo } from '@/types/auth'
+import type { Modulo } from '@/types/modulos.types'
 
 export interface ModuloFormData {
   nome: string
@@ -47,6 +47,11 @@ export const moduloService = {
     await api.delete(`/modulos/${id}`)
   },
 
+  async getModulos(): Promise<Modulo[]> {
+    const response = await api.get<ModuloListResponse>('/modulos')
+    return response.data.data
+  },
+  
   async getAutarquias(id: number): Promise<any[]> {
     const response = await api.get(`/modulos/${id}/autarquias`)
     return response.data.data

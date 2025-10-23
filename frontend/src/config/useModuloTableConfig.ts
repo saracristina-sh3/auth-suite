@@ -1,5 +1,5 @@
 // src/composables/useModuloTableConfig.ts
-import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/table'
+import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/table.types'
 
 export function useModuloTableConfig() {
   const columns: ColumnConfig[] = [

@@ -23,7 +23,7 @@ import Sh3Table from "@/components/common/Sh3Table.vue";
 import Sh3Tag from "@/components/common/Sh3Tag.vue";
 import type { User } from "@/services/user.service";
 import type { Role } from "@/services/role.service";
-import type { Autarquia } from "@/types/auth";
+import type { Autarquia } from "@/types/autarquia.types";
 
 defineEmits<{
   'edit': [item: any];

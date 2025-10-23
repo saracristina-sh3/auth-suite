@@ -2,7 +2,7 @@
 import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import type { Ref } from 'vue'
-import type { FieldConfig } from '@/types/table'
+import type { FieldConfig } from '@/types/table.types'
 
 export interface TabConfig {
   label: string
