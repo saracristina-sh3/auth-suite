@@ -25,5 +25,14 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // Produção
+//    proxy: {
+//      '/api': {
+//        target: process.env.VITE_API_URL || 'https://192.168.14.230:3000',
+//        changeOrigin: true,
+//        secure: false,
+//        rewrite: (path) => path,
+//      },
+//    },
   }
 })
