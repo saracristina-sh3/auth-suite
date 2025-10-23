@@ -249,6 +249,22 @@ npm run test:e2e     # Testes E2E com Cypress
 - **app**: API Laravel (porta 8000)
 - **frontend**: Nginx servindo o frontend (porta 3000)
 
+### Em procução
+- São necessários os seguintes ajustes para rodar em uma VM
+```bash
+backend:
+- adicionar a url do frontend em 'allowed_origins' no arquivo /backend/config/cors.php
+- adicionar a url do frontend em $allowedOrigins no arquivo /backend/app/HTTP/Middleware/Cors.php
+
+frontend:
+- comentar o bloco de proxy no arquivo frontend/vite.config.ts
+- adicionar o IP da VM em 'VITE_API_URL' no arquivo frontend/.env
+
+- após rodar os comandos para subir o container é necessário acessar o container da api 'docker exec -it {{nome_aplicação}}_app_local bash' e rodar o comando para desabilitar o cors do Apache:
+'a2disconf cors.conf'
+- e logo após reiniciar o Apache:
+'service apache2 reload'
+```
 ### Comandos úteis
 
 ```bash
