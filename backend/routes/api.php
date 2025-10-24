@@ -114,8 +114,8 @@ Route::middleware(['auth:sanctum', 'autarquia.session'])->group(function () {
     // ====================================
     Route::get('/roles', [RoleController::class, 'index']);
 
-});
     // Sessão de autarquia - mantém contexto isolado por usuário autenticado
     Route::get('/session/autarquia', [SessionAutarquiaController::class, 'show']);
     Route::post('/session/autarquia', [SessionAutarquiaController::class, 'store']);
+});
 

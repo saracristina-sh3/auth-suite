@@ -40,13 +40,20 @@ class SupportService {
         const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}')
         const modifiedUser = {
           ...currentUser,
-          autarquia_ativa_id: data.context.autarquia.id,
           autarquia: data.context.autarquia,
           role: 'admin', // Temporariamente admin da autarquia
           is_superadmin: false, // Desabilitar flag de superadmin temporariamente
           _support_mode: true, // Flag interna para identificar modo suporte
         }
         localStorage.setItem('user_data', JSON.stringify(modifiedUser))
+
+        try {
+          // Atualizamos a store global de autarquia para refletir imediatamente o novo contexto.
+          const { useAutarquiaStore } = await import('@/stores/autarquia.store')
+          useAutarquiaStore().setFromSupportContext(data.context.autarquia)
+        } catch (storeError) {
+          console.warn('⚠️ Não foi possível sincronizar a store de autarquia após assumir contexto.', storeError)
+        }
 
         console.log('✅ Contexto assumido com sucesso:', data.context.autarquia.nome)
         console.log('👤 Usuário modificado temporariamente:', modifiedUser)
@@ -90,6 +97,13 @@ class SupportService {
 
         // Remover o contexto de suporte
         localStorage.removeItem(this.STORAGE_KEY)
+
+        try {
+          const { useAutarquiaStore } = await import('@/stores/autarquia.store')
+          await useAutarquiaStore().fetchAutarquia()
+        } catch (storeError) {
+          console.warn('⚠️ Não foi possível ressincronizar o contexto padrão após sair do suporte.', storeError)
+        }
 
         console.log('✅ Retornado ao contexto original')
       } else {

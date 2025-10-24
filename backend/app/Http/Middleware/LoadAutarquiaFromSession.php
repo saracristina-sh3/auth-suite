@@ -16,15 +16,8 @@ class LoadAutarquiaFromSession
             $session = $request->session();
             $sessionKey = $user->getAutarquiaSessionKey();
 
-            // Se a sessão não estiver populada (ex: primeiro request após login), usamos o valor persistido
-            if (!$session->has($sessionKey)) {
-                $defaultId = $user->getOriginal('autarquia_ativa_id');
-                if ($defaultId) {
-                    $session->put($sessionKey, $defaultId);
-                    $session->save();
-                }
-            }
-
+            // Recuperamos o ID diretamente da sessão para que o contexto em memória
+            // seja sempre consistente com o backend (evita leituras do campo na tabela users).
             $autarquiaId = $session->get($sessionKey);
             $user->setAutarquiaContext($autarquiaId, persistSession: false);
         }
