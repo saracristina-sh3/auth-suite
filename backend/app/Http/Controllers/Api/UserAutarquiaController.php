@@ -165,8 +165,23 @@ class UserAutarquiaController extends Controller
                 ], 403);
             }
 
-            $user->autarquia_ativa_id = $validated['autarquia_ativa_id'];
-            $user->save();
+            DB::transaction(function () use ($user, $validated) {
+                // Primeiro zeramos o flag "is_default" de todas as autarquias do usuário.
+                DB::table('usuario_autarquia')
+                    ->where('user_id', $user->id)
+                    ->update(['is_default' => false]);
+
+                // Em seguida marcamos a autarquia escolhida como padrão.
+                DB::table('usuario_autarquia')
+                    ->where('user_id', $user->id)
+                    ->where('autarquia_id', $validated['autarquia_ativa_id'])
+                    ->update(['is_default' => true]);
+            });
+
+            if ($request->user()?->is($user)) {
+                // Quando o usuário atual atualiza seu próprio padrão refletimos imediatamente na sessão.
+                $user->setAutarquiaContext($validated['autarquia_ativa_id']);
+            }
 
             return response()->json([
                 'success' => true,

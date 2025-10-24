@@ -15,16 +15,16 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-   protected $fillable = [
-    'name',
-    'email',
-    'password',
-    'role',
-    'cpf',
-    'autarquia_ativa_id',
-    'is_active',
-    'is_superadmin'
-];
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'role',
+        'cpf',
+        'autarquia_ativa_id',
+        'is_active',
+        'is_superadmin'
+    ];
 
     protected $hidden = [
         'password',
@@ -40,6 +40,16 @@ class User extends Authenticatable
             'is_superadmin' => 'boolean',
             'autarquia_ativa_id' => 'integer',
         ];
+    }
+
+    public function getAutarquiaAtivaIdAttribute($value): ?int
+    {
+        // O contexto ativo é obtido preferencialmente da sessão para evitar leituras do campo persistido.
+        $sessionValue = Session::get($this->getAutarquiaSessionKey());
+
+        return $sessionValue !== null
+            ? (int) $sessionValue
+            : ($value !== null ? (int) $value : null);
     }
 
     /**
@@ -282,6 +292,17 @@ class User extends Authenticatable
         return 'autarquia_ativa_id_user_' . $this->id;
     }
 
+    public function resolveDefaultAutarquiaId(): ?int
+    {
+        // Carregamos as autarquias vinculadas para determinar a preferida.
+        $this->loadMissing('autarquias');
+
+        return $this->autarquias
+            ->first(fn ($autarquia) => (bool) ($autarquia->pivot->is_default ?? false))?->id
+            ?? $this->autarquias->first()?->id
+            ?? null;
+    }
+
     /**
      * Centraliza a escrita da autarquia ativa garantindo isolamento por usuário e gravação na sessão.
      */
@@ -297,14 +318,15 @@ class User extends Authenticatable
         // Namespacing por usuário garante isolamento mesmo com múltiplos tokens
         $sessionKey = $this->getAutarquiaSessionKey();
 
+        if (!Session::isStarted()) {
+            Session::start();
+        }
+
         if ($autarquiaId === null) {
             Session::forget($sessionKey);
         } else {
+            // Gravamos sempre via sessão para evitar persistência no banco.
             Session::put($sessionKey, $autarquiaId);
-        }
-
-        if (!Session::isStarted()) {
-            Session::start();
         }
 
         // Persistimos imediatamente para evitar race condition entre requisições paralelas

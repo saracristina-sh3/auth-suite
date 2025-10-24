@@ -83,6 +83,14 @@ class AuthService {
         localStorage.setItem('auth_token', data.token)
         localStorage.setItem('user_data', JSON.stringify(data.user))
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+
+        try {
+          // Após o login sincronizamos a store de autarquia com a sessão do backend.
+          const { useAutarquiaStore } = await import('@/stores/autarquia.store')
+          await useAutarquiaStore().fetchAutarquia()
+        } catch (storeError) {
+          console.warn('⚠️ Não foi possível sincronizar o contexto da autarquia após o login.', storeError)
+        }
       } else {
         throw new Error('Resposta de login inválida')
       }

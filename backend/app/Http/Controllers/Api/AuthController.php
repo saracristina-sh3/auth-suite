@@ -41,9 +41,8 @@ class AuthController extends Controller
         // Garante que temos a lista de autarquias para definir o contexto em sessão
         $user->loadMissing('autarquias');
 
-        $autarquiaPadrao = $user->getOriginal('autarquia_ativa_id')
-            ?? $user->autarquias->first(fn($autarquia) => (bool) ($autarquia->pivot->is_default ?? false))?->id
-            ?? $user->autarquias->first()?->id;
+        // O contexto padrão agora é derivado dos vínculos do usuário; nada é lido do campo na tabela users.
+        $autarquiaPadrao = $user->resolveDefaultAutarquiaId();
 
         if ($autarquiaPadrao) {
             // Persistimos na sessão para que requisições subsequentes usem o mesmo contexto
@@ -264,8 +263,11 @@ class AuthController extends Controller
         // Recarrega o usuário com sua autarquia ativa
         $user->load(['autarquiaAtiva', 'autarquias']);
 
-        if ($user->autarquia_ativa_id) {
-            $user->setAutarquiaContext($user->autarquia_ativa_id);
+        $contextId = $request->session()->get($user->getAutarquiaSessionKey())
+            ?? $user->resolveDefaultAutarquiaId();
+
+        if ($contextId) {
+            $user->setAutarquiaContext($contextId);
         } else {
             $user->clearAutarquiaContext();
         }
@@ -362,9 +364,11 @@ class AuthController extends Controller
             'autarquia_ativa_id' => 'required|exists:autarquias,id'
         ]);
 
+        $autarquiaAtual = $request->session()->get($user->getAutarquiaSessionKey());
+
         \Log::info('🔄 Tentativa de trocar autarquia', [
             'user_id' => $user->id,
-            'autarquia_atual' => $user->autarquia_ativa_id ?? $user->autarquia_ativa_id,
+            'autarquia_atual' => $autarquiaAtual,
             'autarquia_nova' => $request->autarquia_ativa_id
         ]);
 
