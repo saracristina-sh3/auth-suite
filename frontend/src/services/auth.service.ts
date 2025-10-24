@@ -136,12 +136,6 @@ class AuthService {
     localStorage.removeItem('user_data')
     // Limpa contexto de suporte se existir (original_user_data e support_context)
     supportService.clearSupportContext()
-    try {
-      const { useAutarquiaStore } = await import('@/stores/autarquia.store')
-      useAutarquiaStore().clear()
-    } catch (storeError) {
-      console.warn('⚠️ Não foi possível limpar o contexto de autarquia em memória durante o logout.', storeError)
-    }
     delete api.defaults.headers.common.Authorization
   }
 

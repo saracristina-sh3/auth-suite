@@ -2,7 +2,6 @@ import { ref, onMounted, type Ref } from 'vue';
 import { supportService } from "@/services/support.service";
 import type { SupportContext } from "@/types/support/support.types";
 import type { Autarquia } from "@/types/autarquia.types";
-import { useAutarquiaStore } from "@/stores/autarquia.store";
 import type { Router } from 'vue-router';
 
 export function useSupportContext(
@@ -13,13 +12,9 @@ export function useSupportContext(
   const supportContext = ref<SupportContext | null>(null);
   const selectedAutarquiaId = ref<number | null>(null);
   const loading = ref(false);
-  const autarquiaStore = useAutarquiaStore();
 
   onMounted(() => {
     supportContext.value = supportService.getSupportContext();
-    if (supportContext.value) {
-      autarquiaStore.setFromSupportContext(supportContext.value.autarquia);
-    }
   });
 
   async function handleAssumeContext() {
@@ -58,7 +53,6 @@ export function useSupportContext(
       const context = await supportService.assumeAutarquiaContext(autarquia.id);
       supportContext.value = context;
       selectedAutarquiaId.value = null;
-      autarquiaStore.setFromSupportContext(context.autarquia);
 
       showMessage("success", `Modo suporte ativado para: ${autarquia.nome}. Redirecionando...`);
       console.log("✅ Contexto de suporte ativo:", context);
@@ -88,11 +82,6 @@ export function useSupportContext(
 
       await supportService.exitAutarquiaContext();
       supportContext.value = null;
-      try {
-        await autarquiaStore.fetchAutarquia();
-      } catch (storeError) {
-        console.warn('⚠️ Não foi possível recarregar o contexto padrão da autarquia após sair do modo suporte.', storeError);
-      }
 
       showMessage("success", "Retornado ao contexto original.");
       console.log("✅ Modo suporte desativado");
