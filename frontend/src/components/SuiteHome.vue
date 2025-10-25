@@ -5,6 +5,45 @@
         <Sh3Welcome />
       </div>
 
+      <!-- Banner de Modo Suporte -->
+      <div v-if="isInSupportMode" class="mt-6 w-full max-w-[800px] animate-fade-in">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-5 shadow-lg border-2 border-amber-600">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-start gap-4 flex-1">
+              <div class="bg-white/20 rounded-lg p-3">
+                <i class="pi pi-shield text-white text-3xl"></i>
+              </div>
+              <div class="text-white flex-1">
+                <h3 class="text-lg font-bold mb-1 flex items-center gap-2">
+                  <i class="pi pi-exclamation-triangle text-sm"></i>
+                  Modo Suporte Ativo
+                </h3>
+                <p class="text-white/90 text-sm mb-2">
+                  Você está atuando como <strong>Administrador</strong> da autarquia:
+                </p>
+                <div class="bg-white/20 rounded-lg px-4 py-2 inline-flex items-center gap-2 backdrop-blur-sm">
+                  <i class="pi pi-building text-lg"></i>
+                  <span class="font-bold text-base">{{ supportContextAutarquia?.nome }}</span>
+                </div>
+                <p class="text-white/80 text-xs mt-3">
+                  <i class="pi pi-info-circle mr-1"></i>
+                  Todas as ações serão executadas no contexto desta autarquia
+                </p>
+              </div>
+            </div>
+            <Sh3Button
+              label="Sair do Modo"
+              icon="pi pi-sign-out"
+              severity="warning"
+              outlined
+              size="small"
+              class="bg-white/10 hover:bg-white/20 border-white/40 text-white shrink-0"
+              @click="exitSupportMode"
+            />
+          </div>
+        </div>
+      </div>
+
       <div class="mt-6 w-full max-w-[600px]" v-if="currentUser">
         <div v-if="autarquias.length === 1" class="w-full animate-fade-in">
           <div
@@ -131,6 +170,7 @@ import { useModulos } from '@/composables/common/useModulos'
 import { useNotification } from '@/composables/common/useNotification'
 import { authService } from '@/services/auth.service'
 import { userService, type AutarquiaWithPivot } from '@/services/user.service'
+import { supportService } from '@/services/support.service'
 import Sh3Welcome from './common/Sh3Welcome.vue'
 import Sh3Select from './common/Sh3Select.vue'
 import Sh3Card from './common/Sh3Card.vue'
@@ -159,6 +199,17 @@ const loading = ref(false)
 const autarquiaAtiva = computed(() => {
   if (!autarquiaAtivaId.value) return null
   return autarquias.value.find(a => a.id === autarquiaAtivaId.value) || null
+})
+
+// ✅ Verificar se está em modo suporte
+const isInSupportMode = computed(() => {
+  return supportService.isInSupportMode()
+})
+
+// ✅ Obter autarquia do contexto de suporte
+const supportContextAutarquia = computed(() => {
+  const context = supportService.getSupportContext()
+  return context?.autarquia || null
 })
 
 async function loadUserAutarquias() {
@@ -266,6 +317,37 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
     // Não precisa reverter nada no localStorage - a session não mudou
   } finally {
     changingAutarquia.value = false
+  }
+}
+
+/**
+ * Sair do modo suporte
+ */
+async function exitSupportMode() {
+  if (!confirm('Deseja sair do modo suporte e retornar ao seu contexto original?')) {
+    return
+  }
+
+  try {
+    loading.value = true
+    console.log('🔙 Saindo do modo suporte...')
+
+    await supportService.exitAutarquiaContext()
+
+    showMessage('success', 'Retornado ao contexto original. Redirecionando...')
+    console.log('✅ Modo suporte desativado')
+
+    // Redirecionar de volta para AdminManagementView
+    setTimeout(() => {
+      console.log('🚀 Redirecionando para /suporteSH3')
+      router.push({ path: '/suporteSH3' })
+    }, 1000)
+  } catch (error: any) {
+    console.error('❌ Erro ao sair do contexto:', error)
+    const errorMessage = error.message || 'Erro ao sair do modo suporte. Tente novamente.'
+    showMessage('error', errorMessage)
+  } finally {
+    loading.value = false
   }
 }
 const handleItemClick = (route?: string) => {

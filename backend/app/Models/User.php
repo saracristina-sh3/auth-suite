@@ -61,9 +61,9 @@ class User extends Authenticatable
 }
 
     // Helper para autarquia ativa (da session)
-public function getAutarquiaAtivaAttribute()
+public function getAutarquiaPreferidaAttribute()
 {
-    $autarquiaId = session('autarquia_ativa_id');
+    $autarquiaId = session('autarquia_preferida_id');
 
     if (!$autarquiaId) {
         return null;

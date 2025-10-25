@@ -15,12 +15,12 @@ class UserController extends Controller
         $perPage = $request->get('per_page', 10);
 
         $query = User::query()
-            ->select('id', 'name', 'email', 'role', 'cpf', 'autarquia_ativa_id', 'is_active', 'is_superadmin')
-            ->with('autarquiaAtiva:id,nome');
+            ->select('id', 'name', 'email', 'role', 'cpf', 'autarquia_preferida_id', 'is_active', 'is_superadmin')
+            ->with('autarquiaPreferida:id,nome');
 
         // Filtrar por autarquia se solicitado
-        if ($request->has('autarquia_ativa_id')) {
-            $query->where('autarquia_ativa_id', $request->get('autarquia_ativa_id'));
+        if ($request->has('autarquia_preferida_id')) {
+            $query->where('autarquia_preferida_id', $request->get('autarquia_preferida_id'));
         }
 
         // Filtrar por status ativo se solicitado
@@ -51,7 +51,7 @@ class UserController extends Controller
             'password' => 'required|min:6',
             'role' => 'required|string|in:user,gestor,admin,superadmin,clientAdmin',
             'cpf' => 'required|string|size:11|unique:users',
-            'autarquia_ativa_id' => 'required|exists:autarquias,id',
+            'autarquia_preferida_id' => 'required|exists:autarquias,id',
             'is_active' => 'boolean',
         ]);
 
@@ -64,13 +64,13 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
             'cpf' => $validated['cpf'],
             'role' => $validated['role'],
-            'autarquia_ativa_id' => $validated['autarquia_ativa_id'],
+            'autarquia_preferida_id' => $validated['autarquia_preferida_id'],
             'is_active' => $validated['is_active'] ?? true,
             'is_superadmin' => $isSuperadmin,
         ]);
 
         // Criar vínculo na tabela pivot usuario_autarquia
-        $user->autarquias()->attach($validated['autarquia_ativa_id'], [
+        $user->autarquias()->attach($validated['autarquia_preferida_id'], [
             'role' => $validated['role'],
             'is_admin' => $validated['role'] === 'clientAdmin',
             'is_default' => true,
@@ -79,7 +79,7 @@ class UserController extends Controller
         ]);
 
         // Carregar relacionamentos
-        $user->load(['autarquiaAtiva:id,nome', 'autarquias']);
+        $user->load(['autarquiaPreferida:id,nome', 'autarquias']);
 
         return response()->json([
             'success' => true,
@@ -106,7 +106,7 @@ class UserController extends Controller
         $user->update($validated);
 
         // Carregar relacionamentos
-        $user->load(['autarquiaAtiva:id,nome', 'autarquias']);
+        $user->load(['autarquiaPreferida:id,nome', 'autarquias']);
 
         return response()->json([
             'success' => true,
@@ -138,7 +138,7 @@ class UserController extends Controller
      */
     public function show(User $user): JsonResponse
     {
-        $user->load(['autarquiaAtiva:id,nome', 'autarquias', 'permissoesAtivas.modulo:id,nome', 'permissoesAtivas.autarquia:id,nome']);
+        $user->load(['autarquiaPreferida:id,nome', 'autarquias', 'permissoesAtivas.modulo:id,nome', 'permissoesAtivas.autarquia:id,nome']);
 
         return response()->json([
             'success' => true,

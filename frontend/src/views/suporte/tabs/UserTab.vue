@@ -37,18 +37,18 @@ function formatCPF(cpf: string): string {
 
 function getAutarquiaNome(user: User): string {
   const userRecord = user as unknown as Record<string, unknown>;
-  const autarquiaAtivaData = userRecord.autarquiaAtiva as { nome?: string } | undefined;
+  const autarquiaPreferidaData = userRecord.autarquiaPreferida as { nome?: string } | undefined;
 
   console.log('🔍 Debug user data:', {
     id: user.id,
     name: user.name,
     autarquia_ativa: user.autarquia_ativa,
-    autarquiaAtiva: autarquiaAtivaData,
-    autarquia_ativa_id: user.autarquia_ativa_id,
+    autarquiaPreferida: autarquiaPreferidaData,
+    autarquia_preferida_id: user.autarquia_preferida_id,
     raw_user: user
   });
 
-  return user.autarquia_ativa?.nome || autarquiaAtivaData?.nome || '-';
+  return user.autarquia_preferida?.nome || autarquiaPreferidaData?.nome || '-';
 }
 
 const props = defineProps<{
