@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\AutarquiaController;
 use App\Http\Controllers\Api\ModulosController;
 use App\Http\Controllers\Api\AutarquiaModuloController;
 use App\Http\Controllers\Api\UsuarioModuloPermissaoController;
+use App\Http\Controllers\Api\SessionController;
+
 
 Route::get('/', fn() => response()->json(['message' => 'API is running']));
 
@@ -29,6 +31,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Suporte: Assumir contexto de autarquia (apenas para superadmin/Sh3)
     Route::post('/support/assume-context', [AuthController::class, 'assumeAutarquiaContext']);
     Route::post('/support/exit-context', [AuthController::class, 'exitAutarquiaContext']);
+
+        Route::prefix('session')->group(function () {
+        Route::post('/active-autarquia', [SessionController::class, 'setActiveAutarquia']);
+        Route::get('/active-autarquia', [SessionController::class, 'getActiveAutarquia']);
+        Route::delete('/active-autarquia', [SessionController::class, 'clearActiveAutarquia']);
+    });
 
     // Múltiplas autarquias: Listar e trocar entre autarquias do usuário
     Route::get('/user/autarquias', [AuthController::class, 'getAutarquias']);

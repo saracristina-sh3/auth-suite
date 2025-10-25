@@ -11,7 +11,6 @@ interface RouteMeta {
   requiresAuth?: boolean
   requiresGuest?: boolean
   requiresRole?: string
-  requiresSH3?: boolean
 }
 
 const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
@@ -48,44 +47,44 @@ const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
   {
     path: '/suporteSH3',
     component: AdminManagementView,
-    meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true },
+    meta: { requiresAuth: true, requiresRole: 'superadmin' },
     redirect: '/suporteSH3/dashboard',
     children: [
       {
         path: 'dashboard',
         name: 'suporte-dashboard',
         component: () => import('@/views/suporte/tabs/DashboardTab.vue'),
-        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+        meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'usuarios',
         name: 'suporte-usuarios',
         component: () => import('@/views/suporte/tabs/UserTab.vue'),
-        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+        meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'autarquias',
         name: 'suporte-autarquias',
         component: () => import('@/views/suporte/tabs/autarquia/AutarquiasTab.vue'),
-        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+        meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'modulos',
         name: 'suporte-modulos',
         component: () => import('@/views/suporte/tabs/ModulosTab.vue'),
-        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+        meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'liberacoes',
         name: 'suporte-liberacoes',
         component: () => import('@/views/suporte/tabs/LiberacoesTab.vue'),
-        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+        meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'modo-suporte',
         name: 'suporte-contexto',
         component: () => import('@/views/suporte/tabs/SupportContextTab.vue'),
-        meta: { requiresAuth: true, requiresRole: 'superadmin', requiresSH3: true }
+        meta: { requiresAuth: true, requiresRole: 'superadmin' }
       }
     ]
   },
@@ -100,45 +99,48 @@ const router = createRouter({
   routes
 })
 
-// Helper function to check if user belongs to SH3 autarquia
-const isSH3User = (user: any): boolean => {
-  if (!user?.autarquia) return false
-  return user.autarquia.nome === 'SH3 - Suporte'
-}
-
 // ✅ Guard de navegação completo
 router.beforeEach(async (to, _from, next) => {
   const user = authService.getUserFromStorage()
 
+  console.log('🛡️ Router Guard:', {
+    to: to.path,
+    user: user ? { id: user.id, email: user.email, is_superadmin: user.is_superadmin } : null,
+    meta: to.meta
+  })
+
   // Usuário não autenticado tentando acessar área protegida
   if (to.meta.requiresAuth && !user) {
+    console.log('⛔ Usuário não autenticado, redirecionando para /login')
     next('/login')
     return
   }
 
   // Usuário logado tentando acessar /login
   if (to.meta.requiresGuest && user) {
-    // Redirect SH3 superadmin to AdminManagementView
-    if (user.is_superadmin && isSH3User(user)) {
+    // Redirect SuperAdmin to AdminManagementView
+    if (user.is_superadmin) {
+      console.log('✅ SuperAdmin detectado no guard, redirecionando para /suporteSH3')
       next('/suporteSH3')
       return
     }
+    console.log('✅ Usuário normal no guard, redirecionando para /')
     next('/')
     return
   }
 
   // Verifica se rota exige superadmin
   if (to.meta.requiresRole && !user?.is_superadmin) {
+    console.log('⛔ Rota exige superadmin, mas usuário não é superadmin. Redirecionando para /')
     next('/')
     return
   }
 
-  // Verifica se rota exige SH3 autarquia (support team)
-  if (to.meta.requiresSH3 && !isSH3User(user)) {
-    next('/')
-    return
-  }
+  // ✅ REMOVIDO: Verificação de requiresSH3
+  // Agora apenas is_superadmin é suficiente para acessar /suporteSH3
+  // A verificação de autarquia SH3 não é mais necessária
 
+  console.log('✅ Guard passou, continuando para:', to.path)
   next()
 })
 

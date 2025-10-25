@@ -1,5 +1,5 @@
 // src/services/autarquia.service.ts
-import api from './auth.service'
+import api from './api'
 import type { Autarquia } from '@/types/autarquia.types'
 
 export interface AutarquiaFormData {

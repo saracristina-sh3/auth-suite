@@ -1,4 +1,4 @@
-import api from './auth.service'
+import api from './api'
 import type { Autarquia } from '@/types/autarquia.types'
 import type { Modulo } from '@/types/modulos.types'
 import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/support.types'
@@ -16,10 +16,9 @@ class SupportService {
       const token = localStorage.getItem('auth_token')
       console.log('🔄 Assumindo contexto de autarquia:', autarquiaId)
       console.log('🔑 Token disponível:', token ? 'Sim' : 'Não')
-      console.log('🔑 Token:', token?.substring(0, 20) + '...')
 
       const { data } = await api.post<AssumeContextResponse>('/support/assume-context', {
-        autarquia_ativa_id: autarquiaId,
+        autarquia_id: autarquiaId,
       })
 
       if (data.success && data.token && data.context) {
@@ -27,29 +26,35 @@ class SupportService {
         const originalUserData = localStorage.getItem('user_data')
         if (originalUserData) {
           localStorage.setItem('original_user_data', originalUserData)
+          console.log('💾 Dados originais do usuário salvos')
         }
 
         // Atualizar o token de autenticação
         localStorage.setItem('auth_token', data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+        console.log('🔑 Novo token de suporte definido')
 
-        // Salvar o contexto de suporte no localStorage
+        // ✅ Salvar contexto de suporte no localStorage
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data.context))
+        console.log('💾 Contexto de suporte salvo no localStorage')
 
-        // IMPORTANTE: Modificar os dados do usuário para parecer um admin da autarquia
+        // ✅ Atualizar user_data com autarquia ativa e flag de support_mode
         const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}')
         const modifiedUser = {
           ...currentUser,
+          _support_mode: true,
           autarquia_ativa_id: data.context.autarquia.id,
-          autarquia: data.context.autarquia,
-          role: 'admin', // Temporariamente admin da autarquia
-          is_superadmin: false, // Desabilitar flag de superadmin temporariamente
-          _support_mode: true, // Flag interna para identificar modo suporte
+          autarquia_ativa: {
+            id: data.context.autarquia.id,
+            nome: data.context.autarquia.nome,
+            ativo: data.context.autarquia.ativo
+          }
         }
         localStorage.setItem('user_data', JSON.stringify(modifiedUser))
+        console.log('💾 user_data atualizado com autarquia ativa:', data.context.autarquia.nome)
 
         console.log('✅ Contexto assumido com sucesso:', data.context.autarquia.nome)
-        console.log('👤 Usuário modificado temporariamente:', modifiedUser)
+        console.log('📋 Módulos disponíveis:', data.context.modulos?.length || 0)
 
         return data.context
       } else {
@@ -76,6 +81,7 @@ class SupportService {
         // Atualizar o token de autenticação
         localStorage.setItem('auth_token', data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+        console.log('🔑 Token original restaurado')
 
         // Restaurar dados originais do usuário (se existir backup)
         const originalUserData = localStorage.getItem('original_user_data')
@@ -85,11 +91,20 @@ class SupportService {
           console.log('✅ Dados originais do usuário restaurados')
         } else {
           // Caso não tenha backup, usa os dados retornados pela API
-          localStorage.setItem('user_data', JSON.stringify(data.user))
+          // Mas remove flag _support_mode e autarquia_ativa
+          const cleanUser = {
+            ...data.user,
+            _support_mode: undefined,
+            autarquia_ativa_id: data.user.autarquia_preferida_id || undefined,
+            autarquia_ativa: data.user.autarquia_ativa || undefined
+          }
+          localStorage.setItem('user_data', JSON.stringify(cleanUser))
+          console.log('✅ Dados do usuário atualizados (sem modo suporte)')
         }
 
         // Remover o contexto de suporte
         localStorage.removeItem(this.STORAGE_KEY)
+        console.log('🧹 Contexto de suporte removido')
 
         console.log('✅ Retornado ao contexto original')
       } else {

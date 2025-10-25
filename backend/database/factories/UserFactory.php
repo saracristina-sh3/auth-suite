@@ -28,6 +28,11 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'cpf' => fake()->numerify('###########'), // CPF com 11 dígitos
+            'role' => 'user', // Padrão: usuário comum
+            'is_active' => true,
+            'is_superadmin' => false,
+            'autarquia_preferida_id' => null, // Será definido manualmente ou via seeder
             'remember_token' => Str::random(10),
         ];
     }
@@ -39,6 +44,57 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Create a superadmin user
+     */
+    public function superadmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'superadmin',
+            'is_superadmin' => true,
+        ]);
+    }
+
+    /**
+     * Create an admin user
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+        ]);
+    }
+
+    /**
+     * Create a manager/gestor user
+     */
+    public function manager(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'gestor',
+        ]);
+    }
+
+    /**
+     * Create an inactive user
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_active' => false,
+        ]);
+    }
+
+    /**
+     * Associate user with an autarquia as preferred
+     */
+    public function withAutarquia(int $autarquiaId): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'autarquia_preferida_id' => $autarquiaId,
         ]);
     }
 }

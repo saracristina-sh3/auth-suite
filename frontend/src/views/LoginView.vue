@@ -109,14 +109,31 @@ async function onLogin() {
       error.value = 'Por favor, preencha todos os campos.'
       return
     }
+
+    console.log('🔐 Iniciando login...')
     const response = await authService.login({ email: email.value, password: password.value })
+
+    console.log('📦 Resposta do login:', response)
     const user = response.user
-    if (user?.is_superadmin && user?.autarquia?.nome === 'SH3 - Suporte') {
+
+    console.log('👤 Dados do usuário:', {
+      id: user?.id,
+      email: user?.email,
+      is_superadmin: user?.is_superadmin,
+      name: user?.name
+    })
+
+    // SuperAdmin vai para AdminManagementView
+    if (user?.is_superadmin) {
+      console.log('✅ SuperAdmin detectado! Redirecionando para /suporteSH3')
       router.replace('/suporteSH3')
     } else {
+      console.log('✅ Usuário normal detectado! Redirecionando para /')
+      // Usuários normais vão para SuiteHome
       router.replace('/')
     }
   } catch (e: any) {
+    console.error('❌ Erro no login:', e)
     error.value = e.message || 'Falha ao autenticar. Tente novamente.'
   } finally {
     isLoading.value = false

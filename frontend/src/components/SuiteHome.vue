@@ -142,6 +142,8 @@ import BaseLayout from './layouts/BaseLayout.vue'
 import Sh3LoadingState from './common/state/Sh3LoadingState.vue'
 import Sh3EmptyState from './common/state/Sh3EmptyState.vue'
 import Sh3ErrorState from './common/state/Sh3ErrorState.vue'
+import { sessionService } from '@/services/session.service'
+
 
 const { modulos, loadingModulos, error, reload } = useModulos()
 const { showMessage } = useNotification()
@@ -152,6 +154,7 @@ const autarquias = ref<AutarquiaWithPivot[]>([])
 const autarquiaAtivaId = ref<number | null>(null)
 const loadingAutarquias = ref(false)
 const changingAutarquia = ref(false) 
+const loading = ref(false)
 
 const autarquiaAtiva = computed(() => {
   if (!autarquiaAtivaId.value) return null
@@ -159,101 +162,112 @@ const autarquiaAtiva = computed(() => {
 })
 
 async function loadUserAutarquias() {
-  const user = authService.getUserFromStorage()
-  if (!user || !user.id) {
-    console.error('Usuário não encontrado')
-    return
-  }
-
-  loadingAutarquias.value = true
+  loading.value = true
 
   try {
-    console.log('🔄 Carregando autarquias do usuário:', user.id)
+    const user = authService.getUserFromStorage()
 
+    if (!user) {
+      console.error('Usuário não encontrado')
+      return
+    }
+
+    // Buscar autarquias do usuário
     autarquias.value = await userService.getUserAutarquias(user.id)
 
-    console.log('📦 Autarquias carregadas:', autarquias.value)
+    // ✅ Verificar se já tem autarquia ativa na session do backend
+    const sessionData = await sessionService.getActiveAutarquia()
 
-    if (user.autarquia_ativa_id) {
-      autarquiaAtivaId.value = user.autarquia_ativa_id
-    } else if (autarquias.value.length === 1 && autarquias.value[0]) {
-      autarquiaAtivaId.value = autarquias.value[0].id
-      await updateActiveAutarquia(autarquias.value[0].id)
+    if (sessionData.data.autarquia_ativa_id) {
+      // Usar da session
+      autarquiaAtivaId.value = sessionData.data.autarquia_ativa_id
+    } else if (user.autarquia_preferida_id) {  // ✅ Usar preferida
+      // Usar preferida do usuário
+      await updateActiveAutarquia(user.autarquia_preferida_id)
+    } else if (autarquias.value.length === 1) {
+      // Auto-selecionar se só tem uma
+      const firstAutarquia = autarquias.value[0]
+      if (firstAutarquia) {
+        await updateActiveAutarquia(firstAutarquia.id)
+      }
     } else if (autarquias.value.length > 0) {
+      // Buscar autarquia padrão
       const defaultAutarquia = autarquias.value.find(a => a.pivot.is_default)
       if (defaultAutarquia) {
-        autarquiaAtivaId.value = defaultAutarquia.id
         await updateActiveAutarquia(defaultAutarquia.id)
       }
     }
-  } catch (err) {
-    console.error('❌ Erro ao carregar autarquias:', err)
+
+    // Carregar módulos da autarquia ativa
+    if (autarquiaAtivaId.value) {
+      await reload()
+    }
+  } catch (error) {
+    console.error('Erro ao carregar autarquias:', error)
+    showMessage('error', 'Erro ao carregar autarquias')
   } finally {
-    loadingAutarquias.value = false
+    loading.value = false
+  }
+}
+
+/**
+ * Atualiza a autarquia ativa na session do backend
+ */
+async function updateActiveAutarquia(autarquiaId: number) {
+  try {
+    // ✅ Definir na session do backend
+    const response = await sessionService.setActiveAutarquia(autarquiaId)
+
+    // Atualizar estado local
+    autarquiaAtivaId.value = response.data.autarquia_ativa_id
+
+    // ✅ Atualizar localStorage para o useModulos poder carregar os módulos
+    const user = authService.getUserFromStorage()
+    if (user) {
+      const autarquiaAtualizada = autarquias.value.find(a => a.id === autarquiaId)
+      user.autarquia_ativa_id = autarquiaId
+      user.autarquia_ativa = autarquiaAtualizada ? {
+        id: autarquiaAtualizada.id,
+        nome: autarquiaAtualizada.nome,
+        ativo: autarquiaAtualizada.ativo
+      } : null
+      localStorage.setItem('user_data', JSON.stringify(user))
+      console.log('📦 localStorage atualizado com autarquia_ativa_id:', autarquiaId)
+    }
+
+    console.log('✅ Autarquia ativa definida na session:', autarquiaId)
+  } catch (error) {
+    console.error('❌ Erro ao definir autarquia ativa:', error)
+    throw error
   }
 }
 
 async function handleAutarquiaChange(newAutarquiaId: number | string) {
-  const id = typeof newAutarquiaId === 'string' ? parseInt(newAutarquiaId) : newAutarquiaId
+  const id = typeof newAutarquiaId === 'string'
+    ? parseInt(newAutarquiaId)
+    : newAutarquiaId
 
-  console.log('🔄 Mudando autarquia ativa para:', id)
+  if (id === autarquiaAtivaId.value) {
+    return
+  }
 
   changingAutarquia.value = true
 
   try {
     await updateActiveAutarquia(id)
-
-    await reload()
+    await reload() // Recarrega módulos
 
     const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
     showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
-  } catch {
+  } catch (err) {
+    console.error('Erro ao alterar autarquia:', err)
     showMessage('error', 'Erro ao alterar autarquia. Tente novamente.')
+
+    // Não precisa reverter nada no localStorage - a session não mudou
   } finally {
     changingAutarquia.value = false
   }
 }
-
-async function updateActiveAutarquia(autarquiaId: number) {
-  const user = authService.getUserFromStorage()
-  if (!user || !user.id) return
-
-  const previousAutarquiaId = user.autarquia_ativa_id
-
-  try {
-    const autarquiaAtualizada = autarquias.value.find(a => a.id === autarquiaId)
-    const updatedUserData = {
-      ...user,
-      autarquia_ativa_id: autarquiaId,
-      autarquia_ativa: autarquiaAtualizada || null
-    }
-    localStorage.setItem('user_data', JSON.stringify(updatedUserData))
-    currentUser.value = updatedUserData
-
-    console.log('💾 localStorage atualizado com autarquia:', autarquiaId)
-
-    await userService.updateActiveAutarquia(user.id, autarquiaId)
-
-    console.log('✅ Autarquia ativa sincronizada com backend e persistida')
-  } catch (err) {
-    console.error('❌ Erro ao atualizar autarquia ativa:', err)
-
-    if (previousAutarquiaId) {
-      const autarquiaAnterior = autarquias.value.find(a => a.id === previousAutarquiaId)
-      const rollbackUserData = {
-        ...user,
-        autarquia_ativa_id: previousAutarquiaId,
-        autarquia_ativa: autarquiaAnterior || null
-      }
-      localStorage.setItem('user_data', JSON.stringify(rollbackUserData))
-      currentUser.value = rollbackUserData
-      autarquiaAtivaId.value = previousAutarquiaId
-    }
-
-    throw err
-  }
-}
-
 const handleItemClick = (route?: string) => {
   if (route) {
     router.push(route)

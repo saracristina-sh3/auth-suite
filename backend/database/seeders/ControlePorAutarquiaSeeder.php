@@ -58,7 +58,7 @@ class ControlePorAutarquiaSeeder extends Seeder
                 'email' => 'joao.silva@prefeiturax.gov.br',
                 'cpf' => '12345678901',
                 'password' => Hash::make('senha123'),
-                'autarquia_id' => $autarquiaIds[0], // Prefeitura X
+                'autarquia_preferida_id' => $autarquiaIds[0], // Prefeitura X
                 'role' => 'gestor',
                 'is_active' => true,
             ],
@@ -67,7 +67,7 @@ class ControlePorAutarquiaSeeder extends Seeder
                 'email' => 'maria.oliveira@prefeiturax.gov.br',
                 'cpf' => '23456789012',
                 'password' => Hash::make('senha123'),
-                'autarquia_id' => $autarquiaIds[0], // Prefeitura X
+                'autarquia_preferida_id' => $autarquiaIds[0], // Prefeitura X
                 'role' => 'gestor',
                 'is_active' => true,
             ],
@@ -76,7 +76,7 @@ class ControlePorAutarquiaSeeder extends Seeder
                 'email' => 'pedro.santos@prefeituray.gov.br',
                 'cpf' => '34567890123',
                 'password' => Hash::make('senha123'),
-                'autarquia_id' => $autarquiaIds[1], // Prefeitura Y
+                'autarquia_preferida_id' => $autarquiaIds[1], // Prefeitura Y
                 'role' => 'gestor',
                 'is_active' => true,
             ],
@@ -85,7 +85,7 @@ class ControlePorAutarquiaSeeder extends Seeder
                 'email' => 'ana.costa@prefeituray.gov.br',
                 'cpf' => '45678901234',
                 'password' => Hash::make('senha123'),
-                'autarquia_id' => $autarquiaIds[1], // Prefeitura Y
+                'autarquia_preferida_id' => $autarquiaIds[1], // Prefeitura Y
                 'role' => 'user',
                 'is_active' => true,
             ],
@@ -94,7 +94,7 @@ class ControlePorAutarquiaSeeder extends Seeder
                 'email' => 'carlos.ferreira@prefeituraz.gov.br',
                 'cpf' => '56789012345',
                 'password' => Hash::make('senha123'),
-                'autarquia_id' => $autarquiaIds[2], // Prefeitura Z
+                'autarquia_preferida_id' => $autarquiaIds[2], // Prefeitura Z
                 'role' => 'admin',
                 'is_active' => true,
             ],
@@ -109,13 +109,13 @@ class ControlePorAutarquiaSeeder extends Seeder
                 'cpf' => $usuarioData['cpf'],
                 'password' => $usuarioData['password'],
                 'role' => $usuarioData['role'],
-                'autarquia_ativa_id' => $usuarioData['autarquia_id'],
+                'autarquia_preferida_id' => $usuarioData['autarquia_preferida_id'],
                 'is_active' => $usuarioData['is_active'],
                 'is_superadmin' => false,
             ]);
 
             // Criar vínculo na tabela pivot usuario_autarquia
-            $user->autarquias()->attach($usuarioData['autarquia_id'], [
+            $user->autarquias()->attach($usuarioData['autarquia_preferida_id'], [
                 'role' => $usuarioData['role'],
                 'is_admin' => $usuarioData['role'] === 'admin',
                 'is_default' => true,

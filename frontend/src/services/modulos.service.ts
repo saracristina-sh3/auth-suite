@@ -1,5 +1,5 @@
 // src/services/modulo.service.ts
-import api from './auth.service'
+import api from './api'
 import type { Modulo } from '@/types/modulos.types'
 
 export interface ModuloFormData {

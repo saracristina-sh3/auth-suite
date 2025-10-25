@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Services\AutarquiaSessionService;
 
 class User extends Authenticatable
 {
@@ -20,7 +21,7 @@ class User extends Authenticatable
     'password',
     'role',
     'cpf',
-    'autarquia_ativa_id',
+    'autarquia_preferida_id',
     'is_active',
     'is_superadmin'
 ];
@@ -31,15 +32,15 @@ class User extends Authenticatable
     ];
 
     protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'is_active' => 'boolean',
-            'is_superadmin' => 'boolean',
-            'autarquia_ativa_id' => 'integer',
-        ];
-    }
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+        'is_superadmin' => 'boolean',
+        'autarquia_preferida_id' => 'integer',
+    ];
+}
 
     /**
      * Relacionamento: Usuário pode estar vinculado a múltiplas autarquias (N:N)
@@ -54,18 +55,22 @@ class User extends Authenticatable
     /**
      * Relacionamento: Autarquia ativa no contexto atual
      */
-    public function autarquiaAtiva(): BelongsTo
-    {
-        return $this->belongsTo(Autarquia::class, 'autarquia_ativa_id');
+    public function autarquiaPreferida()
+{
+    return $this->belongsTo(Autarquia::class, 'autarquia_preferida_id');
+}
+
+    // Helper para autarquia ativa (da session)
+public function getAutarquiaAtivaAttribute()
+{
+    $autarquiaId = session('autarquia_ativa_id');
+
+    if (!$autarquiaId) {
+        return null;
     }
 
-    /**
-     * Relacionamento: Autarquias ativas do usuário
-     */
-    public function autarquiasAtivas(): BelongsToMany
-    {
-        return $this->autarquias()->wherePivot('ativo', true);
-    }
+    return Autarquia::find($autarquiaId);
+}
 
     /**
      * Relacionamento: Usuário possui muitas permissões em módulos
@@ -135,11 +140,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
+        $autarquiaId = $autarquiaId ?? session('autarquia_ativa_id');
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+            ->where('autarquia_id', $autarquiaId)
             ->where('permissao_leitura', true)
             ->exists();
     }
@@ -153,11 +158,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
+        $autarquiaId = $autarquiaId ?? session('autarquia_ativa_id');
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+            ->where('autarquia_id', $autarquiaId)
             ->where('permissao_escrita', true)
             ->exists();
     }
@@ -171,11 +176,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
+        $autarquiaId = $autarquiaId ?? session('autarquia_ativa_id');
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+            ->where('autarquia_id', $autarquiaId)
             ->where('permissao_exclusao', true)
             ->exists();
     }
@@ -189,11 +194,11 @@ class User extends Authenticatable
             return true;
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
+        $autarquiaId = $autarquiaId ?? session('autarquia_ativa_id');
 
         return $this->permissoesAtivas()
             ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+            ->where('autarquia_id', $autarquiaId)
             ->where('permissao_admin', true)
             ->exists();
     }
@@ -207,7 +212,7 @@ class User extends Authenticatable
             return Modulo::ativos()->get();
         }
 
-        $autarquiaId = $autarquiaId ?? $this->autarquia_ativa_id;
+        $autarquiaId = $autarquiaId ?? session('autarquia_ativa_id');
 
         return $this->modulos()
             ->wherePivot('autarquia_id', $autarquiaId)
@@ -226,7 +231,7 @@ class User extends Authenticatable
             return false;
         }
 
-        $autarquiaId ??= $this->autarquia_ativa_id;
+        $autarquiaId ??= session('autarquia_ativa_id');
 
         return $this->autarquias()
             ->where('autarquia_id', $autarquiaId)
@@ -238,24 +243,12 @@ class User extends Authenticatable
     /**
      * Troca o contexto de autarquia ativa
      */
-    public function trocarAutarquia(int $autarquiaId): bool
-    {
-        // Verifica se o usuário tem acesso à autarquia
-        $temAcesso = $this->autarquias()
-            ->where('autarquia_id', $autarquiaId)
-            ->wherePivot('ativo', true)
-            ->exists();
-
-        // Superadmin SH3 não precisa ter vínculo explícito
-        if (!$temAcesso && !$this->is_superadmin) {
-            return false;
-        }
-
-        $this->autarquia_ativa_id = $autarquiaId;
-        $this->save();
-
-        return true;
-    }
+public function trocarAutarquia(int $autarquiaId): bool
+{
+    // Usar o service ao invés de salvar no BD
+    $service = app(AutarquiaSessionService::class);
+    return $service->setAutarquiaAtiva($autarquiaId, $this);
+}
 
     /**
      * Retorna o role do usuário para uma autarquia específica
@@ -267,7 +260,7 @@ class User extends Authenticatable
             return 'suporteAdmin';
         }
 
-        $autarquiaId ??= $this->autarquia_ativa_id;
+        $autarquiaId ??= session('autarquia_ativa_id');
 
         $pivot = $this->autarquias()
             ->where('autarquia_id', $autarquiaId)

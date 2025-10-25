@@ -1,124 +1,53 @@
-import axios, { type AxiosError } from 'axios'
-import type { LoginCredentials, AuthResponse, User } from '@/types/auth.types'
-import { supportService } from './support.service'
-
-interface ApiError {
-  message?: string
-  error?: string
-  errors?: {
-    email?: string[]
-    password?: string[]
-    [key: string]: string[] | undefined
-  }
-}
-
-// ✅ Define corretamente a URL base da API
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-  },
-  withCredentials: true,
-})
-
-// === INTERCEPTORS ===
-api.interceptors.request.use((config) => {
-  console.log('📤 Enviando requisição:', {
-    url: config.url,
-    method: config.method,
-    data: config.data,
-  })
-
-  const token = localStorage.getItem('auth_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-api.interceptors.response.use(
-  (response) => {
-    console.log('📥 Resposta recebida:', {
-      status: response.status,
-      data: response.data,
-    })
-    return response
-  },
-  (error: AxiosError) => {
-    console.error('❌ Erro na requisição:', {
-      status: error.response?.status,
-      data: error.response?.data,
-      message: error.message,
-      url: error.config?.url,
-    })
-
-    const requestUrl = error.config?.url || ''
-    if (
-      error.response?.status === 401 &&
-      !requestUrl.includes('/login') &&
-      !requestUrl.includes('/register')
-    ) {
-      // Limpa tokens de autenticação
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user_data')
-      // Limpa contexto de suporte se existir
-      supportService.clearSupportContext()
-      window.location.href = '/login'
-    }
-
-    return Promise.reject(error)
-  }
-)
+import api from './api'
+import type { LoginCredentials, User } from '@/types/auth.types'
+import { sessionService } from './session.service'
 
 // === SERVIÇO DE AUTENTICAÇÃO ===
 class AuthService {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    try {
-      const { data } = await api.post<AuthResponse>('/login', credentials)
+async login(credentials: LoginCredentials) {
+    const response = await api.post('/login', credentials)
+    const { token, user } = response.data
 
-      if (data.token && data.user) {
-        localStorage.setItem('auth_token', data.token)
-        localStorage.setItem('user_data', JSON.stringify(data.user))
-        api.defaults.headers.common.Authorization = `Bearer ${data.token}`
-      } else {
-        throw new Error('Resposta de login inválida')
-      }
+    // Armazenar token
+    localStorage.setItem('auth_token', token)
 
-      return data
-    } catch (error: unknown) {
-      const axiosError = error as AxiosError<ApiError & { message?: string }>
-      const message =
-        axiosError.response?.data?.message ||
-        axiosError.response?.data?.error ||
-        axiosError.response?.data?.errors?.email?.[0] ||
-        'Erro ao fazer login. Tente novamente.'
-      throw new Error(message)
+    // NÃO armazenar autarquia_ativa no localStorage
+    // Ela virá da session do backend
+    const userData = {
+      ...user,
+      // Remover autarquia_ativa do storage local
+      autarquia_ativa_id: undefined,
+      autarquia_ativa: undefined
     }
+
+    localStorage.setItem('user_data', JSON.stringify(userData))
+
+    return { token, user }
   }
 
-  async getCurrentUser(): Promise<User | null> {
-    const token = localStorage.getItem('auth_token')
-    if (!token) return null
+  async getCurrentUser() {
+    const response = await api.get('/user')
+    const { user } = response.data
 
-    try {
-      // Rota correta é /me conforme api.php linha 27
-      const { data } = await api.get<{ user: User }>('/me')
-
-      if (data.user) {
-        localStorage.setItem('user_data', JSON.stringify(data.user))
-        return data.user
-      } else {
-        this.logout()
-        return null
-      }
-    } catch (error) {
-      console.error('Erro ao buscar usuário:', error)
-      this.logout()
-      return null
+    // Manter autarquia_ativa do localStorage se existir, senão pegar da resposta
+    const storedUser = this.getUserFromStorage()
+    const userData = {
+      ...user,
+      autarquia_ativa_id: storedUser?.autarquia_ativa_id || user.autarquia_ativa_id,
+      autarquia_ativa: storedUser?.autarquia_ativa || user.autarquia_ativa
     }
+
+    localStorage.setItem('user_data', JSON.stringify(userData))
+
+    return userData
+  }
+
+    /**
+   * Obtém autarquia ativa da session (não do localStorage)
+   */
+  async getActiveAutarquiaFromSession() {
+    const response = await sessionService.getActiveAutarquia()
+    return response.data
   }
 
   async logout(): Promise<void> {
@@ -134,8 +63,9 @@ class AuthService {
     // Limpa tokens de autenticação
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
-    // Limpa contexto de suporte se existir (original_user_data e support_context)
-    supportService.clearSupportContext()
+    // Limpa contexto de suporte se existir
+    localStorage.removeItem('support_context')
+    localStorage.removeItem('original_user_data')
     delete api.defaults.headers.common.Authorization
   }
 

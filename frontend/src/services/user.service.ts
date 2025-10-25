@@ -1,5 +1,5 @@
 // src/services/user.service.ts
-import api from './auth.service'
+import api from './api'
 
 /**
  * Interface representando uma Autarquia
@@ -31,7 +31,7 @@ export interface AutarquiaWithPivot extends Autarquia {
 /**
  * Interface do usuário atualizada com suporte a múltiplas autarquias
  */
-export interface User {
+interface User {
   id: number
   name: string
   email: string
@@ -39,9 +39,15 @@ export interface User {
   role: string
   is_superadmin: boolean
   is_active: boolean
+
+  // Renomeado: preferência, não estado ativo
+  autarquia_preferida_id?: number | null
+  autarquia_preferida?: Autarquia | null
+
+  // Da session (pode estar ausente no login inicial)
   autarquia_ativa_id?: number | null
-  autarqui_ativa_nome?: string
   autarquia_ativa?: Autarquia | null
+
   autarquias?: AutarquiaWithPivot[]
 }
 

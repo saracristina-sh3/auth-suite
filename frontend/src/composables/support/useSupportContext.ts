@@ -83,8 +83,14 @@ export function useSupportContext(
       await supportService.exitAutarquiaContext();
       supportContext.value = null;
 
-      showMessage("success", "Retornado ao contexto original.");
+      showMessage("success", "Retornado ao contexto original. Redirecionando...");
       console.log("✅ Modo suporte desativado");
+
+      // Redirecionar de volta para AdminManagementView
+      setTimeout(() => {
+        console.log("🚀 Redirecionando para /suporteSH3");
+        router.push({ path: "/suporteSH3" });
+      }, 1000);
     } catch (error: any) {
       console.error("❌ Erro ao sair do contexto:", error);
       const errorMessage = error.message || "Erro ao sair do modo suporte. Tente novamente.";

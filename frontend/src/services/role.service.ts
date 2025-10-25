@@ -1,5 +1,5 @@
 // src/services/role.service.ts
-import api from './auth.service'
+import api from './api'
 
 export interface Role {
   label: string

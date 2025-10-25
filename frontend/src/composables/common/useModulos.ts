@@ -45,18 +45,27 @@ export function useModulos() {
       const user = authService.getUserFromStorage()
 
       if (!user) {
+        console.error('❌ Usuário não autenticado')
         error.value = 'Usuário não autenticado'
         modulos.value = []
         return
       }
 
+      console.log('📋 User data:', {
+        id: user.id,
+        email: user.email,
+        autarquia_ativa_id: user.autarquia_ativa_id,
+        autarquia_ativa: user.autarquia_ativa
+      })
+
       // Carregar módulos baseado na autarquia do usuário
       let data
       if (user.autarquia_ativa_id) {
-        console.log('👤 Carregando módulos da autarquia:', user.autarquia?.nome)
+        console.log('👤 Carregando módulos da autarquia:', user.autarquia_ativa?.nome || user.autarquia_ativa_id)
         data = await moduloService.list(user.autarquia_ativa_id)
       } else {
-        error.value = 'Usuário não possui autarquia associada'
+        console.error('❌ Usuário não possui autarquia_ativa_id definida')
+        error.value = 'Nenhuma autarquia ativa selecionada. Por favor, selecione uma autarquia.'
         modulos.value = []
         return
       }

@@ -8,28 +8,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Services\AutarquiaSessionService;
 
 class AuthController extends Controller
 {
+     protected AutarquiaSessionService $autarquiaSession;
+
+    public function __construct(AutarquiaSessionService $autarquiaSession)
+    {
+        $this->autarquiaSession = $autarquiaSession;
+    }
+
     public function login(Request $request)
     {
-        \Log::info('🔐 Tentativa de login', [
-            'email' => $request->email,
-            'has_password' => !empty($request->password),
-            'request_data' => $request->all()
-        ]);
-
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
+if (!Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
     \Log::warning('❌ Login falhou - credenciais incorretas', [
-        'email' => $request->email,
-        'user_found' => $user !== null
+        'email' => $request->email
     ]);
 
     return response()->json([
@@ -38,18 +32,36 @@ class AuthController extends Controller
     ], 401);
 }
 
-        // Create real Sanctum token
-        $token = $user->createToken('auth-token')->plainTextToken;
+$user = Auth::user();
+$token = $user->createToken('auth-token')->plainTextToken;
 
         // Load autarquia ativa e autarquias vinculadas
-        $user->load(['autarquiaAtiva', 'autarquias']);
 
-        \Log::info('✅ Login bem-sucedido', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'autarquia_ativa_id' => $user->autarquia_ativa_id,
-            'autarquia_nome' => $user->autarquiaAtiva?->nome
+        return response()->json([
+            'success' => true,
+            'message' => 'Login realizado com sucesso',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'cpf' => $user->cpf,
+                'role' => $user->role,
+                'is_superadmin' => $user->is_superadmin,
+                'is_active' => $user->is_active,
+                // Retornar apenas a preferida, não a ativa
+                'autarquia_preferida_id' => $user->autarquia_preferida_id,
+                'autarquia_preferida' => $user->autarquiaPreferida,
+                // A ativa virá da session
+                'autarquia_ativa_id' => session('autarquia_ativa_id'),
+                'autarquia_ativa' => session('autarquia_ativa'),
+            ]
         ]);
+    }
+
+    public function getCurrentUser(Request $request)
+    {
+        $user = Auth::user();
 
         return response()->json([
             'user' => [
@@ -58,17 +70,14 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'cpf' => $user->cpf,
                 'role' => $user->role,
-                'autarquia_ativa_id' => $user->autarquia_ativa_id,
-                'autarquia' => $user->autarquiaAtiva ? [
-                    'id' => $user->autarquiaAtiva->id,
-                    'nome' => $user->autarquiaAtiva->nome,
-                    'ativo' => $user->autarquiaAtiva->ativo,
-                ] : null,
-                'is_active' => $user->is_active,
                 'is_superadmin' => $user->is_superadmin,
-            ],
-            'token' => $token,
-            'message' => 'Login successful'
+                'is_active' => $user->is_active,
+                'autarquia_preferida_id' => $user->autarquia_preferida_id,
+                'autarquia_preferida' => $user->autarquiaPreferida,
+                // Da session
+                'autarquia_ativa_id' => session('autarquia_ativa_id'),
+                'autarquia_ativa' => session('autarquia_ativa'),
+            ]
         ]);
     }
 
@@ -114,150 +123,166 @@ class AuthController extends Controller
      * Permite que um usuário de suporte (Sh3) assuma o contexto de uma autarquia específica
      * com permissões completas de admin para aquela autarquia e seus módulos
      */
-    public function assumeAutarquiaContext(Request $request)
-    {
-        $user = $request->user();
+public function assumeAutarquiaContext(Request $request)
+{
+    $user = $request->user();
 
-        // Verificar se o usuário está autenticado
-        if (!$user) {
-            \Log::warning('❌ Tentativa de acesso sem autenticação');
-            return response()->json([
-                'success' => false,
-                'message' => 'Não autenticado.'
-            ], 401);
-        }
+    if (!$user) {
+        \Log::warning('❌ Tentativa de acesso sem autenticação');
+        return response()->json([
+            'success' => false,
+            'message' => 'Não autenticado.'
+        ], 401);
+    }
 
-        \Log::info('🔄 Tentativa de assumir contexto de autarquia', [
+    if (!$user->is_superadmin) {
+        \Log::warning('❌ Acesso negado - usuário não é superadmin', [
             'user_id' => $user->id,
-            'user_role' => $user->role,
-            'is_superadmin' => $user->is_superadmin,
-            'autarquia_ativa_id' => $request->autarquia_ativa_id
-        ]);
-
-        // Apenas usuários superadmin (Sh3) podem assumir contexto de outras autarquias
-        if (!$user->is_superadmin) {
-            \Log::warning('❌ Acesso negado - usuário não é superadmin', [
-                'user_id' => $user->id,
-                'role' => $user->role
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Acesso negado. Apenas usuários de suporte podem usar esta funcionalidade.'
-            ], 403);
-        }
-
-        $request->validate([
-            'autarquia_ativa_id' => 'required|exists:autarquias,id'
-        ]);
-
-        $autarquia = \App\Models\Autarquia::with('modulos')->findOrFail($request->autarquia_ativa_id);
-
-        if (!$autarquia->ativo) {
-            \Log::warning('❌ Tentativa de acessar autarquia inativa', [
-                'autarquia_ativa_id' => $autarquia->id,
-                'autarquia_nome' => $autarquia->nome
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Esta autarquia está inativa.'
-            ], 400);
-        }
-
-        // Criar um novo token com informações de contexto
-        // O token antigo continua válido mas vamos criar um novo para a sessão de suporte
-        $token = $user->createToken('support-context-token', [
-            'support_mode' => true,
-            'context_autarquia_ativa_id' => $autarquia->id
-        ])->plainTextToken;
-
-        \Log::info('✅ Contexto de autarquia assumido com sucesso', [
-            'user_id' => $user->id,
-            'autarquia_ativa_id' => $autarquia->id,
-            'autarquia_nome' => $autarquia->nome,
-            'modulos_count' => $autarquia->modulos->count()
+            'role' => $user->role
         ]);
 
         return response()->json([
-            'success' => true,
-            'message' => "Contexto assumido: {$autarquia->nome}",
-            'token' => $token,
-            'context' => [
-                'autarquia' => [
-                    'id' => $autarquia->id,
-                    'nome' => $autarquia->nome,
-                    'ativo' => $autarquia->ativo,
-                ],
-                'support_mode' => true,
-                'is_admin' => true,
-                'modulos' => $autarquia->modulos->map(function($modulo) {
-                    return [
-                        'id' => $modulo->id,
-                        'nome' => $modulo->nome,
-                        'descricao' => $modulo->descricao,
-                        'icone' => $modulo->icone,
-                        'ativo' => $modulo->pivot->ativo ?? true,
-                    ];
-                }),
-                'permissions' => [
-                    'view' => true,
-                    'create' => true,
-                    'edit' => true,
-                    'delete' => true,
-                    'manage_users' => true,
-                    'manage_modules' => true,
-                ]
-            ]
-        ]);
+            'success' => false,
+            'message' => 'Acesso negado. Apenas usuários de suporte podem usar esta funcionalidade.'
+        ], 403);
     }
+
+    $request->validate([
+        'autarquia_id' => 'required|exists:autarquias,id'  // ✅ Renomear parâmetro
+    ]);
+
+    $autarquia = \App\Models\Autarquia::with('modulos')->findOrFail($request->autarquia_id);
+
+    if (!$autarquia->ativo) {
+        \Log::warning('❌ Tentativa de acessar autarquia inativa', [
+            'autarquia_id' => $autarquia->id,
+            'autarquia_nome' => $autarquia->nome
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Esta autarquia está inativa.'
+        ], 400);
+    }
+
+    // ✅ Usar o AutarquiaSessionService para definir na session
+    $success = $this->autarquiaSession->setAutarquiaAtiva($autarquia->id, $user);
+
+    if (!$success) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Não foi possível assumir o contexto desta autarquia.'
+        ], 403);
+    }
+
+    // Adicionar flags de modo suporte na session
+    session([
+        'support_mode' => true,
+        'support_context' => [
+            'original_autarquia_preferida_id' => $user->autarquia_preferida_id,
+            'assumed_at' => now()
+        ]
+    ]);
+
+    // Criar novo token para a sessão de suporte
+    $token = $user->createToken('support-context-token', [
+        'support_mode' => true,
+        'context_autarquia_id' => $autarquia->id
+    ])->plainTextToken;
+
+    \Log::info('✅ Contexto de autarquia assumido com sucesso', [
+        'user_id' => $user->id,
+        'autarquia_id' => $autarquia->id,
+        'autarquia_nome' => $autarquia->nome,
+        'modulos_count' => $autarquia->modulos->count()
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Contexto assumido: ' . $autarquia->nome,
+        'token' => $token,
+        'context' => [
+            'autarquia' => [
+                'id' => $autarquia->id,
+                'nome' => $autarquia->nome,
+                'ativo' => $autarquia->ativo
+            ],
+            'support_mode' => true,
+            'is_admin' => true,
+            'modulos' => $autarquia->modulos,
+            'permissions' => [
+                'view' => true,
+                'create' => true,
+                'edit' => true,
+                'delete' => true,
+                'manage_users' => true,
+                'manage_modules' => true
+            ]
+        ]
+    ]);
+}
 
     /**
      * Retorna o usuário para seu contexto original
      */
-    public function exitAutarquiaContext(Request $request)
-    {
-        \Log::info('🔙 Saindo do contexto de autarquia', [
-            'user_id' => $request->user()->id
-        ]);
+public function exitAutarquiaContext(Request $request)
+{
+    $user = $request->user();
 
-        $user = $request->user();
+    \Log::info('🔙 Saindo do contexto de autarquia', [
+        'user_id' => $user->id
+    ]);
 
-        // Revoga o token de contexto atual
-        $request->user()->currentAccessToken()->delete();
+    // Restaurar autarquia preferida se existir no support_context
+    $supportContext = session('support_context');
 
-        // Cria um novo token normal
-        $token = $user->createToken('auth-token')->plainTextToken;
-
-        // Recarrega o usuário com sua autarquia ativa
-        $user->load(['autarquiaAtiva', 'autarquias']);
-
-        \Log::info('✅ Retornado ao contexto original', [
-            'user_id' => $user->id,
-            'autarquia_original_id' => $user->autarquia_ativa_id
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Retornado ao contexto original',
-            'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'cpf' => $user->cpf,
-                'role' => $user->role,
-                'autarquia_ativa_id' => $user->autarquia_ativa_id,
-                'autarquia' => $user->autarquiaAtiva ? [
-                    'id' => $user->autarquiaAtiva->id,
-                    'nome' => $user->autarquiaAtiva->nome,
-                    'ativo' => $user->autarquiaAtiva->ativo,
-                ] : null,
-                'is_active' => $user->is_active,
-                'is_superadmin' => $user->is_superadmin,
-            ]
-        ]);
+    if ($supportContext && isset($supportContext['original_autarquia_preferida_id'])) {
+        // Definir a autarquia preferida de volta na session
+        if ($supportContext['original_autarquia_preferida_id']) {
+            $this->autarquiaSession->setAutarquiaAtiva(
+                $supportContext['original_autarquia_preferida_id'],
+                $user
+            );
+        } else {
+            // Limpar completamente se não tinha autarquia preferida
+            $this->autarquiaSession->clearAutarquiaAtiva();
+        }
+    } else {
+        // Fallback: limpar session
+        $this->autarquiaSession->clearAutarquiaAtiva();
     }
+
+    // Limpar flags de modo suporte
+    session()->forget(['support_mode', 'support_context']);
+
+    // Criar novo token normal
+    $token = $user->createToken('auth-token')->plainTextToken;
+
+    \Log::info('✅ Retornado ao contexto original', [
+        'user_id' => $user->id,
+        'autarquia_preferida_id' => $user->autarquia_preferida_id
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Retornado ao contexto original',
+        'token' => $token,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'cpf' => $user->cpf,
+            'role' => $user->role,
+            'is_superadmin' => $user->is_superadmin,
+            'is_active' => $user->is_active,
+            'autarquia_preferida_id' => $user->autarquia_preferida_id,
+            'autarquia_preferida' => $user->autarquiaPreferida,
+            'autarquia_ativa_id' => session('autarquia_ativa_id'),
+            'autarquia_ativa' => session('autarquia_ativa'),
+        ]
+    ]);
+}
+
 
     /**
      * Lista todas as autarquias que o usuário tem acesso

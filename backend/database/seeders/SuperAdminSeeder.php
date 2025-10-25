@@ -42,7 +42,7 @@ class SuperAdminSeeder extends Seeder
             'password' => Hash::make($password),
             'cpf' => $cpf,
             'role' => 'superadmin',
-            'autarquia_ativa_id' => $autarquiaSuporte->id,
+            'autarquia_preferida_id' => $autarquiaSuporte->id,
             'is_active' => true,
             'is_superadmin' => true,
         ]);
