@@ -3,8 +3,9 @@ import { ref, onMounted } from 'vue'
 import { moduloService } from '@/services/modulos.service'
 import { authService } from '@/services/auth.service'
 import { supportService } from '@/services/support.service'
-import type { ModuloWithUI } from '@/types/modulos.types'
+import type { ModuloWithUI } from '@/types/support/modulos.types'
 import { iconMap, routeMap } from '@/constants/modulos.constants'
+import { getErrorMessage } from '@/utils/error.utils'
 
 const modulos = ref<ModuloWithUI[]>([])
 const loadingModulos = ref(true)
@@ -83,8 +84,8 @@ export function useModulos() {
         }))
 
       console.log('✅ Módulos carregados para autarquia:', user.autarquia?.nome, modulos.value)
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar módulos'
+    } catch (err: unknown) {
+      error.value = getErrorMessage(err)
       console.error('❌ Erro ao carregar módulos:', err)
       modulos.value = []
     } finally {

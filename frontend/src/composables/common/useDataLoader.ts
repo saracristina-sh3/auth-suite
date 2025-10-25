@@ -4,9 +4,9 @@ import { roleService } from "@/services/role.service";
 import { autarquiaService } from "@/services/autarquia.service";
 import { moduloService } from "@/services/modulos.service";
 import type { Role, Permission } from "@/services/role.service";
-import type { Autarquia } from "@/types/autarquia.types";
-import type { Modulo } from "@/types/modulos.types";
-import type { User } from "@/types/auth.types";
+import type { Autarquia } from "@/types/support/autarquia.types";
+import type { Modulo } from "@/types/support/modulos.types";
+import type { User } from "@/types/common/user.types";
 
 export function useDataLoader(showMessage: (type: "success" | "error", text: string) => void) {
   const users = ref<User[]>([]);

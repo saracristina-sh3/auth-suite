@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { moduloService } from '@/services/modulos.service'
 import { iconMap } from '@/constants/modulos.constants'
-import type { ModuloWithUI } from '@/types/modulos.types'
+import type { ModuloWithUI } from '@/types/support/modulos.types'
 
 
 const modulos = ref<ModuloWithUI[]>([])

@@ -57,7 +57,7 @@ import Sh3Card from "@/components/common/Sh3Card.vue";
 import Sh3Select from "@/components/common/Sh3Select.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
 import Message from "primevue/message";
-import type { Autarquia } from "@/types/autarquia.types";
+import type { Autarquia } from "@/types/support/autarquia.types";
 import type { SupportContext } from "@/types/support/support.types";
 
 const props = defineProps<{

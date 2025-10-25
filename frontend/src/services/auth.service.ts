@@ -1,5 +1,6 @@
 import api from './api'
-import type { LoginCredentials, User } from '@/types/auth.types'
+import type { LoginCredentials } from '@/types/common/auth.types'
+import type { User } from '@/types/common/user.types'
 import { sessionService } from './session.service'
 
 // === SERVIÇO DE AUTENTICAÇÃO ===

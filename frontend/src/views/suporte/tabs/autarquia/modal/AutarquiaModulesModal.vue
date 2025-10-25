@@ -100,8 +100,8 @@ import Sh3StatsGrid from "@/components/common/Sh3StatsGrid.vue";
 import Sh3GridList from "@/components/common/Sh3GridList.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
 import { autarquiaService } from "@/services/autarquia.service";
-import type { Modulo} from "@/types/modulos.types";
-import type { Autarquia } from "@/types/autarquia.types";
+import type { Modulo} from "@/types/support/modulos.types";
+import type { Autarquia } from "@/types/support/autarquia.types";
 
 defineExpose({ open, close });
 

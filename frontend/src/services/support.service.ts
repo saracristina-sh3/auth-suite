@@ -1,6 +1,6 @@
 import api from './api'
-import type { Autarquia } from '@/types/autarquia.types'
-import type { Modulo } from '@/types/modulos.types'
+import type { Autarquia } from '@/types/support/autarquia.types'
+import type { Modulo } from '@/types/support/modulos.types'
 import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/support.types'
 
 
@@ -60,10 +60,15 @@ class SupportService {
       } else {
         throw new Error(data.message || 'Falha ao assumir contexto')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Erro ao assumir contexto:', error)
-      const message =
-        error.response?.data?.message || 'Erro ao assumir contexto da autarquia. Tente novamente.'
+      let message = 'Erro ao assumir contexto da autarquia. Tente novamente.'
+      if (typeof error === 'object' && error !== null) {
+        const maybeMessage = (error as any)?.response?.data?.message
+        if (typeof maybeMessage === 'string' && maybeMessage.length) {
+          message = maybeMessage
+        }
+      }
       throw new Error(message)
     }
   }

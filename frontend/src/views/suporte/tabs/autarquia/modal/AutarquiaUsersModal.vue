@@ -54,21 +54,11 @@ import Sh3EmptyState from '@/components/common/state/Sh3EmptyState.vue'
 import Sh3LoadingState from '@/components/common/state/Sh3LoadingState.vue'
 import Sh3ErrorState from '@/components/common/state/Sh3ErrorState.vue'
 import { autarquiaService } from '@/services/autarquia.service'
-import type { Autarquia } from '@/types/autarquia.types'
+import type { Autarquia } from '@/types/support/autarquia.types'
 import { useUserTableConfig } from "@/config/useUserTableConfig";
+import type { User } from '@/types/common/user.types'
 
-interface User {
-  id: number
-  name: string
-  email: string
-  pivot?: {
-    role: string
-    is_admin: boolean
-    ativo: boolean
-    is_default: boolean
-    data_vinculo: string
-  }
-}
+
 
 // Props
 const props = defineProps({

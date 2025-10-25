@@ -1,19 +1,17 @@
 import { ref, computed, type Ref } from 'vue'
 import {
-  userService,
   type AutarquiaWithPivot,
   type UserAutarquiaPivot,
   type SyncAutarquiasPayload
-} from '@/services/user.service'
+} from '@/types/common/use-autarquia-pivot.types'
+import { userService } from '@/services/user.service'
+import { getErrorMessage } from '@/utils/error.utils'
 
 /**
  * Composable para gerenciar autarquias de um usuário
  *
  * @param userId - ID do usuário (pode ser ref ou número)
  * @returns Objeto com estado e métodos para gerenciar autarquias
- *
- * @example
- * const { autarquias, loading, error, loadAutarquias, attachAutarquia } = useUserAutarquias(userId)
  */
 export function useUserAutarquias(userId: Ref<number> | number) {
   const userIdRef = ref(typeof userId === 'number' ? userId : userId)
@@ -22,23 +20,15 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  /**
-   * Computed: Retorna apenas autarquias ativas
-   */
+  // Computed
   const autarquiasAtivas = computed(() =>
     autarquias.value.filter(a => a.pivot.ativo && a.ativo)
   )
 
-  /**
-   * Computed: Retorna autarquias onde o usuário é admin
-   */
   const autarquiasAdmin = computed(() =>
     autarquias.value.filter(a => a.pivot.is_admin)
   )
 
-  /**
-   * Computed: Retorna a autarquia padrão (is_default = true)
-   */
   const autarquiaDefault = computed(() =>
     autarquias.value.find(a => a.pivot.is_default) || null
   )
@@ -49,11 +39,10 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   async function loadAutarquias(): Promise<void> {
     loading.value = true
     error.value = null
-
     try {
       autarquias.value = await userService.getUserAutarquias(userIdRef.value)
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao carregar autarquias'
+    } catch (err: unknown) {
+      error.value = getErrorMessage(err)
       console.error('Erro ao carregar autarquias:', err)
       throw err
     } finally {
@@ -70,12 +59,11 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   ): Promise<void> {
     loading.value = true
     error.value = null
-
     try {
       await userService.attachAutarquias(userIdRef.value, autarquiaIds, pivotData)
-      await loadAutarquias() // Recarrega a lista
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao anexar autarquias'
+      await loadAutarquias()
+    } catch (err: unknown) {
+      error.value = getErrorMessage(err)
       console.error('Erro ao anexar autarquias:', err)
       throw err
     } finally {
@@ -89,12 +77,11 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   async function detachAutarquia(autarquiaIds: number[]): Promise<void> {
     loading.value = true
     error.value = null
-
     try {
       await userService.detachAutarquias(userIdRef.value, autarquiaIds)
-      await loadAutarquias() // Recarrega a lista
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao desanexar autarquias'
+      await loadAutarquias()
+    } catch (err: unknown) {
+      error.value = getErrorMessage(err)
       console.error('Erro ao desanexar autarquias:', err)
       throw err
     } finally {
@@ -108,12 +95,11 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   async function syncAutarquias(autarquiasToSync: SyncAutarquiasPayload[]): Promise<void> {
     loading.value = true
     error.value = null
-
     try {
       await userService.syncAutarquias(userIdRef.value, autarquiasToSync)
-      await loadAutarquias() // Recarrega a lista
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao sincronizar autarquias'
+      await loadAutarquias()
+    } catch (err: unknown) {
+      error.value = getErrorMessage(err)
       console.error('Erro ao sincronizar autarquias:', err)
       throw err
     } finally {
@@ -127,11 +113,10 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   async function updateActiveAutarquia(autarquiaId: number): Promise<void> {
     loading.value = true
     error.value = null
-
     try {
       await userService.updateActiveAutarquia(userIdRef.value, autarquiaId)
-    } catch (err: any) {
-      error.value = err.message || 'Erro ao atualizar autarquia ativa'
+    } catch (err: unknown) {
+      error.value = getErrorMessage(err)
       console.error('Erro ao atualizar autarquia ativa:', err)
       throw err
     } finally {
@@ -167,11 +152,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
    */
   async function promoteToAdmin(autarquiaId: number): Promise<void> {
     const currentPivot = getPivotData(autarquiaId)
-    if (!currentPivot) {
-      throw new Error('Usuário não está vinculado a esta autarquia')
-    }
+    if (!currentPivot) throw new Error('Usuário não está vinculado a esta autarquia')
 
-    // Desanexa e reanexa com novos dados
     await detachAutarquia([autarquiaId])
     await attachAutarquia([autarquiaId], {
       role: 'admin',
@@ -185,11 +167,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
    */
   async function demoteFromAdmin(autarquiaId: number): Promise<void> {
     const currentPivot = getPivotData(autarquiaId)
-    if (!currentPivot) {
-      throw new Error('Usuário não está vinculado a esta autarquia')
-    }
+    if (!currentPivot) throw new Error('Usuário não está vinculado a esta autarquia')
 
-    // Desanexa e reanexa com novos dados
     await detachAutarquia([autarquiaId])
     await attachAutarquia([autarquiaId], {
       role: 'user',
@@ -199,24 +178,17 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   }
 
   return {
-    // Estado
     autarquias,
     loading,
     error,
-
-    // Computed
     autarquiasAtivas,
     autarquiasAdmin,
     autarquiaDefault,
-
-    // Métodos principais
     loadAutarquias,
     attachAutarquia,
     detachAutarquia,
     syncAutarquias,
     updateActiveAutarquia,
-
-    // Métodos auxiliares
     hasAutarquia,
     isAdminOf,
     getPivotData,

@@ -1,6 +1,6 @@
-import type { Autarquia } from '@/types/autarquia.types'
-import type { Modulo } from '@/types/modulos.types'
-import type { User } from '@/types/auth.types'
+import type { Autarquia } from '@/types/support/autarquia.types'
+import type { Modulo } from '@/types/support/modulos.types'
+import type { User } from '@/types/common/user.types'
 
 export interface SupportContext {
   autarquia: Autarquia

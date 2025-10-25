@@ -22,8 +22,8 @@ import { useUserTableConfig } from "@/config/useUserTableConfig";
 import Sh3Table from "@/components/common/Sh3Table.vue";
 import Sh3Tag from "@/components/common/Sh3Tag.vue";
 import type { Role } from "@/services/role.service";
-import type { Autarquia } from "@/types/autarquia.types";
-import type { User } from "@/types/auth.types";
+import type { Autarquia } from "@/types/support/autarquia.types";
+import type { User } from "@/types/common/user.types";
 
 defineEmits<{
   'edit': [item: any];

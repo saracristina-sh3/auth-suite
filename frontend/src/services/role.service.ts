@@ -19,6 +19,6 @@ export const roleService = {
   async list(): Promise<RoleResponse> {
     const response = await api.get('/roles')
     console.log('🎭 Roles response:', response.data)
-    return response.data.data // ← mesma estrutura
+    return response.data.data
   },
 }

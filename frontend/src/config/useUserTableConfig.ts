@@ -1,8 +1,8 @@
 // src/composables/useUserTableConfig.ts
 import { computed, type Ref } from 'vue'
 import type { Role } from '@/services/role.service'
-import type { Autarquia } from '@/types/autarquia.types'
-import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/table.types'
+import type { Autarquia } from '@/types/support/autarquia.types'
+import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/common/table.types'
 
 export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia[]>) {
   const columns: ColumnConfig[] = [

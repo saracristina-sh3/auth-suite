@@ -1,22 +1,7 @@
 // src/composables/useSupportTabs.ts
 import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import type { Ref } from 'vue'
-import type { FieldConfig } from '@/types/table.types'
-
-export interface TabConfig {
-  label: string
-  path: string
-  allowsNew?: boolean
-  singularLabel?: string
-}
-
-export interface UseSupportTabsOptions {
-  userFields: Ref<FieldConfig[]>
-  autarquiaFields: FieldConfig[]
-  moduloFields: FieldConfig[]
-  onTabChange?: (tabName: string) => void | Promise<void>
-}
+import type { UseSupportTabsOptions, TabConfig } from '@/types/common/tabs.types'
 
 /**
  * Composable para gerenciar tabs do painel de suporte
@@ -59,7 +44,7 @@ export function useSupportTabs(options: UseSupportTabsOptions) {
     {
       label: 'Módulos',
       path: '/suporteSH3/modulos',
-      allowsNew: false, // Módulos são fixos do sistema, não podem ser criados pelo usuário
+      allowsNew: false,
       singularLabel: 'Módulo'
     },
     {

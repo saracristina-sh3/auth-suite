@@ -1,6 +1,7 @@
 // src/services/modulo.service.ts
+import type { Autarquia } from '@/types/support/autarquia.types'
 import api from './api'
-import type { Modulo } from '@/types/modulos.types'
+import type { Modulo } from '@/types/support/modulos.types'
 
 export interface ModuloFormData {
   nome: string
@@ -52,7 +53,7 @@ export const moduloService = {
     return response.data.data
   },
   
-  async getAutarquias(id: number): Promise<any[]> {
+  async getAutarquias(id: number): Promise<Autarquia[]> {
     const response = await api.get(`/modulos/${id}/autarquias`)
     return response.data.data
   },

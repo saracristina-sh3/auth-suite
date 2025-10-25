@@ -50,7 +50,7 @@
 import { ref, onMounted } from 'vue'
 import BaseLayout from '@/components/layouts/BaseLayout.vue'
 import { authService } from '@/services/auth.service'
-import type { User } from '@/types/auth.types'
+import type { User } from '@/types/common/user.types'
 
 const user = ref<User | null>(null)
 

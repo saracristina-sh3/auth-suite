@@ -1,5 +1,5 @@
 import api from './api'
-import type { Autarquia } from './user.service'
+import type { Autarquia } from '@/types/support/autarquia.types'
 
 interface SessionAutarquiaResponse {
   success: boolean

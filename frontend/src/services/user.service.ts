@@ -1,83 +1,10 @@
 // src/services/user.service.ts
 import api from './api'
+import type { ApiResponse } from '@/types/common/api.types'
+import type { PaginatedResponse } from '@/types/common/api.types'
+import type { User } from '@/types/common/user.types'
+import type { AutarquiaWithPivot, UserAutarquiaPivot, SyncAutarquiasPayload } from '@/types/common/use-autarquia-pivot.types'
 
-/**
- * Interface representando uma Autarquia
- */
-export interface Autarquia {
-  id: number
-  nome: string
-  ativo: boolean
-}
-
-/**
- * Interface representando os dados da tabela pivot usuario_autarquia
- */
-export interface UserAutarquiaPivot {
-  role: string
-  is_admin: boolean
-  is_default: boolean
-  ativo: boolean
-  data_vinculo: string
-}
-
-/**
- * Interface representando uma Autarquia com dados da pivot
- */
-export interface AutarquiaWithPivot extends Autarquia {
-  pivot: UserAutarquiaPivot
-}
-
-/**
- * Interface do usuário atualizada com suporte a múltiplas autarquias
- */
-interface User {
-  id: number
-  name: string
-  email: string
-  cpf: string
-  role: string
-  is_superadmin: boolean
-  is_active: boolean
-
-  // Renomeado: preferência, não estado ativo
-  autarquia_preferida_id?: number | null
-  autarquia_preferida?: Autarquia | null
-
-  // Da session (pode estar ausente no login inicial)
-  autarquia_ativa_id?: number | null
-  autarquia_ativa?: Autarquia | null
-
-  autarquias?: AutarquiaWithPivot[]
-}
-
-export interface PaginatedResponse<T> {
-  items: T[]
-  meta?: {
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-  }
-}
-
-/**
- * Interface para resposta padrão da API
- */
-interface ApiResponse<T> {
-  success: boolean
-  message: string
-  data?: T
-  error?: string
-}
-
-/**
- * Payload para sincronização de autarquias
- */
-export interface SyncAutarquiasPayload {
-  id: number
-  pivot_data?: Partial<UserAutarquiaPivot>
-}
 
 export const userService = {
   /**

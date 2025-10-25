@@ -56,7 +56,7 @@ import BaseLayout from "@/components/layouts/BaseLayout.vue";
 import Sh3Form from "@/components/common/Sh3Form.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
 
-import type { Modulo } from "@/types/modulos.types";
+import type { Modulo } from "@/types/support/modulos.types";
 
 const router = useRouter();
 

@@ -15,7 +15,7 @@ import { useAutarquiaTableConfig } from "@/config/useAutarquiaTableConfig";
 import Sh3Table from "@/components/common/Sh3Table.vue";
 import AutarquiaUsersModal from "./modal/AutarquiaUsersModal.vue";
 import AutarquiaModulesModal from "./modal/AutarquiaModulesModal.vue";
-import type { Autarquia } from "@/types/autarquia.types";
+import type { Autarquia } from "@/types/support/autarquia.types";
 
 defineProps<{
   autarquias: Autarquia[];

@@ -169,7 +169,8 @@ import { useRouter } from 'vue-router'
 import { useModulos } from '@/composables/common/useModulos'
 import { useNotification } from '@/composables/common/useNotification'
 import { authService } from '@/services/auth.service'
-import { userService, type AutarquiaWithPivot } from '@/services/user.service'
+import { userService } from '@/services/user.service'
+import type { AutarquiaWithPivot } from '@/types/common/use-autarquia-pivot.types'
 import { supportService } from '@/services/support.service'
 import Sh3Welcome from './common/Sh3Welcome.vue'
 import Sh3Select from './common/Sh3Select.vue'
@@ -177,12 +178,15 @@ import Sh3Card from './common/Sh3Card.vue'
 import Sh3ProgressSpinner from './common/Sh3ProgressSpinner.vue'
 import Sh3Message from './common/Sh3Message.vue'
 import Sh3Button from './common/Sh3Button.vue'
-import type { User } from '@/types/auth.types'
+import type { User } from '@/types/common/user.types'
 import BaseLayout from './layouts/BaseLayout.vue'
 import Sh3LoadingState from './common/state/Sh3LoadingState.vue'
 import Sh3EmptyState from './common/state/Sh3EmptyState.vue'
 import Sh3ErrorState from './common/state/Sh3ErrorState.vue'
 import { sessionService } from '@/services/session.service'
+import { getErrorMessage } from '@/utils/error.utils'
+
+const errorMessage = '';
 
 
 const { modulos, loadingModulos, error, reload } = useModulos()
@@ -342,9 +346,8 @@ async function exitSupportMode() {
       console.log('🚀 Redirecionando para /suporteSH3')
       router.push({ path: '/suporteSH3' })
     }, 1000)
-  } catch (error: any) {
-    console.error('❌ Erro ao sair do contexto:', error)
-    const errorMessage = error.message || 'Erro ao sair do modo suporte. Tente novamente.'
+  } catch (err: unknown) {
+      error.value = getErrorMessage(err)
     showMessage('error', errorMessage)
   } finally {
     loading.value = false

@@ -1,6 +1,8 @@
 // src/services/autarquia.service.ts
+import type { Modulo } from '@/types/support/modulos.types'
 import api from './api'
-import type { Autarquia } from '@/types/autarquia.types'
+import type { Autarquia } from '@/types/support/autarquia.types'
+import type { User } from '@/types/common/user.types'
 
 export interface AutarquiaFormData {
   nome: string
@@ -36,7 +38,7 @@ export const autarquiaService = {
     await api.delete(`/autarquias/${id}`)
   },
 
-  async getModulos(id: number): Promise<any[]> {
+  async getModulos(id: number): Promise<Modulo[]> {
     const response = await api.get(`/autarquias/${id}/modulos`)
     return response.data.data
   },
@@ -48,13 +50,13 @@ export const autarquiaService = {
     return response.data.data
   },
 
-  async getUsers(id: number): Promise<any[]> {
+  async getUsers(id: number): Promise<User[]> {
     const response = await api.get(`/autarquias/${id}/usuarios`)
     return response.data.data
   },
 
   // Alias para compatibilidade
-  async getUsuarios(id: number): Promise<any[]> {
+  async getUsuarios(id: number): Promise<User[]> {
     return this.getUsers(id)
   },
 

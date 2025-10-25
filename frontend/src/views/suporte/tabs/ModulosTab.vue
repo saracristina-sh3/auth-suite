@@ -83,7 +83,7 @@ import Sh3LoadingState from "@/components/common/state/Sh3LoadingState.vue";
 import Sh3EmptyState from "@/components/common/state/Sh3EmptyState.vue";
 import Sh3ErrorState from "@/components/common/state/Sh3ErrorState.vue";
 import { moduloService } from '@/services/modulos.service'
-import type { Modulo } from "@/types/modulos.types";
+import type { Modulo } from "@/types/support/modulos.types";
 import { useModulosSupport } from '@/composables/support/useModulosSupport';
 
 const { modulos, loadingModulos, error } = useModulosSupport()

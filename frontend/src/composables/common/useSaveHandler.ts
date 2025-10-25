@@ -1,7 +1,9 @@
-import { userService, type SyncAutarquiasPayload } from "@/services/user.service";
+import { userService } from "@/services/user.service";
 import { autarquiaService } from "@/services/autarquia.service";
 import { moduloService } from "@/services/modulos.service";
 import type { Ref } from "vue";
+import { getErrorMessage } from "@/utils/error.utils";
+import type { SyncAutarquiasPayload } from "@/types/common/use-autarquia-pivot.types";
 
 interface SaveHandlerDependencies {
   loadUsers: () => Promise<void>;
@@ -44,7 +46,7 @@ export function useSaveHandler(
             pivot_data: {
               role: data.role || 'user',
               is_admin: false,
-              is_default: autarquiaId === data.autarquia_ativa_id, // Define como padrão se for a ativa
+              is_default: autarquiaId === data.autarquia_ativa_id, 
               ativo: true
             }
           }));
@@ -82,11 +84,10 @@ export function useSaveHandler(
         }
         await loadModulos();
       }
-    } catch (error: any) {
-      console.error("Erro ao salvar:", error);
-      const errorMessage = error.response?.data?.message || "Erro ao salvar.";
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err);
       showMessage("error", errorMessage);
-      throw error; // Re-throw para que o formulário saiba que houve erro
+      throw err; 
     }
   }
 
