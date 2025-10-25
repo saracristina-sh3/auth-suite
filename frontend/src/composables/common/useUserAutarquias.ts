@@ -5,7 +5,7 @@ import {
   type SyncAutarquiasPayload
 } from '@/types/common/use-autarquia-pivot.types'
 import { userService } from '@/services/user.service'
-import { getErrorMessage } from '@/utils/error.utils'
+import { handleApiError } from '@/utils/error-handler'
 
 /**
  * Composable para gerenciar autarquias de um usuário
@@ -42,7 +42,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     try {
       autarquias.value = await userService.getUserAutarquias(userIdRef.value)
     } catch (err: unknown) {
-      error.value = getErrorMessage(err)
+      const { message } = handleApiError(err)
+      error.value = message
       console.error('Erro ao carregar autarquias:', err)
       throw err
     } finally {
@@ -63,7 +64,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
       await userService.attachAutarquias(userIdRef.value, autarquiaIds, pivotData)
       await loadAutarquias()
     } catch (err: unknown) {
-      error.value = getErrorMessage(err)
+      const { message } = handleApiError(err)
+      error.value = message
       console.error('Erro ao anexar autarquias:', err)
       throw err
     } finally {
@@ -81,7 +83,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
       await userService.detachAutarquias(userIdRef.value, autarquiaIds)
       await loadAutarquias()
     } catch (err: unknown) {
-      error.value = getErrorMessage(err)
+      const { message } = handleApiError(err)
+      error.value = message
       console.error('Erro ao desanexar autarquias:', err)
       throw err
     } finally {
@@ -99,7 +102,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
       await userService.syncAutarquias(userIdRef.value, autarquiasToSync)
       await loadAutarquias()
     } catch (err: unknown) {
-      error.value = getErrorMessage(err)
+      const { message } = handleApiError(err)
+      error.value = message
       console.error('Erro ao sincronizar autarquias:', err)
       throw err
     } finally {
@@ -116,7 +120,8 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     try {
       await userService.updateActiveAutarquia(userIdRef.value, autarquiaId)
     } catch (err: unknown) {
-      error.value = getErrorMessage(err)
+      const { message } = handleApiError(err)
+      error.value = message
       console.error('Erro ao atualizar autarquia ativa:', err)
       throw err
     } finally {

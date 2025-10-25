@@ -3,7 +3,7 @@ import { supportService } from "@/services/support.service";
 import type { SupportContext } from "@/types/support/support.types";
 import type { Autarquia } from "@/types/support/autarquia.types";
 import type { Router } from 'vue-router';
-import { getErrorMessage } from "@/utils/error.utils";
+import { handleApiError } from "@/utils/error-handler";
 
 const error = ref<string>('');
 
@@ -66,11 +66,10 @@ export function useSupportContext(
         router.push({ name: "home" });
       }, 1000);
     } catch (err: unknown) {
-      error.value = getErrorMessage(err);
-      console.error("❌ Erro ao selecionar autarquia:", error);
-      console.error("❌ Stack trace:", error.value);
-      const errorMessage = error.value || "Erro ao ativar modo suporte. Tente novamente.";
-      showMessage("error", errorMessage);
+      const { message } = handleApiError(err);
+      error.value = message;
+      console.error("❌ Erro ao selecionar autarquia:", err);
+      showMessage("error", message);
     } finally {
       loading.value = false;
     }
@@ -97,10 +96,10 @@ export function useSupportContext(
         router.push({ path: "/suporteSH3" });
       }, 1000);
     } catch (err: unknown) {
-      error.value = getErrorMessage(err);
+      const { message } = handleApiError(err);
+      error.value = message;
       console.error("❌ Erro ao sair do contexto:", err);
-      const errorMessage = error.value || "Erro ao sair do modo suporte. Tente novamente.";
-      showMessage("error", errorMessage);
+      showMessage("error", message);
     } finally {
       loading.value = false;
     }

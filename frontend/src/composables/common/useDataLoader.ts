@@ -7,6 +7,7 @@ import type { Role, Permission } from "@/services/role.service";
 import type { Autarquia } from "@/types/support/autarquia.types";
 import type { Modulo } from "@/types/support/modulos.types";
 import type { User } from "@/types/common/user.types";
+import { handleApiError } from "@/utils/error-handler";
 
 export function useDataLoader(showMessage: (type: "success" | "error", text: string) => void) {
   const users = ref<User[]>([]);
@@ -22,8 +23,9 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
       const response = await userService.list();
       users.value = response.items;
     } catch (error) {
+      const { message } = handleApiError(error);
       console.error("Erro ao carregar usuários:", error);
-      showMessage("error", "Falha ao carregar usuários.");
+      showMessage("error", message);
     } finally {
       loading.value = false;
     }
@@ -34,8 +36,9 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
       loading.value = true;
       autarquias.value = await autarquiaService.list();
     } catch (error) {
+      const { message } = handleApiError(error);
       console.error("Erro ao carregar autarquias:", error);
-      showMessage("error", "Falha ao carregar autarquias.");
+      showMessage("error", message);
     } finally {
       loading.value = false;
     }
@@ -46,8 +49,9 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
       loading.value = true;
       modulos.value = await moduloService.list();
     } catch (error) {
+      const { message } = handleApiError(error);
       console.error("Erro ao carregar módulos:", error);
-      showMessage("error", "Falha ao carregar módulos.");
+      showMessage("error", message);
     } finally {
       loading.value = false;
     }
@@ -59,7 +63,9 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
       roles.value = response.roles;
       permissions.value = response.permissions;
     } catch (error) {
+      const { message } = handleApiError(error);
       console.error("Erro ao carregar roles:", error);
+      showMessage("error", message);
     }
   }
 

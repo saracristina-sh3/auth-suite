@@ -2,7 +2,7 @@ import { userService } from "@/services/user.service";
 import { autarquiaService } from "@/services/autarquia.service";
 import { moduloService } from "@/services/modulos.service";
 import type { Ref } from "vue";
-import { getErrorMessage } from "@/utils/error.utils";
+import { handleApiError, formatValidationErrors } from "@/utils/error-handler";
 import type { SyncAutarquiasPayload } from "@/types/common/use-autarquia-pivot.types";
 
 interface SaveHandlerDependencies {
@@ -85,9 +85,18 @@ export function useSaveHandler(
         await loadModulos();
       }
     } catch (err: unknown) {
-      const errorMessage = getErrorMessage(err);
-      showMessage("error", errorMessage);
-      throw err; 
+      const { message, errors, type } = handleApiError(err);
+
+      // Se for erro de validação, mostrar todos os erros
+      if (type === 'validation' && errors) {
+        const validationMessages = formatValidationErrors(errors);
+        showMessage("error", validationMessages || message);
+      } else {
+        showMessage("error", message);
+      }
+
+      // Não lançar novamente o erro para evitar crashes
+      console.error('Erro ao salvar:', err);
     }
   }
 
