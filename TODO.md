@@ -1,6 +1,6 @@
 # TODO - Auth Suite - Melhorias e Implementações
 
-> **Última atualização**: 25 de Outubro de 2025
+> **Última atualização**: 26 de Outubro de 2025
 > **Status**: Projeto em desenvolvimento ativo
 > **Análise completa**: Ver `/tmp/analise_auth_suite.md`
 
@@ -10,7 +10,7 @@
 
 ### 1. Segurança e Tratamento de Erros
 
-- [x] **Implementar Error Handler Centralizado** ✅ **CONCLUÍDO**
+- [x] **Implementar Error Handler Centralizado** ✅ **CONCLUÍDO - 25/10/2025**
   - [x] Criar `src/utils/error-handler.ts` com função para extrair mensagens da API
   - [x] Processar erros de validação (422) com array de errors
   - [x] Processar erros de autenticação (401)
@@ -26,39 +26,83 @@
     - ✅ `useSupportContext.ts`
   - **Arquivos pendentes**: services, views/components (ver `ERROR_HANDLER_MIGRATION.md`)
   - **Tempo gasto**: ~3 horas
-  - **Documentação**: Ver `src/utils/ERROR_HANDLER_MIGRATION.md`
+  - **Documentação**: Ver `ERROR_HANDLER_MIGRATION.md`
 
-- [ ] **Implementar Refresh Token**
-  - [ ] Backend: Criar endpoint `/auth/refresh`
-  - [ ] Backend: Retornar refresh_token no login
-  - [ ] Frontend: Armazenar refresh_token separadamente
-  - [ ] Frontend: Interceptor 401 tenta refresh antes de logout
-  - [ ] Frontend: Fallback para login se refresh falhar
-  - **Arquivos**: `backend/app/Http/Controllers/Api/AuthController.php`, `frontend/src/services/api.ts`
-  - **Tempo estimado**: 6-8 horas
+- [x] **Implementar Refresh Token** ✅ **CONCLUÍDO - 25/10/2025**
+  - [x] Backend: Criar endpoint `/auth/refresh`
+  - [x] Backend: Retornar refresh_token no login
+  - [x] Backend: Revogar refresh_token após uso (rotation)
+  - [x] Frontend: Armazenar refresh_token separadamente
+  - [x] Frontend: Interceptor 401 tenta refresh antes de logout
+  - [x] Frontend: Fallback para login se refresh falhar
+  - [x] Frontend: Fila de requisições pendentes durante refresh
+  - [x] Frontend: Evitar loop infinito com flag `_retry`
+  - **Arquivos**:
+    - ✅ `backend/app/Http/Controllers/Api/AuthController.php`
+    - ✅ `backend/routes/api.php`
+    - ✅ `frontend/src/services/api.ts`
+    - ✅ `frontend/src/services/auth.service.ts`
+  - **Tempo gasto**: ~4 horas
+  - **Documentação**: Ver `REFRESH_TOKEN_IMPLEMENTATION.md`
+  - **Configuração atual**: Access token (1h), Refresh token (7 dias)
 
-- [ ] **Migrar Token para HttpOnly Cookie (Opcional, Avançado)**
-  - [ ] Backend: Configurar CSRF protection
-  - [ ] Backend: Retornar token via cookie HttpOnly
-  - [ ] Frontend: Remover token de localStorage
-  - [ ] Frontend: Usar credenciais em requisições
+- [ ] **Migrar Token para HttpOnly Cookie (Opcional, Avançado)** ⚠️ **NÃO RECOMENDADO**
+  - **Nota**: Tentativa realizada em 25/10/2025 resultou em 401 errors
+  - **Status**: Revertido para localStorage
+  - **Motivo**: Complexidade de configuração CORS e CSRF
+  - **Decisão**: Manter abordagem atual com refresh token
   - **Tempo estimado**: 8-10 horas
-  - **Nota**: Pode conflitar com arquitetura atual, avaliar necessidade
+  - **Recomendação**: Não implementar a menos que seja estritamente necessário
 
 ### 2. Validações de Input
 
-- [ ] **Adicionar Validações de CPF**
-  - [ ] Frontend: Criar função `validateCPF()` em `src/utils/validators.ts`
-  - [ ] Frontend: Aplicar validação em `useUserTableConfig.ts`
-  - [ ] Backend: Adicionar validação de CPF em `UserController::store/update`
-  - **Arquivos**: `validators.ts`, `useUserTableConfig.ts`, `UserController.php`
-  - **Tempo estimado**: 2-3 horas
+- [x] **Adicionar Validações de CPF** ✅ **CONCLUÍDO - 26/10/2025**
+  - [x] Frontend: Criar função `validateCPF()` em `src/utils/validators.ts`
+  - [x] Frontend: Criar função `formatCPF()` em `src/utils/validators.ts`
+  - [x] Frontend: Aplicar validação em `useUserTableConfig.ts`
+  - [x] Frontend: Adicionar máscara `000.000.000-00`
+  - [x] Backend: Criar regra customizada `CpfValidation.php`
+  - [x] Backend: Aplicar validação em `UserController::store`
+  - [x] Backend: Aplicar validação em `UserController::update`
+  - [x] Backend: Limpar formatação antes de salvar no banco
+  - **Arquivos**:
+    - ✅ `frontend/src/utils/validators.ts`
+    - ✅ `frontend/src/config/useUserTableConfig.ts`
+    - ✅ `backend/app/Rules/CpfValidation.php`
+    - ✅ `backend/app/Http/Controllers/Api/UserController.php`
+  - **Tempo gasto**: ~2 horas
+  - **Validações**: Verifica dígitos, rejeita CPFs inválidos (111.111.111-11, etc)
 
-- [ ] **Adicionar Validações de Email**
-  - [ ] Frontend: Pattern regex para email em `useUserTableConfig.ts`
-  - [ ] Frontend: Feedback visual de email inválido
-  - **Arquivos**: `useUserTableConfig.ts`
-  - **Tempo estimado**: 1 hora
+- [x] **Adicionar Validações de Email** ✅ **CONCLUÍDO - 26/10/2025**
+  - [x] Frontend: Criar função `validateEmail()` robusta em `validators.ts`
+  - [x] Frontend: Pattern regex aprimorado
+  - [x] Frontend: Validações adicionais (pontos consecutivos, etc)
+  - [x] Frontend: Aplicar validação em `useUserTableConfig.ts`
+  - [x] Frontend: Feedback visual de email inválido
+  - [x] Frontend: Placeholder descritivo
+  - **Arquivos**:
+    - ✅ `frontend/src/utils/validators.ts`
+    - ✅ `frontend/src/config/useUserTableConfig.ts`
+  - **Tempo gasto**: ~1 hora
+  - **Validações**: Regex robusto, trim, rejeita pontos consecutivos, valida domínio
+
+- [x] **Corrigir Incompatibilidade de Roles** ✅ **CONCLUÍDO - 26/10/2025**
+  - [x] Alinhar roles do `RoleController` com `UserController`
+  - [x] Adicionar role `clientAdmin` que estava faltando
+  - [x] Corrigir `manager` → `gestor`
+  - **Arquivo**: `backend/app/Http/Controllers/Api/RoleController.php`
+  - **Roles disponíveis**: user, gestor, admin, superadmin, clientAdmin
+
+- [x] **Corrigir Bug: data_liberacao NOT NULL Violation** ✅ **CONCLUÍDO - 26/10/2025**
+  - [x] Corrigir `AutarquiaController::store` - linha 80
+  - [x] Corrigir `AutarquiaModuloController::update` - linha 62
+  - [x] Corrigir `AutarquiaModuloController::bulkUpdate` - linha 123
+  - **Problema**: Coluna `data_liberacao` não aceita null, mas estava sendo inserido null
+  - **Solução**: Usar `now()` em todas as operações de insert/update
+  - **Arquivos**:
+    - ✅ `backend/app/Http/Controllers/Api/AutarquiaController.php`
+    - ✅ `backend/app/Http/Controllers/Api/AutarquiaModuloController.php`
+  - **Tempo gasto**: ~30 minutos
 
 - [ ] **Adicionar Confirmação de Ações Destrutivas**
   - [ ] Criar componente `ConfirmDialog.vue`
@@ -66,6 +110,49 @@
   - [ ] Adicionar confirmação em delete de usuários, autarquias, módulos
   - **Arquivos**: Novo componente + `Sh3Table.vue`
   - **Tempo estimado**: 3-4 horas
+
+---
+
+## 🎯 RESUMO DE IMPLEMENTAÇÕES RECENTES (25-26/10/2025)
+
+### ✅ Concluído com Sucesso
+
+1. **Error Handler Centralizado** (25/10/2025)
+   - Sistema completo de tratamento de erros
+   - Mensagens amigáveis para todos os status HTTP
+   - Documentação completa em `ERROR_HANDLER_MIGRATION.md`
+
+2. **Refresh Token System** (25/10/2025)
+   - Renovação automática de tokens JWT
+   - Token rotation para segurança
+   - Sistema de fila para requisições simultâneas
+   - Documentação completa em `REFRESH_TOKEN_IMPLEMENTATION.md`
+
+3. **Validação de CPF** (26/10/2025)
+   - Frontend: Validação com algoritmo completo
+   - Frontend: Formatação automática com máscara
+   - Backend: Regra customizada de validação
+   - Rejeita CPFs inválidos conhecidos
+
+4. **Validação de Email** (26/10/2025)
+   - Regex robusto com múltiplas validações
+   - Feedback visual inline
+   - Validações adicionais (pontos, espaços, etc)
+
+5. **Correções de Bugs**
+   - Incompatibilidade de roles (manager vs gestor)
+   - data_liberacao NOT NULL violation
+   - Campo autarquia_preferida_id no formulário
+
+### 📊 Progresso Geral
+- **Segurança**: ✅ Error handler + ✅ Refresh token = Muito melhorado
+- **Validações**: ✅ CPF + ✅ Email = Implementado
+- **Bugs Críticos**: ✅ Todos corrigidos
+- **Próxima Prioridade**: Testes e Confirmação de Ações Destrutivas
+
+---
+
+## 🔥 PRIORIDADE ALTA (Próxima Sprint - 1-2 semanas)
 
 ### 3. Padronizar Resposta da API
 
@@ -390,14 +477,47 @@
 
 ## 🚀 Próximos Passos Imediatos
 
-1. ✅ Corrigir erro de `can't access property "items"` (FEITO)
-2. ✅ Corrigir erros de TypeScript (FEITO)
-3. ⏳ **PRÓXIMO**: Implementar Error Handler Centralizado
-4. ⏳ Adicionar validações de CPF e Email
-5. ⏳ Implementar Refresh Token
+1. ✅ Corrigir erro de `can't access property "items"` (FEITO - 25/10/2025)
+2. ✅ Corrigir erros de TypeScript (FEITO - 25/10/2025)
+3. ✅ Implementar Error Handler Centralizado (FEITO - 25/10/2025)
+4. ✅ Adicionar validações de CPF e Email (FEITO - 26/10/2025)
+5. ✅ Implementar Refresh Token (FEITO - 25/10/2025)
+6. ✅ Corrigir bugs de roles e data_liberacao (FEITO - 26/10/2025)
+7. ⏳ **PRÓXIMO**: Adicionar Confirmação de Ações Destrutivas
+8. ⏳ Implementar Testes Unitários
+9. ⏳ Padronizar Respostas da API
 
 ---
 
-**Última revisão**: 25/10/2025
+## 📈 Estatísticas de Progresso
+
+### Antes (24/10/2025)
+- ❌ Sem error handler centralizado
+- ❌ Tokens sem expiração/refresh
+- ❌ Sem validações de CPF
+- ❌ Validação de email básica
+- ❌ 3 bugs críticos
+
+### Depois (26/10/2025)
+- ✅ Error handler completo com mensagens amigáveis
+- ✅ Refresh token com rotation e fila
+- ✅ Validação completa de CPF (frontend + backend)
+- ✅ Validação robusta de email
+- ✅ 0 bugs críticos conhecidos
+- ✅ 3 documentações técnicas completas
+
+### Tempo Total Investido
+- **Error Handler**: ~3h
+- **Refresh Token**: ~4h
+- **Validações CPF/Email**: ~3h
+- **Correções de bugs**: ~1h
+- **Total**: ~11h de desenvolvimento focado
+
+---
+
+**Última revisão**: 26/10/2025
 **Responsável**: Equipe de Desenvolvimento
-**Documento de análise**: `/tmp/analise_auth_suite.md`
+**Documentos de referência**:
+- `ERROR_HANDLER_MIGRATION.md`
+- `REFRESH_TOKEN_IMPLEMENTATION.md`
+- `/tmp/analise_auth_suite.md`

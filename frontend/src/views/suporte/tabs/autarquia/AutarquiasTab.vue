@@ -1,7 +1,7 @@
 <template>
   <div @tab-change="$emit('tab-change', $event)">
     <Sh3Table title="Lista de Autarquias" :items="autarquias" :columns="autarquiaColumns" :actions="autarquiaActions"
-      @edit="$emit('edit', $event)" @delete="$emit('delete', $event)" @viewUsers="handleViewUsers"
+      @edit="$emit('edit', $event)" @toggle-status="$emit('toggle-status', $event)" @viewUsers="handleViewUsers"
       @viewModules="handleViewModules" />
 
     <AutarquiaUsersModal ref="autarquiaUsersModal" />
@@ -24,7 +24,7 @@ defineProps<{
 defineEmits<{
   'tab-change': [event: any];
   'edit': [item: any];
-  'delete': [item: any];
+  'toggle-status': [item: any];
 }>();
 
 const autarquiaUsersModal = ref();

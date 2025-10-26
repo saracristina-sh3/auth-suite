@@ -75,6 +75,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue'
 import Sh3Select from './Sh3Select.vue'
+import { useConfirmDialog } from '@/composables/common/useConfirmDialog'
 
 /**
  * Interface que define cada campo dinâmico do formulário
@@ -122,6 +123,11 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const editingItem = ref<Record<string, any> | null>(null)
 const formData = reactive<Record<string, any>>({})
+
+/**
+ * Composable de confirmação
+ */
+const { confirmDeactivate, confirmActivate } = useConfirmDialog()
 
 /**
  * Inicializa os valores padrão do formData sempre que os campos mudarem
@@ -188,9 +194,9 @@ function close() {
 }
 
 /**
- * Salva o item (emitindo o evento 'save')
+ * Prepara os dados para salvar
  */
-function save() {
+function prepareData(): Record<string, any> {
   const data: Record<string, any> = {}
 
   fields.forEach((field) => {
@@ -208,8 +214,77 @@ function save() {
     data.id = editingItem.value.id
   }
 
+  return data
+}
+
+/**
+ * Executa o salvamento sem confirmação
+ */
+function executeSave(data: Record<string, any>) {
   emit('save', data)
   close()
+}
+
+/**
+ * Salva o item (emitindo o evento 'save')
+ * Verifica se há mudança de status e solicita confirmação se necessário
+ */
+function save() {
+  const data = prepareData()
+
+  // Verificar se está editando e se há mudança de status
+  if (editingItem.value) {
+    // Verificar campo is_active (usuários)
+    const hasIsActive = 'is_active' in formData
+    const hasAtivo = 'ativo' in formData
+
+    if (hasIsActive) {
+      const oldStatus = editingItem.value.is_active
+      const newStatus = formData.is_active
+
+      if (oldStatus !== newStatus) {
+        const itemName = formData.name || formData.nome || 'Item'
+        const itemDetails: Record<string, string> = {
+          'ID': editingItem.value.id?.toString() || '',
+          'Nome': itemName
+        }
+
+        if (formData.email) itemDetails['Email'] = formData.email
+        if (formData.cpf) itemDetails['CPF'] = formData.cpf
+
+        if (newStatus) {
+          confirmActivate(itemName, () => executeSave(data), itemDetails)
+        } else {
+          confirmDeactivate(itemName, () => executeSave(data), itemDetails)
+        }
+        return
+      }
+    }
+
+    // Verificar campo ativo (autarquias e módulos)
+    if (hasAtivo) {
+      const oldStatus = editingItem.value.ativo
+      const newStatus = formData.ativo
+
+      if (oldStatus !== newStatus) {
+        const itemName = formData.nome || formData.name || 'Item'
+        const itemDetails: Record<string, string> = {
+          'ID': editingItem.value.id?.toString() || '',
+          'Nome': itemName
+        }
+
+        if (newStatus) {
+          confirmActivate(itemName, () => executeSave(data), itemDetails)
+        } else {
+          confirmDeactivate(itemName, () => executeSave(data), itemDetails)
+        }
+        return
+      }
+    }
+  }
+
+  // Se não há mudança de status ou não está editando, salva diretamente
+  executeSave(data)
 }
 
 /**

@@ -90,6 +90,7 @@ const { modulos, loadingModulos, error } = useModulosSupport()
 
 const emit = defineEmits<{
   'tab-change': [event: any];
+  'toggle-status': [modulo: Modulo];
   'toggle-modulo-status': [modulo: Modulo];
 }>();
 
@@ -114,10 +115,10 @@ const carregarModulos = async () => {
 
 // Função para lidar com a mudança de status
 const handleToggleStatus = (modulo: Modulo, novoStatus: boolean) => {
-  // Atualizar o status localmente
-  modulo.ativo = novoStatus
-  // Emitir o evento para o componente pai
-  emit('toggle-modulo-status', modulo)
+  // Criar um objeto com o status atualizado
+  const moduloAtualizado = { ...modulo, ativo: novoStatus }
+  // Emitir evento para toggle-status (que vai mostrar o dialog de confirmação)
+  emit('toggle-status', moduloAtualizado)
 }
 
 // Carregar módulos quando o componente for montado

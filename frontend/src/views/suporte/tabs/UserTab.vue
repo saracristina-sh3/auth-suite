@@ -1,7 +1,7 @@
 <template>
   <div>
     <Sh3Table title="Lista de Usuários" :items="users" :columns="userColumns" :actions="userActions"
-      @edit="$emit('edit', $event)" @delete="$emit('delete', $event)">
+      @edit="$emit('edit', $event)" @toggle-status="$emit('toggle-status', $event)">
       <template #column-cpf="{ data }">
         {{ formatCPF(data.cpf) }}
       </template>
@@ -27,7 +27,7 @@ import type { User } from "@/types/common/user.types";
 
 defineEmits<{
   'edit': [item: any];
-  'delete': [item: any];
+  'toggle-status': [item: any];
 }>();
 
 function formatCPF(cpf: string): string {

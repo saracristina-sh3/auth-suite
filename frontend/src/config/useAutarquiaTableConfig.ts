@@ -18,6 +18,13 @@ export function useAutarquiaTableConfig() {
       class: 'p-button-primary'
     },
     {
+      name: 'toggle-status',
+      icon: 'pi pi-power-off',
+      event: 'toggle-status',
+      tooltip: 'Ativar/Inativar',
+      class: 'p-button-warning'
+    },
+    {
       name: 'users',
       icon: 'pi pi-users',
       event: 'viewUsers',

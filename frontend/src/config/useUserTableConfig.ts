@@ -23,6 +23,13 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       event: 'edit',
       tooltip: 'Editar',
       class: 'p-button-primary'
+    },
+    {
+      name: 'toggle-status',
+      icon: 'pi pi-power-off',
+      event: 'toggle-status',
+      tooltip: 'Ativar/Inativar',
+      class: 'p-button-warning'
     }
   ]
 

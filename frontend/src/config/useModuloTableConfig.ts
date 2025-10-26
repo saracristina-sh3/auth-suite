@@ -19,11 +19,11 @@ export function useModuloTableConfig() {
       class: 'p-button-primary'
     },
     {
-      name: 'delete',
-      icon: 'pi pi-trash',
-      event: 'delete',
-      tooltip: 'Excluir',
-      class: 'p-button-danger'
+      name: 'toggle-status',
+      icon: 'pi pi-power-off',
+      event: 'toggle-status',
+      tooltip: 'Ativar/Inativar',
+      class: 'p-button-warning'
     }
   ]
 

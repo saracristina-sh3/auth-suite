@@ -31,6 +31,7 @@
         <router-view :users="users" :autarquias="autarquias" :modulos="modulos" :support-context="supportContext"
           :selected-autarquia-id="selectedAutarquiaId" :message="message" :message-class="messageClass"
           @edit="handleEdit" @assume-context="handleAssumeContext" @exit-context="exitContext"
+          @toggle-status="handleToggleStatus"
           @toggle-modulo-status="toggleModuloStatus" @update:selected-autarquia-id="selectedAutarquiaId = $event" />
       </div>
 
@@ -52,6 +53,7 @@ import { useNotification } from "@/composables/common/useNotification";
 import { useDataLoader } from "@/composables/common/useDataLoader";
 import { useSupportContext } from "@/composables/support/useSupportContext";
 import { useSupportTabs } from "@/composables/support/useSupportTabs";
+import { useConfirmDialog } from "@/composables/common/useConfirmDialog";
 import BaseLayout from "@/components/layouts/BaseLayout.vue";
 import Sh3Form from "@/components/common/Sh3Form.vue";
 import Sh3Button from "@/components/common/Sh3Button.vue";
@@ -98,6 +100,7 @@ const {
 })
 
 const { onSave } = useSaveHandler(activeTabIndex, showMessage, { loadUsers, loadAutarquias, loadModulos });
+const { confirmDeactivate, confirmActivate } = useConfirmDialog();
 
 function onNew() {
   genericForm.value?.open()
@@ -120,6 +123,61 @@ async function handleEdit(item: any) {
     }
   } else {
     genericForm.value?.open(item);
+  }
+}
+
+async function handleToggleStatus(item: any) {
+  const tabName = currentTabName.value;
+  const isActive = item.is_active || item.ativo;
+  const itemName = item.name || item.nome;
+
+  const itemDetails: Record<string, string> = {
+    'ID': item.id?.toString() || '',
+    'Nome': itemName || ''
+  };
+
+  // Adicionar detalhes específicos por tipo
+  if (tabName === 'usuarios') {
+    itemDetails['Email'] = item.email || '';
+    itemDetails['CPF'] = item.cpf || '';
+  }
+
+  const toggleAction = async () => {
+    try {
+      loading.value = true;
+
+      if (tabName === 'usuarios') {
+        await userService.update(item.id, { is_active: !isActive });
+        await loadUsers();
+        showMessage('success', `Usuário "${itemName}" ${!isActive ? 'ativado' : 'inativado'} com sucesso.`);
+      } else if (tabName === 'autarquias') {
+        const { autarquiaService } = await import('@/services/autarquia.service');
+        await autarquiaService.update(item.id, { nome: item.nome, ativo: !isActive });
+        await loadAutarquias();
+        showMessage('success', `Autarquia "${itemName}" ${!isActive ? 'ativada' : 'inativada'} com sucesso.`);
+      } else if (tabName === 'modulos') {
+        await moduloService.update(item.id, {
+          nome: item.nome,
+          descricao: item.descricao,
+          icone: item.icone,
+          ativo: !isActive
+        });
+        await loadModulos();
+        showMessage('success', `Módulo "${itemName}" ${!isActive ? 'ativado' : 'inativado'} com sucesso.`);
+      }
+    } catch (error) {
+      console.error('Erro ao alterar status:', error);
+      showMessage('error', 'Erro ao alterar status do item.');
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  // Mostrar confirmação
+  if (isActive) {
+    confirmDeactivate(itemName, toggleAction, itemDetails);
+  } else {
+    confirmActivate(itemName, toggleAction, itemDetails);
   }
 }
 

@@ -24,7 +24,7 @@ const props = withDefaults(
   defineProps<{
     label?: string;
     icon?: string;
-    variant?: "primary" | "secondary" | "danger" | "warning" | "text";
+variant?: "primary" | "secondary" | "danger" | "warning" | "text" | "outline";
     outlined?: boolean;
     disabled?: boolean;
     type?: "button" | "submit" | "reset";
@@ -59,6 +59,8 @@ const buttonClasses = computed(() => {
       ? "border border-sulfur-500 text-sulfur-700 bg-transparent hover:bg-sulfur-50 active:bg-sulfur-100"
       : "bg-sulfur-500 text-sulfur-950 hover:bg-sulfur-600 active:bg-sulfur-700",
     text: "bg-transparent text-primary hover:bg-primary/10 active:bg-primary/20",
+    outline: "border border-gray-300 text-gray-700 bg-transparent hover:bg-gray-100 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800",
+
   };
 
   const disabledStyle = props.disabled ? "opacity-50 cursor-not-allowed" : "";
