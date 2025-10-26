@@ -1,7 +1,19 @@
 <template>
   <div>
-    <Sh3Table title="Lista de Usuários" :items="users" :columns="userColumns" :actions="userActions"
-      @edit="$emit('edit', $event)" @toggle-status="$emit('toggle-status', $event)">
+    <Sh3Table
+      title="Lista de Usuários"
+      :items="users"
+      :columns="userColumns"
+      :actions="userActions"
+      :loading="loading"
+      :error="error"
+      empty-icon="pi pi-users"
+      empty-title="Nenhum usuário cadastrado"
+      empty-description="Comece adicionando novos usuários ao sistema clicando no botão 'Novo Usuário'."
+      @edit="$emit('edit', $event)"
+      @toggle-status="$emit('toggle-status', $event)"
+      @retry="$emit('retry')"
+    >
       <template #column-cpf="{ data }">
         {{ formatCPF(data.cpf) }}
       </template>
@@ -29,6 +41,7 @@ import type { User } from "@/types/common/user.types";
 defineEmits<{
   'edit': [item: User];
   'toggle-status': [item: User];
+  'retry': [];
 }>();
 
 function formatCPF(cpf: string): string {
@@ -56,6 +69,8 @@ const props = defineProps<{
   users: User[];
   roles?: Role[];
   autarquias?: Autarquia[];
+  loading?: boolean;
+  error?: string | null;
 }>();
 
 // Criar computed refs para passar para useUserTableConfig

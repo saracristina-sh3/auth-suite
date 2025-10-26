@@ -16,15 +16,20 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
   const roles = ref<Role[]>([]);
   const permissions = ref<Permission>({});
   const loading = ref(false);
+  const usersError = ref<string | null>(null);
+  const autarquiasError = ref<string | null>(null);
+  const modulosError = ref<string | null>(null);
 
   async function loadUsers() {
     try {
       loading.value = true;
+      usersError.value = null;
       const response = await userService.list();
       users.value = response.data;
     } catch (error) {
       const { message } = handleApiError(error);
       console.error("Erro ao carregar usuários:", error);
+      usersError.value = message;
       showMessage("error", message);
     } finally {
       loading.value = false;
@@ -34,10 +39,12 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
   async function loadAutarquias() {
     try {
       loading.value = true;
+      autarquiasError.value = null;
       autarquias.value = await autarquiaService.list();
     } catch (error) {
       const { message } = handleApiError(error);
       console.error("Erro ao carregar autarquias:", error);
+      autarquiasError.value = message;
       showMessage("error", message);
     } finally {
       loading.value = false;
@@ -47,10 +54,12 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
   async function loadModulos() {
     try {
       loading.value = true;
+      modulosError.value = null;
       modulos.value = await moduloService.list();
     } catch (error) {
       const { message } = handleApiError(error);
       console.error("Erro ao carregar módulos:", error);
+      modulosError.value = message;
       showMessage("error", message);
     } finally {
       loading.value = false;
@@ -76,6 +85,9 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
     roles,
     permissions,
     loading,
+    usersError,
+    autarquiasError,
+    modulosError,
     loadUsers,
     loadAutarquias,
     loadModulos,

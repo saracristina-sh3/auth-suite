@@ -16,56 +16,84 @@
         </tr>
       </thead>
       <tbody class="bg-card divide-y divide-border">
-        <tr
-          v-for="item in paginatedItems"
-          :key="item[dataKey]"
-          class="hover:bg-muted transition-colors"
-        >
-          <td
-            v-for="col in columns"
-            :key="col.field"
-            class="px-4 py-2 text-sm text-foreground whitespace-nowrap"
+        <!-- Loading State -->
+        <tr v-if="loading">
+          <td :colspan="columns.length + (actions?.length ? 1 : 0)">
+            <Sh3LoadingState message="Carregando dados..." />
+          </td>
+        </tr>
+
+        <!-- Error State -->
+        <tr v-else-if="error">
+          <td :colspan="columns.length + (actions?.length ? 1 : 0)">
+            <Sh3ErrorState
+              :message="error"
+              buttonLabel="Tentar novamente"
+              @retry="$emit('retry')"
+            />
+          </td>
+        </tr>
+
+        <!-- Data Rows -->
+        <template v-else>
+          <tr
+            v-for="item in paginatedItems"
+            :key="item[dataKey]"
+            class="hover:bg-muted transition-colors"
           >
-            <slot :name="`column-${col.field}`" :data="item">
-              <template v-if="col.type === 'boolean'">
-                <Sh3Tag
-                  :value="item[col.field] ? 'Sim' : 'Não'"
-                  :severity="item[col.field] ? 'success' : 'danger'"
-                />
-              </template>
-              <template v-else-if="col.type === 'date'">
-                {{ formatDate(item[col.field]) }}
-              </template>
-              <template v-else-if="col.type === 'cpf'">
-                {{ formatCPF(item[col.field]) }}
-              </template>
-              <template v-else>
-                {{ item[col.field] }}
-              </template>
-            </slot>
-          </td>
+            <td
+              v-for="col in columns"
+              :key="col.field"
+              class="px-4 py-2 text-sm text-foreground whitespace-nowrap"
+            >
+              <slot :name="`column-${col.field}`" :data="item">
+                <template v-if="col.type === 'boolean'">
+                  <Sh3Tag
+                    :value="item[col.field] ? 'Sim' : 'Não'"
+                    :severity="item[col.field] ? 'success' : 'danger'"
+                  />
+                </template>
+                <template v-else-if="col.type === 'date'">
+                  {{ formatDate(item[col.field]) }}
+                </template>
+                <template v-else-if="col.type === 'cpf'">
+                  {{ formatCPF(item[col.field]) }}
+                </template>
+                <template v-else>
+                  {{ item[col.field] }}
+                </template>
+              </slot>
+            </td>
 
-          <!-- Coluna de ações -->
-          <td v-if="actions?.length" class="px-4 py-2 text-sm text-right whitespace-nowrap">
-            <div class="flex justify-end gap-2">
-              <Sh3Button
-                v-for="action in actions"
-                :key="action.name"
-                :icon="action.icon"
-                variant="text"
-                :class="action.class"
-                @click="$emit(action.event, item)"
+            <!-- Coluna de ações -->
+            <td v-if="actions?.length" class="px-4 py-2 text-sm text-right whitespace-nowrap">
+              <div class="flex justify-end gap-2">
+                <Sh3Button
+                  v-for="action in actions"
+                  :key="action.name"
+                  :icon="action.icon"
+                  variant="text"
+                  :class="action.class"
+                  @click="$emit(action.event, item)"
+                >
+                </Sh3Button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr v-if="!paginatedItems.length">
+            <td :colspan="columns.length + (actions?.length ? 1 : 0)">
+              <Sh3EmptyState
+                :icon="emptyIcon"
+                :title="emptyTitle"
+                :description="emptyDescription"
               >
-              </Sh3Button>
-            </div>
-          </td>
-        </tr>
-
-        <tr v-if="!paginatedItems.length">
-          <td :colspan="columns.length + 1" class="text-center py-6 text-muted-foreground">
-            Nenhum registro encontrado.
-          </td>
-        </tr>
+                <slot name="empty-action" />
+              </Sh3EmptyState>
+            </td>
+          </tr>
+        </template>
       </tbody>
     </table>
 
@@ -100,6 +128,9 @@
 import { computed, ref } from 'vue'
 import Sh3Tag from './Sh3Tag.vue'
 import Sh3Button from './Sh3Button.vue'
+import Sh3LoadingState from './state/Sh3LoadingState.vue'
+import Sh3EmptyState from './state/Sh3EmptyState.vue'
+import Sh3ErrorState from './state/Sh3ErrorState.vue'
 import type { ColumnConfig } from '@/types/common/column.types'
 import type { ActionConfig } from '@/types/common/action.types'
 
@@ -112,12 +143,22 @@ const props = withDefaults(
     dataKey?: string
     rows?: number
     paginated?: boolean
+    loading?: boolean
+    error?: string | null
+    emptyIcon?: string
+    emptyTitle?: string
+    emptyDescription?: string
   }>(),
   {
     dataKey: 'id',
     actions: () => [],
     paginated: true,
-    rows: 10
+    rows: 10,
+    loading: false,
+    error: null,
+    emptyIcon: 'pi pi-inbox',
+    emptyTitle: 'Nenhum registro encontrado',
+    emptyDescription: 'Não há dados para exibir no momento.'
   }
 )
 

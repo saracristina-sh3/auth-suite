@@ -61,9 +61,21 @@
           </div>
 
           <footer class="flex justify-end gap-4 mt-4 pt-4 border-t border-border">
-            <button type="button" class="bg-transparent border border-border text-foreground px-4 py-2 rounded-[var(--radius)] cursor-pointer transition-all duration-200 hover:bg-accent hover:border-border" @click="close">Cancelar</button>
-            <button type="submit" class="bg-primary text-primary-foreground border-none px-4 py-2 rounded-[var(--radius)] cursor-pointer transition-all duration-200 hover:bg-primary-hover">
-              {{ editingItem ? 'Atualizar' : 'Criar' }}
+            <button
+              type="button"
+              class="bg-transparent border border-border text-foreground px-4 py-2 rounded-[var(--radius)] cursor-pointer transition-all duration-200 hover:bg-accent hover:border-border disabled:opacity-50 disabled:cursor-not-allowed"
+              :disabled="isSaving"
+              @click="close"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="bg-primary text-primary-foreground border-none px-4 py-2 rounded-[var(--radius)] cursor-pointer transition-all duration-200 hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              :disabled="isSaving"
+            >
+              <i v-if="isSaving" class="pi pi-spin pi-spinner text-sm"></i>
+              <span>{{ isSaving ? 'Salvando...' : (editingItem ? 'Atualizar' : 'Criar') }}</span>
             </button>
           </footer>
         </form>
@@ -110,6 +122,7 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const editingItem = ref<FormData | null>(null)
 const formData = reactive<FormData>({})
+const isSaving = ref(false)
 
 /**
  * Composable de confirmação
@@ -207,16 +220,23 @@ function prepareData(): Record<string, any> {
 /**
  * Executa o salvamento sem confirmação
  */
-function executeSave(data: Record<string, any>) {
-  emit('save', data)
-  close()
+async function executeSave(data: Record<string, any>) {
+  try {
+    isSaving.value = true
+    emit('save', data)
+    // Aguardar um pouco para garantir que o salvamento foi processado
+    await new Promise(resolve => setTimeout(resolve, 500))
+    close()
+  } finally {
+    isSaving.value = false
+  }
 }
 
 /**
  * Salva o item (emitindo o evento 'save')
  * Verifica se há mudança de status e solicita confirmação se necessário
  */
-function save() {
+async function save() {
   const data = prepareData()
 
   // Verificar se está editando e se há mudança de status

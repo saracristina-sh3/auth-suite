@@ -1,5 +1,13 @@
 <template>
   <BaseLayout title="Administração do Suporte" icon="pi pi-shield">
+    <!-- Global Loading Indicator -->
+    <div
+      v-if="loading"
+      class="fixed top-0 left-0 right-0 h-1 bg-border z-[9999]"
+    >
+      <div class="h-full bg-primary animate-loading-bar"></div>
+    </div>
+
     <div class="contents min-h-screen w-full bg-background">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-foreground mb-1">Painel do suporte</h2>
@@ -28,11 +36,24 @@
       </div>
 
       <div class="tabs-content">
-        <router-view :users="users" :autarquias="autarquias" :modulos="modulos" :support-context="supportContext"
-          :selected-autarquia-id="selectedAutarquiaId" :message="message" :message-class="messageClass"
-          @edit="handleEdit" @assume-context="handleAssumeContext" @exit-context="exitContext"
+        <router-view
+          :users="users"
+          :autarquias="autarquias"
+          :modulos="modulos"
+          :support-context="supportContext"
+          :selected-autarquia-id="selectedAutarquiaId"
+          :message="message"
+          :message-class="messageClass"
+          :loading="loading"
+          :error="currentError"
+          @edit="handleEdit"
+          @assume-context="handleAssumeContext"
+          @exit-context="exitContext"
           @toggle-status="handleToggleStatus"
-          @toggle-modulo-status="toggleModuloStatus" @update:selected-autarquia-id="selectedAutarquiaId = $event" />
+          @toggle-modulo-status="toggleModuloStatus"
+          @update:selected-autarquia-id="selectedAutarquiaId = $event"
+          @retry="handleRetry"
+        />
       </div>
 
       <Sh3Form ref="genericForm" :entityName="activeTabLabel" :fields="currentFields" @save="onSave" />
@@ -41,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { userService } from "@/services/user.service";
 import { moduloService } from "@/services/modulos.service";
@@ -65,7 +86,7 @@ import type { Modulo } from "@/types/support/modulos.types";
 const router = useRouter();
 
 const { showMessage, message, messageClass } = useNotification();
-const { loadUsers, loadAutarquias, loadModulos, loadRoles, users, autarquias, modulos, roles, loading } = useDataLoader(showMessage);
+const { loadUsers, loadAutarquias, loadModulos, loadRoles, users, autarquias, modulos, roles, loading, usersError, autarquiasError, modulosError } = useDataLoader(showMessage);
 const {
   supportContext,
   selectedAutarquiaId,
@@ -99,6 +120,15 @@ const {
       await loadModulos()
     }
   }
+})
+
+// Computed para error da tab ativa
+const currentError = computed(() => {
+  const tabName = currentTabName.value
+  if (tabName === 'usuarios') return usersError.value
+  if (tabName === 'autarquias') return autarquiasError.value
+  if (tabName === 'modulos') return modulosError.value
+  return null
 })
 
 // Inicializar composables de save específicos
@@ -227,8 +257,38 @@ async function toggleModuloStatus(modulo: Modulo) {
   }
 }
 
+async function handleRetry() {
+  const tabName = currentTabName.value
+
+  if (tabName === 'usuarios') {
+    await loadUsers()
+  } else if (tabName === 'autarquias') {
+    await loadAutarquias()
+  } else if (tabName === 'modulos') {
+    await loadModulos()
+  }
+}
+
 onMounted(async () => {
   await loadRoles();
   await loadAutarquias();
 });
 </script>
+
+<style scoped>
+@keyframes loading-bar {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 1.5s ease-in-out infinite;
+}
+</style>

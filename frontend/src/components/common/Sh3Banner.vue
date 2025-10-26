@@ -78,7 +78,7 @@ const props = withDefaults(
     actionIcon?: string
     buttonVariant?: 'primary' | 'secondary' | 'warning' | 'danger' | 'text' | 'outline'
 
-    palette?: 'jade' | 'ruby' | 'sulfur'
+    palette?: 'jade' | 'ruby' | 'sulfur' | 'orange' | 'amber'
   }>(),
   {
     visible: true,
@@ -92,9 +92,34 @@ const props = withDefaults(
 defineEmits(['action'])
 
 const bannerStyle = computed(() => {
-  const startColor = `var(--${props.palette}-500)`
-  const endColor = `var(--${props.palette}-700)`
-  const border = `var(--${props.palette}-800)`
+  // Paletas personalizadas que não usam CSS variables
+  const customPalettes: Record<string, { start: string; end: string; border: string }> = {
+    'orange': {
+      start: '#f97316',
+      end: '#c2410c',
+      border: '#9a3412'
+    },
+    'amber': {
+      start: '#f59e0b',
+      end: '#d97706',
+      border: '#b45309'
+    }
+  }
+
+  const paletteName = props.palette || 'jade'
+
+  if (customPalettes[paletteName]) {
+    const palette = customPalettes[paletteName]
+    return {
+      background: `linear-gradient(to right, ${palette.start}, ${palette.end})`,
+      borderColor: palette.border
+    }
+  }
+
+  // Paletas padrão usando CSS variables
+  const startColor = `var(--${paletteName}-500)`
+  const endColor = `var(--${paletteName}-700)`
+  const border = `var(--${paletteName}-800)`
 
   return {
     background: `linear-gradient(to right, ${startColor}, ${endColor})`,
