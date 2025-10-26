@@ -9,11 +9,15 @@ use Illuminate\Http\JsonResponse;
 
 class ModulosController extends Controller
 {
+    use \App\Traits\ApiResponses;
+
     /**
-     * Lista todos os módulos
+     * Lista todos os módulos (com paginação)
      */
     public function index(Request $request): JsonResponse
     {
+        $perPage = $request->get('per_page', 10);
+
         $query = Modulo::query();
 
         // Filtrar por status ativo se solicitado
@@ -21,14 +25,13 @@ class ModulosController extends Controller
             $query->where('ativo', $request->boolean('ativo'));
         }
 
-        // Incluir contagem de autarquias se solicitado
-        if ($request->boolean('with_autarquias_count')) {
-            $query->withCount('autarquias');
-        }
+        // ✅ Eager loading para evitar N+1
+        // Sempre carregar contagem de autarquias para melhor performance
+        $query->withCount('autarquias');
 
         // Incluir autarquias se solicitado
         if ($request->boolean('with_autarquias')) {
-            $query->with('autarquiasAtivas');
+            $query->with('autarquiasAtivas:id,nome,ativo');
         }
 
         // Filtrar por autarquia específica se solicitado
@@ -38,13 +41,21 @@ class ModulosController extends Controller
             });
         }
 
-        $modulos = $query->orderBy('nome')->get();
+        // Busca por nome ou descrição
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nome', 'like', '%' . $search . '%')
+                  ->orWhere('descricao', 'like', '%' . $search . '%');
+            });
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lista de módulos recuperada com sucesso.',
-            'data' => $modulos,
-        ]);
+        $modulos = $query->orderBy('nome')->paginate($perPage);
+
+        return $this->successPaginatedResponse(
+            $modulos,
+            'Lista de módulos recuperada com sucesso.'
+        );
     }
 
     /**

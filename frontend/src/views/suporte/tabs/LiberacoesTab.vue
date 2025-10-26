@@ -260,13 +260,13 @@ async function loadData() {
 
   try {
     // Load autarquias and modulos in parallel
-    const [autarquiasData, modulosData] = await Promise.all([
-      autarquiaService.list(),
-      moduloService.list()
+    const [autarquiasResponse, modulosResponse] = await Promise.all([
+      autarquiaService.list({ per_page: 9999 }), // Buscar todos
+      moduloService.list(undefined, { per_page: 9999 }) // Buscar todos
     ])
 
-    autarquias.value = autarquiasData
-    modulos.value = modulosData
+    autarquias.value = autarquiasResponse.data
+    modulos.value = modulosResponse.data
   } catch (err: any) {
     error.value = err.response?.data?.message || 'Erro ao carregar dados'
     console.error('Erro ao carregar dados:', err)

@@ -17,9 +17,12 @@ class UserAutarquiaController extends Controller
     public function index(User $user): JsonResponse
     {
         try {
-            $autarquias = $user->autarquias()->withPivot(
-                'role', 'is_admin', 'is_default', 'ativo', 'data_vinculo'
-            )->get();
+            // ✅ Eager loading já está otimizado - apenas selecionando campos necessários
+            $autarquias = $user->autarquias()
+                ->select('autarquias.id', 'autarquias.nome', 'autarquias.ativo')
+                ->withPivot('role', 'is_admin', 'is_default', 'ativo', 'data_vinculo')
+                ->orderBy('autarquias.nome')
+                ->get();
 
             return response()->json([
                 'success' => true,

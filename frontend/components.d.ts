@@ -12,7 +12,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BaseLayout: typeof import('./src/components/layouts/BaseLayout.vue')['default']
-    Button: typeof import('primevue/button')['default']
     GlobalConfirmDialog: typeof import('./src/components/common/GlobalConfirmDialog.vue')['default']
     HeaderLayout: typeof import('./src/components/layouts/HeaderLayout.vue')['default']
     IconAlmoxarifado: typeof import('./src/components/icons/IconAlmoxarifado.vue')['default']
@@ -26,7 +25,6 @@ declare module 'vue' {
     IconPatrimonio: typeof import('./src/components/icons/IconPatrimonio.vue')['default']
     IconRequisicaoInterna: typeof import('./src/components/icons/IconRequisicaoInterna.vue')['default']
     IconTesouraria: typeof import('./src/components/icons/IconTesouraria.vue')['default']
-    PanelMenu: typeof import('primevue/panelmenu')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sh3Banner: typeof import('./src/components/common/Sh3Banner.vue')['default']

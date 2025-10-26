@@ -119,6 +119,24 @@
 
       <!-- Modules Grid - Cards com ícones e espaçamentos reduzidos -->
       <div v-else class="w-full max-w-6xl mt-6">
+        <!-- Header com título e botão de refresh -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-semibold text-foreground">Módulos Disponíveis</h2>
+            <span v-if="cacheInfo.hasCache" class="text-xs text-muted-foreground px-2 py-1 bg-muted rounded">
+              Cache expira em {{ cacheInfo.timeToExpireMinutes }}min
+            </span>
+          </div>
+          <Sh3Button
+            icon="pi pi-refresh"
+            label="Atualizar"
+            size="small"
+            outlined
+            @click="refresh"
+            :disabled="loadingModulos"
+          />
+        </div>
+
         <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 mt-4">
            <Sh3Card v-for="modulo in modulos" :key="modulo.id"
             class="cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full"
@@ -190,7 +208,7 @@ import { getErrorMessage } from '@/utils/error.utils'
 const errorMessage = '';
 
 
-const { modulos, loadingModulos, error, reload } = useModulos()
+const { modulos, loadingModulos, error, reload, refresh, cacheInfo } = useModulos()
 const { showMessage } = useNotification()
 const router = useRouter()
 
@@ -228,11 +246,13 @@ async function loadUserAutarquias() {
       return
     }
 
-    // Buscar autarquias do usuário
-    autarquias.value = await userService.getUserAutarquias(user.id)
+    // Buscar autarquias do usuário e session ativa em paralelo
+    const [userAutarquiasData, sessionData] = await Promise.all([
+      userService.getUserAutarquias(user.id),
+      sessionService.getActiveAutarquia()
+    ])
 
-    // ✅ Verificar se já tem autarquia ativa na session do backend
-    const sessionData = await sessionService.getActiveAutarquia()
+    autarquias.value = userAutarquiasData
 
     if (sessionData.data.autarquia_ativa_id) {
       // Usar da session

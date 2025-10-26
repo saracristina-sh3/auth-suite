@@ -270,8 +270,11 @@ async function handleRetry() {
 }
 
 onMounted(async () => {
-  await loadRoles();
-  await loadAutarquias();
+  // Carregar roles e autarquias em paralelo para melhor performance
+  await Promise.all([
+    loadRoles(),
+    loadAutarquias()
+  ]);
 });
 </script>
 

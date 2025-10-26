@@ -6,6 +6,7 @@ import {
 } from '@/types/common/use-autarquia-pivot.types'
 import { userService } from '@/services/user.service'
 import { handleApiError } from '@/utils/error-handler'
+import { useCache } from '@/composables/common/useCache'
 
 /**
  * Composable para gerenciar autarquias de um usuário
@@ -19,6 +20,12 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   const autarquias = ref<AutarquiaWithPivot[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  // Cache com TTL de 3 minutos para autarquias do usuário
+  const userAutarquiasCache = useCache<AutarquiaWithPivot[]>({
+    key: `user-autarquias-${userIdRef.value}`,
+    ttl: 3 * 60 * 1000 // 3 minutos
+  })
 
   // Computed
   const autarquiasAtivas = computed(() =>
@@ -35,12 +42,24 @@ export function useUserAutarquias(userId: Ref<number> | number) {
 
   /**
    * Carrega as autarquias do usuário
+   *
+   * @param forceRefresh - Se true, força atualização ignorando cache
    */
-  async function loadAutarquias(): Promise<void> {
+  async function loadAutarquias(forceRefresh: boolean = false): Promise<void> {
     loading.value = true
     error.value = null
     try {
-      autarquias.value = await userService.getUserAutarquias(userIdRef.value)
+      const cacheKey = `user-autarquias-${userIdRef.value}`
+
+      const data = await userAutarquiasCache.fetch(
+        async () => {
+          return await userService.getUserAutarquias(userIdRef.value)
+        },
+        cacheKey,
+        forceRefresh
+      )
+
+      autarquias.value = data
     } catch (err: unknown) {
       const { message } = handleApiError(err)
       error.value = message
@@ -49,6 +68,15 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     } finally {
       loading.value = false
     }
+  }
+
+  /**
+   * Invalida o cache e recarrega as autarquias
+   */
+  const refreshAutarquias = async () => {
+    console.log('🔄 Invalidando cache de autarquias do usuário e recarregando...')
+    userAutarquiasCache.invalidate()
+    await loadAutarquias(true)
   }
 
   /**
@@ -62,7 +90,9 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     error.value = null
     try {
       await userService.attachAutarquias(userIdRef.value, autarquiaIds, pivotData)
-      await loadAutarquias()
+      // Invalida cache e recarrega
+      userAutarquiasCache.invalidate()
+      await loadAutarquias(true)
     } catch (err: unknown) {
       const { message } = handleApiError(err)
       error.value = message
@@ -81,7 +111,9 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     error.value = null
     try {
       await userService.detachAutarquias(userIdRef.value, autarquiaIds)
-      await loadAutarquias()
+      // Invalida cache e recarrega
+      userAutarquiasCache.invalidate()
+      await loadAutarquias(true)
     } catch (err: unknown) {
       const { message } = handleApiError(err)
       error.value = message
@@ -100,7 +132,9 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     error.value = null
     try {
       await userService.syncAutarquias(userIdRef.value, autarquiasToSync)
-      await loadAutarquias()
+      // Invalida cache e recarrega
+      userAutarquiasCache.invalidate()
+      await loadAutarquias(true)
     } catch (err: unknown) {
       const { message } = handleApiError(err)
       error.value = message
@@ -182,6 +216,13 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     })
   }
 
+  // Informações de cache
+  const cacheInfo = computed(() => ({
+    hasCache: userAutarquiasCache.hasValidCache.value,
+    timeToExpire: userAutarquiasCache.timeToExpire.value,
+    timeToExpireMinutes: Math.ceil(userAutarquiasCache.timeToExpire.value / 60000)
+  }))
+
   return {
     autarquias,
     loading,
@@ -190,6 +231,7 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     autarquiasAdmin,
     autarquiaDefault,
     loadAutarquias,
+    refreshAutarquias,
     attachAutarquia,
     detachAutarquia,
     syncAutarquias,
@@ -198,6 +240,7 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     isAdminOf,
     getPivotData,
     promoteToAdmin,
-    demoteFromAdmin
+    demoteFromAdmin,
+    cacheInfo
   }
 }

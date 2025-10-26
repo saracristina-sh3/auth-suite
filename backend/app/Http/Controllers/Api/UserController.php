@@ -19,7 +19,11 @@ class UserController extends Controller
 
         $query = User::query()
             ->select('id', 'name', 'email', 'role', 'cpf', 'autarquia_preferida_id', 'is_active', 'is_superadmin')
-            ->with('autarquiaPreferida:id,nome');
+            // ✅ Eager loading para evitar N+1
+            ->with([
+                'autarquiaPreferida:id,nome',
+                'autarquias:id,nome,ativo' // Carregar todas as autarquias do usuário
+            ]);
 
         // Filtrar por autarquia se solicitado
         if ($request->has('autarquia_preferida_id')) {

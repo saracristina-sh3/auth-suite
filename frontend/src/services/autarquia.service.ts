@@ -3,6 +3,8 @@ import type { Modulo } from '@/types/support/modulos.types'
 import api from './api'
 import type { Autarquia } from '@/types/support/autarquia.types'
 import type { User } from '@/types/common/user.types'
+import type { PaginatedResponse } from '@/types/common/api.types'
+import type { PaginationParams } from '@/types/common/pagination.types'
 
 export interface AutarquiaFormData {
   nome: string
@@ -14,9 +16,12 @@ export interface AutarquiaListResponse {
 }
 
 export const autarquiaService = {
-  async list(): Promise<Autarquia[]> {
-    const response = await api.get<AutarquiaListResponse>('/autarquias')
-    return response.data.data
+  /**
+   * Lista autarquias com paginação server-side
+   */
+  async list(params?: PaginationParams): Promise<PaginatedResponse<Autarquia>> {
+    const response = await api.get<PaginatedResponse<Autarquia>>('/autarquias', { params })
+    return response.data
   },
 
   async getById(id: number): Promise<Autarquia> {

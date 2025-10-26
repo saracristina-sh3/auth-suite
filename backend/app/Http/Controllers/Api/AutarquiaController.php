@@ -11,11 +11,15 @@ use Illuminate\Http\JsonResponse;
 
 class AutarquiaController extends Controller
 {
+    use \App\Traits\ApiResponses;
+
     /**
-     * Lista todas as autarquias
+     * Lista todas as autarquias (com paginação)
      */
     public function index(Request $request): JsonResponse
     {
+        $perPage = $request->get('per_page', 10);
+
         $query = Autarquia::query();
 
         // Filtrar por status ativo se solicitado
@@ -23,23 +27,31 @@ class AutarquiaController extends Controller
             $query->where('ativo', $request->boolean('ativo'));
         }
 
-        // Incluir contagem de usuários se solicitado
-        if ($request->boolean('with_users_count')) {
-            $query->withCount('users');
-        }
+        // ✅ Eager loading para evitar N+1
+        // Sempre carregar contagem de usuários e módulos para melhor performance
+        $query->withCount(['users', 'modulos']);
 
         // Incluir módulos se solicitado
         if ($request->boolean('with_modulos')) {
             $query->with('modulosAtivos');
         }
 
-        $autarquias = $query->orderBy('nome')->get();
+        // Incluir usuários se solicitado
+        if ($request->boolean('with_users')) {
+            $query->with('users:id,name,email');
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lista de autarquias recuperada com sucesso.',
-            'data' => $autarquias,
-        ]);
+        // Busca por nome
+        if ($request->has('search')) {
+            $query->where('nome', 'like', '%' . $request->get('search') . '%');
+        }
+
+        $autarquias = $query->orderBy('nome')->paginate($perPage);
+
+        return $this->successPaginatedResponse(
+            $autarquias,
+            'Lista de autarquias recuperada com sucesso.'
+        );
     }
 
     /**

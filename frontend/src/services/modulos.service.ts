@@ -2,6 +2,8 @@
 import type { Autarquia } from '@/types/support/autarquia.types'
 import api from './api'
 import type { Modulo } from '@/types/support/modulos.types'
+import type { PaginatedResponse } from '@/types/common/api.types'
+import type { PaginationParams } from '@/types/common/pagination.types'
 
 export interface ModuloFormData {
   nome: string
@@ -23,10 +25,16 @@ export interface ModuloStatsResponse {
 }
 
 export const moduloService = {
-  async list(autarquiaId?: number): Promise<Modulo[]> {
-    const params = autarquiaId ? { autarquia_id: autarquiaId } : {}
-    const response = await api.get<ModuloListResponse>('/modulos', { params })
-    return response.data.data
+  /**
+   * Lista módulos com paginação server-side
+   */
+  async list(autarquiaId?: number, params?: PaginationParams): Promise<PaginatedResponse<Modulo>> {
+    const requestParams = {
+      ...params,
+      ...(autarquiaId ? { autarquia_id: autarquiaId } : {})
+    }
+    const response = await api.get<PaginatedResponse<Modulo>>('/modulos', { params: requestParams })
+    return response.data
   },
 
   async getById(id: number): Promise<Modulo> {
@@ -48,6 +56,9 @@ export const moduloService = {
     await api.delete(`/modulos/${id}`)
   },
 
+  /**
+   * Busca todos os módulos sem paginação (para admin/support)
+   */
   async getModulos(): Promise<Modulo[]> {
     const response = await api.get<ModuloListResponse>('/modulos')
     return response.data.data
