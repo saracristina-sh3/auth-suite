@@ -7,10 +7,17 @@ import { sessionService } from './session.service'
 class AuthService {
 async login(credentials: LoginCredentials) {
     const response = await api.post('/login', credentials)
-    const { token, user } = response.data
+    const { token, refresh_token, user, expires_in } = response.data
 
-    // Armazenar token
+    // Armazenar tokens
     localStorage.setItem('auth_token', token)
+    localStorage.setItem('refresh_token', refresh_token)
+
+    // Armazenar timestamp de expiração
+    if (expires_in) {
+      const expiresAt = Date.now() + (expires_in * 1000)
+      localStorage.setItem('token_expires_at', expiresAt.toString())
+    }
 
     // NÃO armazenar autarquia_ativa no localStorage
     // Ela virá da session do backend
@@ -51,6 +58,68 @@ async login(credentials: LoginCredentials) {
     return response.data
   }
 
+  /**
+   * Renova o access token usando o refresh token
+   */
+  async refreshToken(): Promise<{ token: string; user: any } | null> {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token')
+
+      if (!refreshToken) {
+        console.warn('⚠️ Refresh token não encontrado')
+        return null
+      }
+
+      // Usar o refresh token para obter um novo access token
+      const response = await api.post('/refresh', null, {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`
+        }
+      })
+
+      const { token, refresh_token, user, expires_in } = response.data
+
+      // Atualizar tokens no localStorage
+      localStorage.setItem('auth_token', token)
+      localStorage.setItem('refresh_token', refresh_token)
+
+      // Atualizar timestamp de expiração
+      if (expires_in) {
+        const expiresAt = Date.now() + (expires_in * 1000)
+        localStorage.setItem('token_expires_at', expiresAt.toString())
+      }
+
+      // Atualizar dados do usuário
+      const userData = {
+        ...user,
+        autarquia_ativa_id: undefined,
+        autarquia_ativa: undefined
+      }
+      localStorage.setItem('user_data', JSON.stringify(userData))
+
+      console.log('✅ Token renovado com sucesso')
+      return { token, user }
+
+    } catch (error) {
+      console.error('❌ Erro ao renovar token:', error)
+      return null
+    }
+  }
+
+  /**
+   * Verifica se o token está próximo de expirar (menos de 5 minutos)
+   */
+  isTokenExpiringSoon(): boolean {
+    const expiresAt = localStorage.getItem('token_expires_at')
+    if (!expiresAt) return false
+
+    const expirationTime = parseInt(expiresAt, 10)
+    const now = Date.now()
+    const fiveMinutes = 5 * 60 * 1000
+
+    return (expirationTime - now) < fiveMinutes
+  }
+
   async logout(): Promise<void> {
     const token = localStorage.getItem('auth_token')
     if (token) {
@@ -63,6 +132,8 @@ async login(credentials: LoginCredentials) {
 
     // Limpa tokens de autenticação
     localStorage.removeItem('auth_token')
+    localStorage.removeItem('refresh_token')
+    localStorage.removeItem('token_expires_at')
     localStorage.removeItem('user_data')
     // Limpa contexto de suporte se existir
     localStorage.removeItem('support_context')

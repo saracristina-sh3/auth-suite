@@ -77,7 +77,7 @@ class AutarquiaController extends Controller
                 'modulo_id' => $modulo->id,
             ], [
                 'ativo' => false,
-                'data_liberacao' => null,
+                'data_liberacao' => now(),
             ]);
         }
 

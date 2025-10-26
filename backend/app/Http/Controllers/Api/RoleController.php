@@ -11,16 +11,18 @@ class RoleController extends Controller
     {
         $roles = [
             ['label' => 'Usuário', 'value' => 'user'],
-            ['label' => 'Gerente', 'value' => 'manager'],
+            ['label' => 'Gestor', 'value' => 'gestor'],
             ['label' => 'Administrador', 'value' => 'admin'],
             ['label' => 'Superadmin', 'value' => 'superadmin'],
+            ['label' => 'Administrador Cliente', 'value' => 'clientAdmin'],
         ];
 
         $permissions = [
             'user' => ['view_dashboard'],
-            'manager' => ['view_dashboard', 'manage_team'],
+            'gestor' => ['view_dashboard', 'manage_team'],
             'admin' => ['view_dashboard', 'manage_users', 'view_reports'],
             'superadmin' => ['view_dashboard', 'manage_users', 'manage_system', 'view_reports'],
+            'clientAdmin' => ['view_dashboard', 'manage_autarquia', 'manage_autarquia_users'],
         ];
 
         return response()->json([

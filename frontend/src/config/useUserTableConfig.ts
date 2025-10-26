@@ -3,6 +3,7 @@ import { computed, type Ref } from 'vue'
 import type { Role } from '@/services/role.service'
 import type { Autarquia } from '@/types/support/autarquia.types'
 import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/common/table.types'
+import { validateCPF, formatCPF, validateEmail, validationMessages } from '@/utils/validators'
 
 export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia[]>) {
   const columns: ColumnConfig[] = [
@@ -39,14 +40,26 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       label: 'E-mail',
       type: 'email',
       required: true,
-      placeholder: 'Digite o e-mail'
+      placeholder: 'exemplo@email.com',
+      validate: (value: string) => {
+        if (!value) return validationMessages.email.required
+        if (!validateEmail(value)) return validationMessages.email.invalid
+        return true
+      }
     },
     {
       name: 'cpf',
       label: 'CPF',
       type: 'text',
       required: true,
-      placeholder: '000.000.000-00'
+      placeholder: '000.000.000-00',
+      mask: '000.000.000-00',
+      validate: (value: string) => {
+        if (!value) return validationMessages.cpf.required
+        if (!validateCPF(value)) return validationMessages.cpf.invalid
+        return true
+      },
+      format: (value: string) => formatCPF(value)
     },
     {
       name: 'password',
@@ -65,24 +78,12 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       optionValue: 'value'
     },
     {
-      name: 'autarquias',
-      label: 'Autarquias',
+      name: 'autarquia_preferida_id',
+      label: 'Autarquia Preferida',
       type: 'select',
       required: true,
-      multiple: true,         // Habilita multi-seleção
-      searchable: true,       // Habilita busca no dropdown
-      placeholder: 'Selecione uma ou mais autarquias',
-      options: autarquias.value,
-      optionLabel: 'nome',
-      optionValue: 'id',
-      defaultValue: []
-    },
-    {
-      name: 'autarquia_ativa_id',
-      label: 'Autarquia Ativa (Padrão)',
-      type: 'select',
-      required: false,
-      placeholder: 'Selecione a autarquia padrão',
+      searchable: true,
+      placeholder: 'Selecione a autarquia',
       options: autarquias.value,
       optionLabel: 'nome',
       optionValue: 'id'

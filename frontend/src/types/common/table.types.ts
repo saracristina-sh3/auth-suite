@@ -1,5 +1,4 @@
-// src/types/table.ts
-// Tipos compartilhados para configuração de tabelas genéricas
+// Tipos compartilhados para configuração de tabelas e formulários genéricos
 
 export interface ColumnConfig {
   field: string
@@ -17,18 +16,31 @@ export interface ActionConfig {
   class?: string
 }
 
-export interface FieldConfig {
+/**
+ * Tipo genérico para configuração de campos de formulários dinâmicos.
+ */
+export interface FieldConfig<T = unknown> {
   name: string
   label: string
+
   type: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'checkbox'
   required?: boolean
   placeholder?: string
   autofocus?: boolean
   rows?: number
-  options?: any[]
-  optionLabel?: string
-  optionValue?: string
-  defaultValue?: any
-  multiple?: boolean      // Habilita multi-seleção em campos select
-  searchable?: boolean    // Habilita busca em campos select com multi-seleção
+
+  // Select / opções
+  options?: T[]                // ✅ genérico — substitui any[]
+  optionLabel?: keyof T | string
+  optionValue?: keyof T | string
+  multiple?: boolean
+  searchable?: boolean
+
+  // Valores padrão e máscaras
+  defaultValue?: string | number | boolean | null
+  mask?: string                 // ✅ adicionado — ex: "000.000.000-00"
+
+  // Validação e formatação
+  validate?: (value: string) => true | string  // ✅ adicionado
+  format?: (value: string) => string           // ✅ adicionado
 }

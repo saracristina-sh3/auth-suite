@@ -26,6 +26,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     // Autenticação
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']); // ✅ Refresh token
     Route::get('/me', [AuthController::class, 'me']);
 
     // Suporte: Assumir contexto de autarquia (apenas para superadmin/Sh3)

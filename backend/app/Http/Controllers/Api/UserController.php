@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use App\Rules\CpfValidation;
 
 class UserController extends Controller
 {
@@ -50,7 +51,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
             'role' => 'required|string|in:user,gestor,admin,superadmin,clientAdmin',
-            'cpf' => 'required|string|size:11|unique:users',
+            'cpf' => ['required', 'string', new CpfValidation, 'unique:users'],
             'autarquia_preferida_id' => 'required|exists:autarquias,id',
             'is_active' => 'boolean',
         ]);
@@ -58,11 +59,14 @@ class UserController extends Controller
         // Se for superadmin, marcar is_superadmin como true
         $isSuperadmin = $validated['role'] === 'superadmin';
 
+        // Remover formatação do CPF (manter apenas números)
+        $cpfLimpo = preg_replace('/\D/', '', $validated['cpf']);
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'cpf' => $validated['cpf'],
+            'cpf' => $cpfLimpo,
             'role' => $validated['role'],
             'autarquia_preferida_id' => $validated['autarquia_preferida_id'],
             'is_active' => $validated['is_active'] ?? true,
@@ -93,10 +97,15 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             "email" => "sometimes|email|unique:users,email,{$user->id}",
-            "cpf" => "sometimes|string|size:11|unique:users,cpf,{$user->id}",
+            "cpf" => ['sometimes', 'string', new CpfValidation, "unique:users,cpf,{$user->id}"],
             'role' => 'sometimes|string|in:user,gestor,admin,superadmin,clientAdmin',
             'is_active' => 'sometimes|boolean',
         ]);
+
+        // Remover formatação do CPF se fornecido (manter apenas números)
+        if (isset($validated['cpf'])) {
+            $validated['cpf'] = preg_replace('/\D/', '', $validated['cpf']);
+        }
 
         // Se mudou para superadmin, atualizar is_superadmin
         if (isset($validated['role'])) {
