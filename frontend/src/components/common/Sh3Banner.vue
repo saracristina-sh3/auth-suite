@@ -3,13 +3,7 @@
     <div v-if="visible" class="w-full max-w-[800px] animate-fade-in">
       <div
         class="rounded-xl p-5 shadow-lg border-2 flex items-start justify-between gap-4 text-white"
-        :class="['bg-gradient-to-r']"
-        :style="{
-          '--start-color': startColor,
-          '--end-color': endColor,
-          background: 'linear-gradient(to right, var(--start-color), var(--end-color))',
-          borderColor: borderColor,
-        }"
+        :style="bannerStyle"
       >
         <!-- Ícone principal -->
         <div class="flex items-start gap-4 flex-1">
@@ -65,7 +59,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Sh3Button from './Sh3Button.vue'
-import { actions }from '@/assets/colors/index'
 
 const props = withDefaults(
   defineProps<{
@@ -85,7 +78,7 @@ const props = withDefaults(
     actionIcon?: string
     buttonVariant?: 'primary' | 'secondary' | 'warning' | 'danger' | 'text' | 'outline'
 
-    palette?: keyof typeof actions // jade | ruby | sulfur
+    palette?: 'jade' | 'ruby' | 'sulfur'
   }>(),
   {
     visible: true,
@@ -98,13 +91,16 @@ const props = withDefaults(
 
 defineEmits(['action'])
 
-/**
- * 🎨 Gera as cores usando as variáveis CSS do design system
- *  Exemplo: var(--jade-500), var(--jade-700)
- */
-const startColor = computed(() => actions[props.palette]?.[500] || 'var(--gray-500)')
-const endColor = computed(() => actions[props.palette]?.[700] || 'var(--gray-700)')
-const borderColor = computed(() => actions[props.palette]?.[800] || 'var(--gray-800)')
+const bannerStyle = computed(() => {
+  const startColor = `var(--${props.palette}-500)`
+  const endColor = `var(--${props.palette}-700)`
+  const border = `var(--${props.palette}-800)`
+
+  return {
+    background: `linear-gradient(to right, ${startColor}, ${endColor})`,
+    borderColor: border
+  }
+})
 </script>
 
 <style scoped>

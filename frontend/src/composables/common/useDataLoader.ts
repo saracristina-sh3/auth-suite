@@ -21,7 +21,7 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
     try {
       loading.value = true;
       const response = await userService.list();
-      users.value = response.items;
+      users.value = response.data;
     } catch (error) {
       const { message } = handleApiError(error);
       console.error("Erro ao carregar usuários:", error);

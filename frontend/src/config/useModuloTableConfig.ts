@@ -1,5 +1,6 @@
 // src/composables/useModuloTableConfig.ts
-import type { ColumnConfig, ActionConfig, FieldConfig } from '@/types/common/table.types'
+import type { ColumnConfig, FieldConfig } from '@/types/common/table.types'
+import { useExtendedActions } from '@/composables/common/useTableAction'
 
 export function useModuloTableConfig() {
   const columns: ColumnConfig[] = [
@@ -10,22 +11,8 @@ export function useModuloTableConfig() {
     { field: 'ativo', header: 'Ativo', type: 'boolean' }
   ]
 
-  const actions: ActionConfig[] = [
-    {
-      name: 'edit',
-      icon: 'pi pi-pencil',
-      event: 'edit',
-      tooltip: 'Editar',
-      class: 'p-button-primary'
-    },
-    {
-      name: 'toggle-status',
-      icon: 'pi pi-power-off',
-      event: 'toggle-status',
-      tooltip: 'Ativar/Inativar',
-      class: 'p-button-warning'
-    }
-  ]
+   const actions = useExtendedActions()
+ 
 
   const fields: FieldConfig[] = [
     {

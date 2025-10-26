@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use App\Rules\CpfValidation;
+use App\Traits\ApiResponses;
 
 class UserController extends Controller
 {
+    use ApiResponses;
     public function index(Request $request): JsonResponse
     {
         $perPage = $request->get('per_page', 10);
@@ -31,17 +33,10 @@ class UserController extends Controller
 
         $users = $query->orderBy('id', 'desc')->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lista de usuários recuperada com sucesso.',
-            'items' => $users->items(),
-            'meta' => [
-                'current_page' => $users->currentPage(),
-                'last_page' => $users->lastPage(),
-                'per_page' => $users->perPage(),
-                'total' => $users->total(),
-            ],
-        ]);
+        return $this->successPaginatedResponse(
+            $users,
+            'Lista de usuários recuperada com sucesso.'
+        );
     }
 
     public function store(Request $request): JsonResponse
@@ -85,11 +80,7 @@ class UserController extends Controller
         // Carregar relacionamentos
         $user->load(['autarquiaPreferida:id,nome', 'autarquias']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário criado com sucesso.',
-            'data' => $user,
-        ], 201);
+        return $this->createdResponse($user, 'Usuário criado com sucesso.');
     }
 
     public function update(Request $request, User $user): JsonResponse
@@ -117,29 +108,22 @@ class UserController extends Controller
         // Carregar relacionamentos
         $user->load(['autarquiaPreferida:id,nome', 'autarquias']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário atualizado com sucesso.',
-            'data' => $user,
-        ]);
+        return $this->updatedResponse($user, 'Usuário atualizado com sucesso.');
     }
 
     public function destroy(User $user): JsonResponse
     {
         // Verificar se o usuário tem permissões vinculadas
         if ($user->permissoes()->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não é possível excluir o usuário pois existem permissões vinculadas.',
-            ], 422);
+            return $this->validationErrorResponse(
+                ['user' => ['Não é possível excluir o usuário pois existem permissões vinculadas.']],
+                'Não é possível excluir o usuário pois existem permissões vinculadas.'
+            );
         }
 
         $user->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário excluído com sucesso.',
-        ]);
+        return $this->deletedResponse('Usuário excluído com sucesso.');
     }
 
     /**
@@ -149,11 +133,7 @@ class UserController extends Controller
     {
         $user->load(['autarquiaPreferida:id,nome', 'autarquias', 'permissoesAtivas.modulo:id,nome', 'permissoesAtivas.autarquia:id,nome']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário recuperado com sucesso.',
-            'data' => $user,
-        ]);
+        return $this->successResponse($user, 'Usuário recuperado com sucesso.');
     }
 
     /**
@@ -163,11 +143,7 @@ class UserController extends Controller
     {
         $modulos = $user->getModulosDisponiveis();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulos do usuário recuperados com sucesso.',
-            'data' => $modulos,
-        ]);
+        return $this->successResponse($modulos, 'Módulos do usuário recuperados com sucesso.');
     }
 
     /**
@@ -180,15 +156,11 @@ class UserController extends Controller
         $inativos = User::where('is_active', false)->count();
         $superadmins = User::where('is_superadmin', true)->count();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estatísticas de usuários recuperadas com sucesso.',
-            'data' => [
-                'total' => $total,
-                'ativos' => $ativos,
-                'inativos' => $inativos,
-                'superadmins' => $superadmins,
-            ],
-        ]);
+        return $this->successResponse([
+            'total' => $total,
+            'ativos' => $ativos,
+            'inativos' => $inativos,
+            'superadmins' => $superadmins,
+        ], 'Estatísticas de usuários recuperadas com sucesso.');
     }
 }

@@ -6,6 +6,7 @@
       </div>
 
       <!-- Banner de Modo Suporte -->
+       <!-- TO DO Implementar o Sh3Banner-->
       <div v-if="isInSupportMode" class="mt-6 w-full max-w-[800px] animate-fade-in">
         <div class="bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl p-5 shadow-lg border-2 border-amber-600">
           <div class="flex items-start justify-between gap-4">

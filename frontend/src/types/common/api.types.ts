@@ -12,7 +12,7 @@ export interface ApiError {
 export interface PaginatedResponse<T> {
   success: boolean;
   message: string;
-  items: T[];
+  data: T[];
   meta: {
     current_page: number;
     last_page: number;
