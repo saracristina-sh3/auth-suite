@@ -38,9 +38,15 @@ export interface CheckPermissionResponse {
   detalhes?: UsuarioModuloPermissao
 }
 
+export interface PermissionQueryParams {
+  user_id?: number
+  autarquia_id?: number
+  modulo_id?: number
+}
+
 export const permissionService = {
   async list(userId?: number, autarquiaId?: number, moduloId?: number): Promise<UsuarioModuloPermissao[]> {
-    const params: any = {}
+    const params: PermissionQueryParams = {}
     if (userId) params.user_id = userId
     if (autarquiaId) params.autarquia_id = autarquiaId
     if (moduloId) params.modulo_id = moduloId

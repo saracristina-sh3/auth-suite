@@ -15,6 +15,11 @@ export interface BulkUpdateModulo {
   ativo: boolean
 }
 
+export interface BulkUpdateError {
+  modulo_id: number
+  error: string
+}
+
 export const autarquiaModuloService = {
   /**
    * Lista as liberações de módulos para uma autarquia
@@ -42,10 +47,10 @@ export const autarquiaModuloService = {
    */
 async bulkUpdate(autarquiaId: number, modulos: BulkUpdateModulo[]): Promise<{
   atualizados: AutarquiaModulo[]
-  erros: any[]
+  erros: BulkUpdateError[]
 }> {
   const response = await api.put<{
-    data: { atualizados: AutarquiaModulo[]; erros: any[] }
+    data: { atualizados: AutarquiaModulo[]; erros: BulkUpdateError[] }
   }>('/autarquia-modulo/bulk', {
     autarquia_id: autarquiaId,
     modulos,

@@ -115,10 +115,15 @@ class SupportService {
       } else {
         throw new Error(data.message || 'Falha ao sair do contexto')
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Erro ao sair do contexto:', error)
-      const message =
-        error.response?.data?.message || 'Erro ao sair do modo suporte. Tente novamente.'
+      let message = 'Erro ao sair do modo suporte. Tente novamente.'
+      if (typeof error === 'object' && error !== null) {
+        const maybeMessage = (error as any)?.response?.data?.message
+        if (typeof maybeMessage === 'string' && maybeMessage.length) {
+          message = maybeMessage
+        }
+      }
       throw new Error(message)
     }
   }

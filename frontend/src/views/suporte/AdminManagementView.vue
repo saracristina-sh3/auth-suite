@@ -48,7 +48,9 @@ import { moduloService } from "@/services/modulos.service";
 import { useUserTableConfig } from "@/config/useUserTableConfig";
 import { useAutarquiaTableConfig } from "@/config/useAutarquiaTableConfig";
 import { useModuloTableConfig } from "@/config/useModuloTableConfig";
-import { useSaveHandler } from "@/composables/common/useSaveHandler";
+import { useSaveUser } from "@/composables/support/useSaveUser";
+import { useSaveAutarquia } from "@/composables/support/useSaveAutarquia";
+import { useSaveModulo } from "@/composables/support/useSaveModulo";
 import { useNotification } from "@/composables/common/useNotification";
 import { useDataLoader } from "@/composables/common/useDataLoader";
 import { useSupportContext } from "@/composables/support/useSupportContext";
@@ -99,8 +101,24 @@ const {
   }
 })
 
-const { onSave } = useSaveHandler(activeTabIndex, showMessage, { loadUsers, loadAutarquias, loadModulos });
+// Inicializar composables de save específicos
+const { saveUser } = useSaveUser({ loadUsers, showMessage });
+const { saveAutarquia } = useSaveAutarquia({ loadAutarquias, showMessage });
+const { saveModulo } = useSaveModulo({ loadModulos, showMessage });
 const { confirmDeactivate, confirmActivate } = useConfirmDialog();
+
+// Handler genérico que delega para o composable específico
+async function onSave(data: any): Promise<void> {
+  const tabName = currentTabName.value;
+
+  if (tabName === 'usuarios') {
+    await saveUser(data);
+  } else if (tabName === 'autarquias') {
+    await saveAutarquia(data);
+  } else if (tabName === 'modulos') {
+    await saveModulo(data);
+  }
+}
 
 function onNew() {
   genericForm.value?.open()

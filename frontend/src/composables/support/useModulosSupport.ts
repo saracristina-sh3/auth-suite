@@ -27,8 +27,15 @@ export function useModulosSupport() {
       }))
 
       console.log('✅ Todos os módulos carregados:', modulos.value.length, 'módulos', modulos.value)
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar módulos'
+    } catch (err: unknown) {
+      let errorMessage = 'Erro ao carregar módulos'
+      if (typeof err === 'object' && err !== null) {
+        const maybeMessage = (err as any)?.response?.data?.message
+        if (typeof maybeMessage === 'string' && maybeMessage.length) {
+          errorMessage = maybeMessage
+        }
+      }
+      error.value = errorMessage
       console.error('❌ Erro ao carregar módulos:', err)
       modulos.value = []
     } finally {
