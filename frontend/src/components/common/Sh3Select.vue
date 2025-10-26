@@ -48,15 +48,15 @@
         <div class="flex-1 overflow-y-auto py-1">
           <label
             v-for="option in filteredOptions"
-            :key="getOptionValue(option)"
+            :key="String(getOptionValue(option))"
             class="flex items-center gap-2 px-3 py-2 cursor-pointer transition-colors hover:bg-accent text-foreground"
             @click.stop
           >
             <input
               type="checkbox"
               :value="getOptionValue(option)"
-              :checked="isSelected(getOptionValue(option))"
-              @change="toggleOption(getOptionValue(option))"
+              :checked="isSelected(getOptionValue(option) as string | number)"
+              @change="toggleOption(getOptionValue(option) as string | number)"
               class="cursor-pointer accent-primary"
             />
             <span class="flex-1 text-sm text-foreground">{{ getOptionLabel(option) }}</span>
@@ -103,7 +103,7 @@
       <!-- Opções -->
       <option
         v-for="option in field.options || []"
-        :key="getOptionValue(option)"
+        :key="String(getOptionValue(option))"
         :value="getOptionValue(option)"
       >
         {{ getOptionLabel(option) }}
@@ -114,29 +114,14 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-
-/**
- * Interface que define o campo genérico (estendida para suportar multi-select)
- */
-interface FieldConfig {
-  name: string
-  label: string
-  type: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'checkbox'
-  required?: boolean
-  placeholder?: string
-  options?: any[]
-  optionLabel?: string
-  optionValue?: string
-  multiple?: boolean      
-  searchable?: boolean    
-}
+import type { FieldConfig } from '@/types/common/table.types'
 
 /**
  * Props aceitas pelo componente Sh3Select
  */
 const props = defineProps<{
   field: FieldConfig
-  modelValue: any
+  modelValue: unknown
 }>()
 
 const emit = defineEmits(['update:modelValue'])
@@ -147,14 +132,14 @@ const searchQuery = ref('')
 
 // Computed: Valor interno como array (para multi-select)
 const internalValue = computed({
-  get: () => {
-    if (!props.field.multiple) return props.modelValue
+  get: (): (string | number)[] => {
+    if (!props.field.multiple) return props.modelValue as (string | number)[]
 
     // Se for multi-select, garante que sempre retorna array
     if (Array.isArray(props.modelValue)) {
-      return props.modelValue
+      return props.modelValue as (string | number)[]
     }
-    return props.modelValue ? [props.modelValue] : []
+    return props.modelValue ? [props.modelValue as string | number] : []
   },
   set: (value) => {
     emit('update:modelValue', value)
@@ -162,7 +147,7 @@ const internalValue = computed({
 })
 
 // Computed: Labels dos itens selecionados
-const selectedLabels = computed(() => {
+const selectedLabels = computed((): string[] => {
   if (!props.field.multiple) return []
 
   const options = props.field.options || []
@@ -171,7 +156,7 @@ const selectedLabels = computed(() => {
       const option = options.find((opt) => getOptionValue(opt) === val)
       return option ? getOptionLabel(option) : null
     })
-    .filter(Boolean)
+    .filter((label): label is string => label !== null)
     .slice(0, 3) // Mostra apenas os primeiros 3
 })
 
@@ -187,14 +172,28 @@ const filteredOptions = computed(() => {
 })
 
 // Funções auxiliares para obter label e value das opções
-function getOptionLabel(option: any): string {
-  const labelKey = props.field.optionLabel || 'label'
-  return option[labelKey] || String(option)
+function getOptionLabel(option: unknown): string {
+  if (typeof option === 'string' || typeof option === 'number') {
+    return String(option)
+  }
+  if (typeof option === 'object' && option !== null) {
+    const labelKey = props.field.optionLabel || 'label'
+    const obj = option as Record<string, unknown>
+    return String(obj[labelKey] || option)
+  }
+  return String(option)
 }
 
-function getOptionValue(option: any): any {
-  const valueKey = props.field.optionValue || 'value'
-  return option[valueKey] !== undefined ? option[valueKey] : option
+function getOptionValue(option: unknown): unknown {
+  if (typeof option === 'string' || typeof option === 'number') {
+    return option
+  }
+  if (typeof option === 'object' && option !== null) {
+    const valueKey = props.field.optionValue || 'value'
+    const obj = option as Record<string, unknown>
+    return obj[valueKey] !== undefined ? obj[valueKey] : option
+  }
+  return option
 }
 
 // Função para tratar mudanças no select simples
@@ -229,7 +228,7 @@ function toggleOption(value: string | number) {
 }
 
 function selectAll() {
-  const allValues = filteredOptions.value.map((opt) => getOptionValue(opt))
+  const allValues = filteredOptions.value.map((opt) => getOptionValue(opt) as string | number)
   emit('update:modelValue', allValues)
 }
 

@@ -35,7 +35,7 @@
               </label>
               <textarea
                 :id="field.name"
-                v-model="formData[field.name]"
+                v-model="(formData[field.name] as string)"
                 :rows="field.rows || 3"
                 class="w-full border border-input p-2 rounded bg-background text-foreground focus:outline-none focus:border-input-focus focus:ring-2 focus:ring-ring"
               ></textarea>
@@ -76,25 +76,12 @@
 import { ref, reactive, watch } from 'vue'
 import Sh3Select from './Sh3Select.vue'
 import { useConfirmDialog } from '@/composables/common/useConfirmDialog'
+import type { FieldConfig } from '@/types/common/table.types'
 
 /**
- * Interface que define cada campo dinâmico do formulário
+ * Tipo genérico para dados do formulário
  */
-interface FieldConfig {
-  name: string
-  label: string
-  type: 'text' | 'email' | 'password' | 'textarea' | 'select' | 'checkbox'
-  required?: boolean
-  placeholder?: string
-  autofocus?: boolean
-  rows?: number
-  options?: any[]
-  optionLabel?: string
-  optionValue?: string
-  defaultValue?: any
-  multiple?: boolean     
-  searchable?: boolean 
-}
+type FormData = Record<string, unknown>
 
 /**
  * Interface de props do componente
@@ -114,15 +101,15 @@ const { entityName, fields, dialogWidth = '700px' } = defineProps<Props>()
  * Emite o evento de salvamento
  */
 const emit = defineEmits<{
-  save: [data: Record<string, any>]
+  save: [data: FormData]
 }>()
 
 /**
  * Estado reativo principal
  */
 const isOpen = ref(false)
-const editingItem = ref<Record<string, any> | null>(null)
-const formData = reactive<Record<string, any>>({})
+const editingItem = ref<FormData | null>(null)
+const formData = reactive<FormData>({})
 
 /**
  * Composable de confirmação
@@ -150,7 +137,7 @@ watch(
 /**
  * Função auxiliar para definir valores padrão conforme o tipo
  */
-function getDefaultValue(type: string, multiple?: boolean): any {
+function getDefaultValue(type: string, multiple?: boolean): unknown {
   switch (type) {
     case 'checkbox':
       return false
@@ -164,7 +151,7 @@ function getDefaultValue(type: string, multiple?: boolean): any {
 /**
  * Abre o formulário (modo criar ou editar)
  */
-function open(item?: Record<string, any>) {
+function open(item?: FormData) {
   if (item) {
     editingItem.value = item
     fields.forEach((field) => {
@@ -243,14 +230,14 @@ function save() {
       const newStatus = formData.is_active
 
       if (oldStatus !== newStatus) {
-        const itemName = formData.name || formData.nome || 'Item'
+        const itemName = String(formData.name || formData.nome || 'Item')
         const itemDetails: Record<string, string> = {
-          'ID': editingItem.value.id?.toString() || '',
+          'ID': String((editingItem.value as any).id || ''),
           'Nome': itemName
         }
 
-        if (formData.email) itemDetails['Email'] = formData.email
-        if (formData.cpf) itemDetails['CPF'] = formData.cpf
+        if (formData.email) itemDetails['Email'] = String(formData.email)
+        if (formData.cpf) itemDetails['CPF'] = String(formData.cpf)
 
         if (newStatus) {
           confirmActivate(itemName, () => executeSave(data), itemDetails)
@@ -267,9 +254,9 @@ function save() {
       const newStatus = formData.ativo
 
       if (oldStatus !== newStatus) {
-        const itemName = formData.nome || formData.name || 'Item'
+        const itemName = String(formData.nome || formData.name || 'Item')
         const itemDetails: Record<string, string> = {
-          'ID': editingItem.value.id?.toString() || '',
+          'ID': String((editingItem.value as any).id || ''),
           'Nome': itemName
         }
 

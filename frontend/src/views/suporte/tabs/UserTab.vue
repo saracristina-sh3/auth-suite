@@ -18,6 +18,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useUserTableConfig } from "@/config/useUserTableConfig";
 import Sh3Table from "@/components/common/Sh3Table.vue";
 import Sh3Tag from "@/components/common/Sh3Tag.vue";
@@ -26,8 +27,8 @@ import type { Autarquia } from "@/types/support/autarquia.types";
 import type { User } from "@/types/common/user.types";
 
 defineEmits<{
-  'edit': [item: any];
-  'toggle-status': [item: any];
+  'edit': [item: User];
+  'toggle-status': [item: User];
 }>();
 
 function formatCPF(cpf: string): string {
@@ -57,10 +58,11 @@ const props = defineProps<{
   autarquias?: Autarquia[];
 }>();
 
-const userConfig = useUserTableConfig(
-  { value: props.roles || [] } as any,
-  { value: props.autarquias || [] } as any
-);
+// Criar computed refs para passar para useUserTableConfig
+const rolesRef = computed(() => props.roles || []);
+const autarquiasRef = computed(() => props.autarquias || []);
+
+const userConfig = useUserTableConfig(rolesRef, autarquiasRef);
 const userColumns = userConfig.columns;
 const userActions = userConfig.actions;
 </script>
