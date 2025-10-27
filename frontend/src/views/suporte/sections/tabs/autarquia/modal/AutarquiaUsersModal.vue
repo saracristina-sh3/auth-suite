@@ -47,7 +47,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import Sh3Modal from '@/components/common/Sh3Modal.vue'
+import Sh3Modal from '@/components/common/modal/Sh3Modal.vue'
 import Sh3Table from '@/components/common/Sh3Table.vue'
 import Sh3StatsGrid from '@/components/common/Sh3StatsGrid.vue'
 import Sh3EmptyState from '@/components/common/state/Sh3EmptyState.vue'

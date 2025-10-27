@@ -64,11 +64,11 @@
             </label>
           </div>
 
-          <button type="submit" :disabled="isLoading"
+          <Sh3Button type="submit" :disabled="isLoading"
             class="w-full py-4 rounded-lg bg-primary text-primary-foreground font-semibold text-center shadow-md hover:shadow-lg hover:bg-primary/90 transition-all duration-300 hover:-translate-y-[1px] disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
             <span v-if="isLoading">Entrando...</span>
             <span v-else>Entrar</span>
-          </button>
+          </Sh3Button>
 
           <p v-if="error"
             class="p-3 text-error bg-error/10 border border-error/20 rounded-lg text-sm text-center animate-fade-in">
@@ -93,6 +93,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { authService } from '@/services/auth.service'
+import Sh3Button from '@/components/common/Sh3Button.vue'
 
 const email = ref('')
 const password = ref('')
@@ -123,13 +124,11 @@ async function onLogin() {
       name: user?.name
     })
 
-    // SuperAdmin vai para AdminManagementView
     if (user?.is_superadmin) {
       console.log('✅ SuperAdmin detectado! Redirecionando para /suporteSH3')
       router.replace('/suporteSH3')
     } else {
       console.log('✅ Usuário normal detectado! Redirecionando para /')
-      // Usuários normais vão para SuiteHome
       router.replace('/')
     }
   } catch (e: any) {

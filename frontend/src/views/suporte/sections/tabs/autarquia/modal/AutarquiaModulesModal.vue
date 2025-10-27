@@ -92,7 +92,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import Sh3Modal from "@/components/common/Sh3Modal.vue";
+import Sh3Modal from "@/components/common/modal/Sh3Modal.vue";
 import Sh3LoadingState from "@/components/common/state/Sh3LoadingState.vue";
 import Sh3EmptyState from "@/components/common/state/Sh3EmptyState.vue";
 import Sh3ErrorState from "@/components/common/state/Sh3ErrorState.vue";

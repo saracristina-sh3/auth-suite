@@ -53,37 +53,37 @@ const routes: Array<RouteRecordRaw & { meta?: RouteMeta }> = [
       {
         path: 'dashboard',
         name: 'suporte-dashboard',
-        component: () => import('@/views/suporte/tabs/DashboardTab.vue'),
+        component: () => import('@/views/suporte/sections/tabs/DashboardTab.vue'),
         meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'usuarios',
         name: 'suporte-usuarios',
-        component: () => import('@/views/suporte/tabs/UserTab.vue'),
+        component: () => import('@/views/suporte/sections/tabs/UserTab.vue'),
         meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'autarquias',
         name: 'suporte-autarquias',
-        component: () => import('@/views/suporte/tabs/autarquia/AutarquiasTab.vue'),
+        component: () => import('@/views/suporte/sections/tabs/autarquia/AutarquiasTab.vue'),
         meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'modulos',
         name: 'suporte-modulos',
-        component: () => import('@/views/suporte/tabs/ModulosTab.vue'),
+        component: () => import('@/views/suporte/sections/tabs/ModulosTab.vue'),
         meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'liberacoes',
         name: 'suporte-liberacoes',
-        component: () => import('@/views/suporte/tabs/LiberacoesTab.vue'),
+        component: () => import('@/views/suporte/sections/tabs/LiberacoesTab.vue'),
         meta: { requiresAuth: true, requiresRole: 'superadmin' }
       },
       {
         path: 'modo-suporte',
         name: 'suporte-contexto',
-        component: () => import('@/views/suporte/tabs/SupportContextTab.vue'),
+        component: () => import('@/views/suporte/sections/tabs/SupportContextTab.vue'),
         meta: { requiresAuth: true, requiresRole: 'superadmin' }
       }
     ]
