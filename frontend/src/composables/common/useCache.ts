@@ -13,8 +13,8 @@ interface CacheItem<T> {
  * Configuração do cache
  */
 interface CacheConfig {
-  ttl?: number // Time to live em milissegundos (padrão: 5 minutos)
-  key: string // Chave única para o cache
+  ttl?: number 
+  key: string 
 }
 
 /**
@@ -44,7 +44,6 @@ export function useCache<T>(config: CacheConfig) {
   const ttl = config.ttl || DEFAULT_TTL
   const cacheKey = config.key
 
-  // Estado do cache (armazenado em memória) - usa shallowRef para evitar problemas de tipos
   const cache = shallowRef<Map<string, CacheItem<T>>>(new Map())
 
   /**
@@ -92,7 +91,7 @@ export function useCache<T>(config: CacheConfig) {
     if (key) {
       cache.value.delete(key)
     } else {
-      // Invalida todo o cache desta instância
+
       cache.value.clear()
     }
   }
@@ -138,10 +137,8 @@ export function useCache<T>(config: CacheConfig) {
 
     console.log(`🔄 Cache miss para '${key}' - buscando dados...`)
 
-    // Buscar dados
     const data = await fetchFn()
 
-    // Armazenar no cache
     set(data, key)
 
     return data
@@ -169,16 +166,13 @@ export function useCache<T>(config: CacheConfig) {
    */
   const hasCache = computed(() => cache.value.has(cacheKey))
 
-  // Limpar caches expirados periodicamente (a cada 1 minuto)
   setInterval(clearExpired, 60 * 1000)
 
   return {
-    // Estado
     hasValidCache,
     hasCache,
     timeToExpire,
 
-    // Métodos
     get,
     set,
     fetch,
@@ -200,7 +194,6 @@ const globalCache = new Map<string, any>()
 export function useGlobalCache<T>(config: CacheConfig) {
   const cacheInstance = useCache<T>(config)
 
-  // Sobrescrever get/set para usar cache global
   const originalGet = cacheInstance.get
   const originalSet = cacheInstance.set
   const originalInvalidate = cacheInstance.invalidate

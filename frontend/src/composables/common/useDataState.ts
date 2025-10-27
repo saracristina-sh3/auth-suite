@@ -59,7 +59,6 @@ export function useDataState(entityType?: keyof typeof EMPTY_STATE_CONFIGS) {
     return 'success'
   })
 
-  // Computed para empty state config
   const emptyStateConfig = computed(() => {
     if (entityType && EMPTY_STATE_CONFIGS[entityType]) {
       return EMPTY_STATE_CONFIGS[entityType]
@@ -122,14 +121,12 @@ export function useDataState(entityType?: keyof typeof EMPTY_STATE_CONFIGS) {
   }
 
   return {
-    // Estado
     loading,
     error,
     data,
     state,
     emptyStateConfig,
 
-    // Ações
     startLoading,
     setData,
     setError,

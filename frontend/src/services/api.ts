@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { getItem, STORAGE_KEYS } from '@/utils/storage'
+import { tokenService } from './token.service'
 
 // Define corretamente a URL base da API
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
@@ -21,7 +21,8 @@ api.interceptors.request.use((config) => {
     data: config.data,
   })
 
-  const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
+  // ✅ Usar tokenService para obter token
+  const token = tokenService.getAccessToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

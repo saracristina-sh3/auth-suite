@@ -38,7 +38,6 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
   const autarquiasError = ref<string | null>(null);
   const modulosError = ref<string | null>(null);
 
-  // Metadados de paginação
   const usersPaginationMeta = ref<PaginationMeta | null>(null);
   const autarquiasPaginationMeta = ref<PaginationMeta | null>(null);
   const modulosPaginationMeta = ref<PaginationMeta | null>(null);
@@ -139,7 +138,6 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
     await loadModulos(page, perPage, true);
   };
 
-  // Informações de cache
   const usersCacheInfo = computed(() => ({
     hasCache: usersCache.hasValidCache.value,
     timeToExpire: usersCache.timeToExpire.value,
@@ -178,7 +176,6 @@ export function useDataLoader(showMessage: (type: "success" | "error", text: str
     usersCacheInfo,
     autarquiasCacheInfo,
     modulosCacheInfo,
-    // Metadados de paginação
     usersPaginationMeta,
     autarquiasPaginationMeta,
     modulosPaginationMeta

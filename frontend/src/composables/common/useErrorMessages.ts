@@ -46,7 +46,6 @@ export function useErrorMessages() {
 
     const apiError = error as ApiError
 
-    // Tenta pegar o código de erro de negócio do backend
     const businessCode = apiError.response?.data?.code
     if (businessCode && BUSINESS_ERROR_MESSAGES[businessCode]) {
       return {
@@ -55,12 +54,10 @@ export function useErrorMessages() {
       }
     }
 
-    // Determina o tipo de erro pelo status HTTP
     const status = apiError.response?.status
     const errorType = getErrorTypeFromStatus(status)
     const baseError = ERROR_MESSAGES[errorType]
 
-    // Usa mensagem do backend se disponível, senão usa a padrão
     const backendMessage = apiError.response?.data?.message || apiError.response?.data?.error
 
     return {

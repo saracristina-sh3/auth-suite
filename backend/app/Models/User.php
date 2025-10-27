@@ -23,12 +23,15 @@ class User extends Authenticatable
     'cpf',
     'autarquia_preferida_id',
     'is_active',
-    'is_superadmin'
+    'is_superadmin',
+    'refresh_token',
+    'refresh_token_expires_at',
 ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'refresh_token',
     ];
 
     protected function casts(): array
@@ -39,6 +42,7 @@ class User extends Authenticatable
         'is_active' => 'boolean',
         'is_superadmin' => 'boolean',
         'autarquia_preferida_id' => 'integer',
+        'refresh_token_expires_at' => 'datetime',
     ];
 }
 

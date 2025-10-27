@@ -2,7 +2,8 @@ import api from './api'
 import type { LoginCredentials } from '@/types/common/auth.types'
 import type { User } from '@/types/common/user.types'
 import { sessionService } from './session.service'
-import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
+import { getItem, setItem, STORAGE_KEYS } from '@/utils/storage'
+import { tokenService } from './token.service'
 
 // === SERVIÇO DE AUTENTICAÇÃO ===
 class AuthService {
@@ -10,15 +11,8 @@ async login(credentials: LoginCredentials) {
     const response = await api.post('/login', credentials)
     const { token, refresh_token, user, expires_in } = response.data
 
-    // Armazenar tokens
-    setItem(STORAGE_KEYS.AUTH_TOKEN, token)
-    setItem('refresh_token', refresh_token)
-
-    // Armazenar timestamp de expiração
-    if (expires_in) {
-      const expiresAt = Date.now() + (expires_in * 1000)
-      setItem('token_expires_at', expiresAt)
-    }
+    // ✅ Usar tokenService para armazenar tokens
+    tokenService.saveTokens(token, refresh_token, expires_in)
 
     // NÃO armazenar autarquia_ativa no localStorage
     // Ela virá da session do backend
@@ -64,7 +58,7 @@ async login(credentials: LoginCredentials) {
    */
   async refreshToken(): Promise<{ token: string; user: any } | null> {
     try {
-      const refreshToken = getItem<string>('refresh_token', '')
+      const refreshToken = tokenService.getRefreshToken()
 
       if (!refreshToken) {
         console.warn('⚠️ Refresh token não encontrado')
@@ -80,15 +74,8 @@ async login(credentials: LoginCredentials) {
 
       const { token, refresh_token, user, expires_in } = response.data
 
-      // Atualizar tokens no localStorage
-      setItem(STORAGE_KEYS.AUTH_TOKEN, token)
-      setItem('refresh_token', refresh_token)
-
-      // Atualizar timestamp de expiração
-      if (expires_in) {
-        const expiresAt = Date.now() + (expires_in * 1000)
-        setItem('token_expires_at', expiresAt)
-      }
+      // ✅ Usar tokenService para atualizar tokens
+      tokenService.saveTokens(token, refresh_token, expires_in)
 
       // Atualizar dados do usuário
       const userData = {
@@ -111,17 +98,11 @@ async login(credentials: LoginCredentials) {
    * Verifica se o token está próximo de expirar (menos de 5 minutos)
    */
   isTokenExpiringSoon(): boolean {
-    const expiresAt = getItem<number>('token_expires_at', 0)
-    if (!expiresAt) return false
-
-    const now = Date.now()
-    const fiveMinutes = 5 * 60 * 1000
-
-    return (expiresAt - now) < fiveMinutes
+    return tokenService.isTokenExpiringSoon(5)
   }
 
   async logout(): Promise<void> {
-    const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
+    const token = tokenService.getAccessToken()
     if (token) {
       try {
         await api.post('/logout')
@@ -130,20 +111,21 @@ async login(credentials: LoginCredentials) {
       }
     }
 
-    // Limpa tokens de autenticação
-    removeItem(STORAGE_KEYS.AUTH_TOKEN)
-    removeItem('refresh_token')
-    removeItem('token_expires_at')
-    removeItem(STORAGE_KEYS.USER)
+    // ✅ Usar tokenService para limpar tokens
+    tokenService.clearTokens()
+
+    // Limpar dados do usuário
+    setItem(STORAGE_KEYS.USER, null)
+
     // Limpa contexto de suporte se existir
-    removeItem('support_context')
-    removeItem('original_user_data')
+    setItem(STORAGE_KEYS.SUPPORT_CONTEXT, null)
+    setItem(STORAGE_KEYS.ORIGINAL_USER_DATA, null)
+
     delete api.defaults.headers.common.Authorization
   }
 
   isAuthenticated(): boolean {
-    const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
-    return !!token && token !== 'undefined' && token !== 'null'
+    return tokenService.hasValidToken()
   }
 
   getUserFromStorage(): User | null {

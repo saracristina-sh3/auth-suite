@@ -4,6 +4,7 @@ import type { Modulo } from '@/types/support/modulos.types'
 import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/support.types'
 import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
 import type { User } from '@/types/common/user.types'
+import { tokenService } from './token.service'
 
 class SupportService {
   private readonly STORAGE_KEY = 'support_context'
@@ -14,7 +15,7 @@ class SupportService {
    */
   async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
     try {
-      const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
+      const token = tokenService.getAccessToken()
       console.log('🔄 Assumindo contexto de autarquia:', autarquiaId)
       console.log('🔑 Token disponível:', token ? 'Sim' : 'Não')
 

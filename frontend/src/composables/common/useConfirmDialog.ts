@@ -144,7 +144,6 @@ export function useConfirmDialog() {
     confirm,
     cancel,
     close,
-    // Atalhos
     confirmDelete,
     confirmDeactivate,
     confirmActivate

@@ -90,7 +90,6 @@ export function useSupportContext(
       showMessage("success", "Retornado ao contexto original. Redirecionando...");
       console.log("✅ Modo suporte desativado");
 
-      // Redirecionar de volta para AdminManagementView
       setTimeout(() => {
         console.log("🚀 Redirecionando para /suporteSH3");
         router.push({ path: "/suporteSH3" });

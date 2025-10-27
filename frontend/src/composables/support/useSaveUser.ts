@@ -16,22 +16,18 @@ export function useSaveUser(dependencies: SaveUserDependencies) {
       let userId: number;
 
       if (data.id) {
-        // Atualizar usuário existente
         const updatedUser = await userService.update(data.id, data);
         userId = updatedUser.id;
         showMessage("success", "Usuário atualizado com sucesso.");
       } else {
-        // Criar novo usuário
         const newUser = await userService.create(data);
         userId = newUser.id;
         showMessage("success", "Usuário criado com sucesso.");
       }
 
-      // Sincronizar autarquias se foram fornecidas
       if (data.autarquias && Array.isArray(data.autarquias)) {
         console.log('🔄 Sincronizando autarquias do usuário:', data.autarquias);
 
-        // Preparar payload para syncAutarquias
         const autarquiasToSync: SyncAutarquiasPayload[] = data.autarquias.map((autarquiaId: number) => ({
           id: autarquiaId,
           pivot_data: {
@@ -46,7 +42,6 @@ export function useSaveUser(dependencies: SaveUserDependencies) {
         console.log('✅ Autarquias sincronizadas com sucesso');
       }
 
-      // Atualizar autarquia ativa se foi fornecida
       if (data.autarquia_ativa_id) {
         console.log('🔄 Atualizando autarquia ativa:', data.autarquia_ativa_id);
         await userService.updateActiveAutarquia(userId, data.autarquia_ativa_id);
@@ -57,7 +52,6 @@ export function useSaveUser(dependencies: SaveUserDependencies) {
     } catch (err: unknown) {
       const { message, errors, type } = handleApiError(err);
 
-      // Se for erro de validação, mostrar todos os erros
       if (type === 'validation' && errors) {
         const validationMessages = formatValidationErrors(errors);
         showMessage("error", validationMessages || message);
@@ -65,7 +59,6 @@ export function useSaveUser(dependencies: SaveUserDependencies) {
         showMessage("error", message);
       }
 
-      // Não lançar novamente o erro para evitar crashes
       console.error('Erro ao salvar usuário:', err);
     }
   }

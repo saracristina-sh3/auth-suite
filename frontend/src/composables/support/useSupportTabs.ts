@@ -22,7 +22,6 @@ import type { UseSupportTabsOptions, TabConfig } from '@/types/common/tabs.types
 export function useSupportTabs(options: UseSupportTabsOptions) {
   const route = useRoute()
 
-  // Configuração das tabs disponíveis
   const tabs: TabConfig[] = [
     {
       label: 'Dashboard',
@@ -149,7 +148,6 @@ export function useSupportTabs(options: UseSupportTabsOptions) {
   }
 
   return {
-    // Estado
     tabs,
     currentTabName,
     currentTab,
@@ -158,7 +156,6 @@ export function useSupportTabs(options: UseSupportTabsOptions) {
     activeTabIndex,
     currentFields,
 
-    // Métodos
     isTabActive,
     getTabConfig
   }

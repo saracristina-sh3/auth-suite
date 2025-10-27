@@ -21,13 +21,11 @@ export function useUserAutarquias(userId: Ref<number> | number) {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // Cache com TTL de 3 minutos para autarquias do usuário
   const userAutarquiasCache = useCache<AutarquiaWithPivot[]>({
     key: `user-autarquias-${userIdRef.value}`,
-    ttl: 3 * 60 * 1000 // 3 minutos
+    ttl: 3 * 60 * 1000 
   })
 
-  // Computed
   const autarquiasAtivas = computed(() =>
     autarquias.value.filter(a => a.pivot.ativo && a.ativo)
   )
@@ -111,7 +109,7 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     error.value = null
     try {
       await userService.detachAutarquias(userIdRef.value, autarquiaIds)
-      // Invalida cache e recarrega
+
       userAutarquiasCache.invalidate()
       await loadAutarquias(true)
     } catch (err: unknown) {
@@ -132,7 +130,7 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     error.value = null
     try {
       await userService.syncAutarquias(userIdRef.value, autarquiasToSync)
-      // Invalida cache e recarrega
+
       userAutarquiasCache.invalidate()
       await loadAutarquias(true)
     } catch (err: unknown) {
@@ -216,7 +214,6 @@ export function useUserAutarquias(userId: Ref<number> | number) {
     })
   }
 
-  // Informações de cache
   const cacheInfo = computed(() => ({
     hasCache: userAutarquiasCache.hasValidCache.value,
     timeToExpire: userAutarquiasCache.timeToExpire.value,

@@ -13,11 +13,11 @@ export function useSaveAutarquia(dependencies: SaveAutarquiaDependencies) {
   async function saveAutarquia(data: AutarquiaFormPayload): Promise<void> {
     try {
       if (data.id) {
-        // Atualizar autarquia existente
+
         await autarquiaService.update(data.id, data);
         showMessage("success", "Autarquia atualizada com sucesso.");
       } else {
-        // Criar nova autarquia
+
         await autarquiaService.create(data);
         showMessage("success", "Autarquia criada com sucesso.");
       }
@@ -26,7 +26,7 @@ export function useSaveAutarquia(dependencies: SaveAutarquiaDependencies) {
     } catch (err: unknown) {
       const { message, errors, type } = handleApiError(err);
 
-      // Se for erro de validação, mostrar todos os erros
+
       if (type === 'validation' && errors) {
         const validationMessages = formatValidationErrors(errors);
         showMessage("error", validationMessages || message);
@@ -34,7 +34,6 @@ export function useSaveAutarquia(dependencies: SaveAutarquiaDependencies) {
         showMessage("error", message);
       }
 
-      // Não lançar novamente o erro para evitar crashes
       console.error('Erro ao salvar autarquia:', err);
     }
   }

@@ -13,11 +13,9 @@ export function useSaveModulo(dependencies: SaveModuloDependencies) {
   async function saveModulo(data: ModuloFormPayload): Promise<void> {
     try {
       if (data.id) {
-        // Atualizar módulo existente
         await moduloService.update(data.id, data);
         showMessage("success", "Módulo atualizado com sucesso.");
       } else {
-        // Criar novo módulo
         await moduloService.create(data);
         showMessage("success", "Módulo criado com sucesso.");
       }
@@ -26,7 +24,6 @@ export function useSaveModulo(dependencies: SaveModuloDependencies) {
     } catch (err: unknown) {
       const { message, errors, type } = handleApiError(err);
 
-      // Se for erro de validação, mostrar todos os erros
       if (type === 'validation' && errors) {
         const validationMessages = formatValidationErrors(errors);
         showMessage("error", validationMessages || message);
@@ -34,7 +31,6 @@ export function useSaveModulo(dependencies: SaveModuloDependencies) {
         showMessage("error", message);
       }
 
-      // Não lançar novamente o erro para evitar crashes
       console.error('Erro ao salvar módulo:', err);
     }
   }

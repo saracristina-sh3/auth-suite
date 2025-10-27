@@ -1,4 +1,3 @@
-// src/composables/common/useModulosSupport.ts
 import { ref, onMounted, computed } from 'vue'
 import { moduloService } from '@/services/modulos.service'
 import { iconMap } from '@/constants/modulos.constants'
@@ -9,10 +8,9 @@ const modulos = ref<ModuloWithUI[]>([])
 const loadingModulos = ref(true)
 const error = ref<string | null>(null)
 
-// Cache com TTL de 5 minutos para módulos de suporte
 const supportModulosCache = useCache<ModuloWithUI[]>({
   key: 'modulos-support',
-  ttl: 5 * 60 * 1000 // 5 minutos
+  ttl: 5 * 60 * 1000 
 })
 
 export function useModulosSupport() {
@@ -23,13 +21,10 @@ export function useModulosSupport() {
 
       console.log('📦 Carregando TODOS os módulos do sistema (administração)')
 
-      // Buscar com cache
       const data = await supportModulosCache.fetch(
         async () => {
-          // Buscar TODOS os módulos sem filtrar por autarquia
           const rawData = await moduloService.getModulos()
 
-          // Mapeia os módulos com ícones (sem rotas, pois não é para navegação)
           return rawData.map(modulo => ({
             ...modulo,
             icon: iconMap[modulo.icone || ''] || iconMap[modulo.nome] || 'pi pi-box'
@@ -78,7 +73,6 @@ export function useModulosSupport() {
     loadModulos()
   })
 
-  // Computed para informações do cache
   const cacheInfo = computed(() => ({
     hasCache: supportModulosCache.hasValidCache.value,
     timeToExpire: supportModulosCache.timeToExpire.value,

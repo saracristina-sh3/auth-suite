@@ -312,10 +312,10 @@
 
 ### 9. Código Duplicado
 
-- [ ] **Criar Função Utilitária para localStorage**
-  - [ ] `src/utils/storage.ts`: `getItem()`, `setItem()`, `removeItem()`
-  - [ ] Safe JSON parse/stringify
-  - [ ] Substituir todos os usos diretos de localStorage
+- [x] **Criar Função Utilitária para localStorage**
+  - [x] `src/utils/storage.ts`: `getItem()`, `setItem()`, `removeItem()`
+  - [x] Safe JSON parse/stringify
+  - [x] Substituir todos os usos diretos de localStorage
   - **Tempo estimado**: 3-4 horas
 
 - [ ] **Centralizar Lógica de Token**
