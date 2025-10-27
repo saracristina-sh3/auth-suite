@@ -197,7 +197,7 @@ import Sh3LoadingState from './common/state/Sh3LoadingState.vue'
 import Sh3EmptyState from './common/state/Sh3EmptyState.vue'
 import Sh3ErrorState from './common/state/Sh3ErrorState.vue'
 import { sessionService } from '@/services/session.service'
-import { getErrorMessage } from '@/utils/error.utils'
+import { getErrorMessage } from '@/utils/error-handler'
 import { setItem, STORAGE_KEYS } from '@/utils/storage'
 
 const errorMessage = '';

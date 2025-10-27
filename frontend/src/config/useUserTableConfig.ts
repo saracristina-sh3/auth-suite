@@ -1,4 +1,3 @@
-// src/composables/useUserTableConfig.ts
 import { computed, type Ref } from 'vue'
 import type { Role } from '@/services/role.service'
 import type { Autarquia } from '@/types/support/autarquia.types'

@@ -12,9 +12,8 @@ export interface Modulo {
   }
 }
 
-// Interface estendida para módulos com UI
 export interface ModuloWithUI extends Modulo {
-  icon?: string | object  // String para ícone PrimeIcons ou objeto para componentes Vue
+  icon?: string | object 
   route?: string
   key?: string
   title?: string

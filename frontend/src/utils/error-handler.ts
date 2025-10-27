@@ -50,7 +50,6 @@ export interface ProcessedError {
  * ```
  */
 export function handleApiError(error: unknown): ProcessedError {
-  // Erro não é do Axios - pode ser erro de rede ou outro
   if (!isAxiosError(error)) {
     return handleGenericError(error)
   }
@@ -59,7 +58,6 @@ export function handleApiError(error: unknown): ProcessedError {
   const status = axiosError.response?.status
   const data = axiosError.response?.data
 
-  // Verificar se há código de erro de negócio do backend
   const businessCode = data?.code
   if (businessCode && BUSINESS_ERROR_MESSAGES[businessCode]) {
     const friendlyError = BUSINESS_ERROR_MESSAGES[businessCode]
@@ -75,11 +73,9 @@ export function handleApiError(error: unknown): ProcessedError {
     }
   }
 
-  // Mapear status HTTP para tipo de erro
   const errorType = status ? (HTTP_ERROR_MAP[status] || ErrorType.UNKNOWN) : ErrorType.NETWORK
   const friendlyError = ERROR_MESSAGES[errorType]
 
-  // Processar por código de status HTTP
   switch (status) {
     case 422: // Unprocessable Entity - Validação
       return handleValidationError(data, friendlyError)
@@ -102,12 +98,10 @@ export function handleApiError(error: unknown): ProcessedError {
       return handleBadRequestError(data, friendlyError)
 
     default:
-      // Erro de rede ou timeout
       if (!axiosError.response) {
         return handleNetworkError(axiosError)
       }
 
-      // Erro desconhecido com resposta
       const unknownFriendly = ERROR_MESSAGES[ErrorType.UNKNOWN]
       return {
         message: data?.message || data?.error || unknownFriendly.message,

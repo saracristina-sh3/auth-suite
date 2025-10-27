@@ -81,7 +81,6 @@ export const HTTP_ERROR_MAP: Record<number, ErrorType> = {
  * Mensagens específicas para contextos de negócio
  */
 export const BUSINESS_ERROR_MESSAGES: Record<string, ProcessedError> = {
-  // Usuários
   'user.duplicate.email': {
     severity: 'validation',
     title: 'E-mail Duplicado',
@@ -113,7 +112,6 @@ export const BUSINESS_ERROR_MESSAGES: Record<string, ProcessedError> = {
     instruction: 'Verifique a lista de usuários atualizada.'
   },
 
-  // Autarquias
   'autarquia.duplicate.nome': {
     severity: 'validation',
     title: 'Nome Duplicado',
@@ -133,7 +131,6 @@ export const BUSINESS_ERROR_MESSAGES: Record<string, ProcessedError> = {
     instruction: 'Verifique a lista de autarquias atualizada.'
   },
 
-  // Módulos
   'modulo.duplicate.nome': {
     severity: 'validation',
     title: 'Módulo Duplicado',
@@ -147,7 +144,6 @@ export const BUSINESS_ERROR_MESSAGES: Record<string, ProcessedError> = {
     instruction: 'Desative o módulo ao invés de removê-lo para manter o histórico.'
   },
 
-  // Permissões
   'permission.denied': {
     severity: 'warning',
     title: 'Permissão Negada',
@@ -155,7 +151,6 @@ export const BUSINESS_ERROR_MESSAGES: Record<string, ProcessedError> = {
     instruction: 'Solicite as permissões necessárias ao administrador do sistema.'
   },
 
-  // Sessão
   'session.expired': {
     severity: 'warning',
     title: 'Sessão Expirada',
@@ -163,7 +158,6 @@ export const BUSINESS_ERROR_MESSAGES: Record<string, ProcessedError> = {
     instruction: 'Faça login novamente para continuar usando o sistema.'
   },
 
-  // Rede
   'network.offline': {
     severity: 'error',
     title: 'Sem Conexão',

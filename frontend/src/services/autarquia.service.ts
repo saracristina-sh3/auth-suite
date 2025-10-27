@@ -1,4 +1,3 @@
-// src/services/autarquia.service.ts
 import type { Modulo } from '@/types/support/modulos.types'
 import api from './api'
 import type { Autarquia } from '@/types/support/autarquia.types'
@@ -60,7 +59,6 @@ export const autarquiaService = {
     return response.data.data
   },
 
-  // Alias para compatibilidade
   async getUsuarios(id: number): Promise<User[]> {
     return this.getUsers(id)
   },

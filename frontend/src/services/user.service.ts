@@ -1,4 +1,3 @@
-// src/services/user.service.ts
 import api from './api'
 import type { ApiResponse } from '@/types/common/api.types'
 import type { PaginatedResponse } from '@/types/common/api.types'

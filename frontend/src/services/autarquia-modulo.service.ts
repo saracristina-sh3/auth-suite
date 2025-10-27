@@ -1,4 +1,3 @@
-// src/services/autarquia-modulo.service.ts
 import api from './api'
 
 export interface AutarquiaModulo {
@@ -56,7 +55,6 @@ async bulkUpdate(autarquiaId: number, modulos: BulkUpdateModulo[]): Promise<{
     modulos,
   });
 
-  // ⬇️ Corrigido: retorna apenas o conteúdo dentro de data.data
   return response.data.data;
 }
 

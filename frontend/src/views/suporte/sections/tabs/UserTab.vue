@@ -73,7 +73,6 @@ const props = defineProps<{
   error?: string | null;
 }>();
 
-// Criar computed refs para passar para useUserTableConfig
 const rolesRef = computed(() => props.roles || []);
 const autarquiasRef = computed(() => props.autarquias || []);
 

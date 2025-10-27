@@ -1,4 +1,3 @@
-// src/services/role.service.ts
 import api from './api'
 
 export interface Role {

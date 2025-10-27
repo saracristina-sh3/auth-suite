@@ -13,7 +13,7 @@ import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
 export interface TokenData {
   token: string
   refreshToken: string
-  expiresIn: number // em segundos
+  expiresIn: number 
 }
 
 class TokenService {
@@ -24,7 +24,6 @@ class TokenService {
     setItem(STORAGE_KEYS.AUTH_TOKEN, token)
     setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
 
-    // Calcular timestamp de expiração
     const expiresAt = Date.now() + expiresIn * 1000
     setItem(STORAGE_KEYS.TOKEN_EXPIRES_AT, expiresAt)
 
@@ -64,7 +63,6 @@ class TokenService {
       return false
     }
 
-    // Verificar se o token não expirou
     return !this.isTokenExpired()
   }
 
@@ -202,8 +200,6 @@ class TokenService {
   }
 }
 
-// Singleton instance
 export const tokenService = new TokenService()
 
-// Export para uso conveniente
 export default tokenService

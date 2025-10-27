@@ -26,16 +26,12 @@ export function removeNonDigits(value: string): string {
 export function validateCPF(cpf: string): boolean {
   if (!cpf) return false
 
-  // Remove caracteres não numéricos
   const cleanCPF = removeNonDigits(cpf)
 
-  // CPF deve ter 11 dígitos
   if (cleanCPF.length !== 11) return false
 
-  // Verifica se todos os dígitos são iguais (CPF inválido)
   if (/^(\d)\1{10}$/.test(cleanCPF)) return false
 
-  // Valida primeiro dígito verificador
   let sum = 0
   for (let i = 0; i < 9; i++) {
     sum += parseInt(cleanCPF.charAt(i)) * (10 - i)
@@ -45,7 +41,6 @@ export function validateCPF(cpf: string): boolean {
 
   if (digit1 !== parseInt(cleanCPF.charAt(9))) return false
 
-  // Valida segundo dígito verificador
   sum = 0
   for (let i = 0; i < 10; i++) {
     sum += parseInt(cleanCPF.charAt(i)) * (11 - i)
@@ -74,12 +69,9 @@ export function validateCPF(cpf: string): boolean {
 export function formatCPF(cpf: string): string {
   if (!cpf) return ''
 
-  // Remove caracteres não numéricos
   const cleanCPF = removeNonDigits(cpf)
 
-  // Se não tiver 11 dígitos, retorna apenas os números
   if (cleanCPF.length < 11) {
-    // Formata parcialmente enquanto digita
     if (cleanCPF.length <= 3) return cleanCPF
     if (cleanCPF.length <= 6) return `${cleanCPF.slice(0, 3)}.${cleanCPF.slice(3)}`
     if (cleanCPF.length <= 9) {
@@ -88,7 +80,6 @@ export function formatCPF(cpf: string): string {
     return `${cleanCPF.slice(0, 3)}.${cleanCPF.slice(3, 6)}.${cleanCPF.slice(6, 9)}-${cleanCPF.slice(9)}`
   }
 
-  // Formata CPF completo: XXX.XXX.XXX-XX
   return `${cleanCPF.slice(0, 3)}.${cleanCPF.slice(3, 6)}.${cleanCPF.slice(6, 9)}-${cleanCPF.slice(9, 11)}`
 }
 
@@ -111,7 +102,6 @@ export function formatCPF(cpf: string): string {
 export function validateEmail(email: string): boolean {
   if (!email) return false
 
-  // Trim whitespace
   email = email.trim()
 
   // Regex robusto para validação de email
@@ -120,18 +110,14 @@ export function validateEmail(email: string): boolean {
   // Aceita: domínio com pelo menos um ponto e extensão válida
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
-  // Validações adicionais
   if (!emailRegex.test(email)) return false
 
-  // Não permitir pontos consecutivos
   if (email.includes('..')) return false
 
-  // Não permitir ponto antes do @
   const [localPart, domain] = email.split('@')
   if (!localPart || !domain) return false
   if (localPart.endsWith('.')) return false
 
-  // Não permitir ponto no início
   if (email.startsWith('.')) return false
 
   return true

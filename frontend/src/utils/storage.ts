@@ -48,11 +48,9 @@ export function getItem<T>(key: string, defaultValue: T): T {
       return defaultValue
     }
 
-    // Tenta fazer parse do JSON
     try {
       return JSON.parse(item) as T
     } catch {
-      // Se não for JSON válido, retorna como string (caso seja string primitiva)
       return item as T
     }
   } catch (error) {

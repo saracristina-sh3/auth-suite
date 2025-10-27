@@ -4,7 +4,7 @@ import { authService } from '@/services/auth.service'
 import { supportService } from '@/services/support.service'
 import type { ModuloWithUI } from '@/types/support/modulos.types'
 import { iconMap, routeMap } from '@/constants/modulos.constants'
-import { getErrorMessage } from '@/utils/error.utils'
+import { getErrorMessage } from '@/utils/error-handler'
 import { useCache } from '@/composables/common/useCache'
 
 const modulos = ref<ModuloWithUI[]>([])

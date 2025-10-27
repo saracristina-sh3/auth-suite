@@ -94,13 +94,11 @@ const emit = defineEmits<{
   'toggle-modulo-status': [modulo: Modulo];
 }>();
 
-// Função para carregar todos os módulos (sem filtrar por autarquia)
 const carregarModulos = async () => {
   loadingModulos.value = true
   error.value = null
   
   try {
-    // Usar o serviço diretamente para pegar todos os módulos
     const response = await moduloService.getModulos()
     modulos.value = response
     
@@ -113,15 +111,11 @@ const carregarModulos = async () => {
   }
 }
 
-// Função para lidar com a mudança de status
 const handleToggleStatus = (modulo: Modulo, novoStatus: boolean) => {
-  // Criar um objeto com o status atualizado
   const moduloAtualizado = { ...modulo, ativo: novoStatus }
-  // Emitir evento para toggle-status (que vai mostrar o dialog de confirmação)
   emit('toggle-status', moduloAtualizado)
 }
 
-// Carregar módulos quando o componente for montado
 onMounted(() => {
   carregarModulos()
 })

@@ -1,4 +1,3 @@
-// src/types/auth.ts
 import type { Autarquia } from "@/types/support/autarquia.types";
 import type { User } from "@/types/common/user.types";
 

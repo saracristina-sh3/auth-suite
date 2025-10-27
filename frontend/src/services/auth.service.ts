@@ -5,20 +5,15 @@ import { sessionService } from './session.service'
 import { getItem, setItem, STORAGE_KEYS } from '@/utils/storage'
 import { tokenService } from './token.service'
 
-// === SERVIÇO DE AUTENTICAÇÃO ===
 class AuthService {
 async login(credentials: LoginCredentials) {
     const response = await api.post('/login', credentials)
     const { token, refresh_token, user, expires_in } = response.data
 
-    // ✅ Usar tokenService para armazenar tokens
     tokenService.saveTokens(token, refresh_token, expires_in)
 
-    // NÃO armazenar autarquia_ativa no localStorage
-    // Ela virá da session do backend
     const userData = {
       ...user,
-      // Remover autarquia_ativa do storage local
       autarquia_ativa_id: undefined,
       autarquia_ativa: undefined
     }
@@ -32,7 +27,6 @@ async login(credentials: LoginCredentials) {
     const response = await api.get('/user')
     const { user } = response.data
 
-    // Manter autarquia_ativa do localStorage se existir, senão pegar da resposta
     const storedUser = this.getUserFromStorage()
     const userData = {
       ...user,
@@ -46,7 +40,7 @@ async login(credentials: LoginCredentials) {
   }
 
     /**
-   * Obtém autarquia ativa da session (não do localStorage)
+   * Obtém autarquia ativa da session
    */
   async getActiveAutarquiaFromSession() {
     const response = await sessionService.getActiveAutarquia()
@@ -65,7 +59,6 @@ async login(credentials: LoginCredentials) {
         return null
       }
 
-      // Usar o refresh token para obter um novo access token
       const response = await api.post('/refresh', null, {
         headers: {
           Authorization: `Bearer ${refreshToken}`
@@ -74,10 +67,8 @@ async login(credentials: LoginCredentials) {
 
       const { token, refresh_token, user, expires_in } = response.data
 
-      // ✅ Usar tokenService para atualizar tokens
       tokenService.saveTokens(token, refresh_token, expires_in)
 
-      // Atualizar dados do usuário
       const userData = {
         ...user,
         autarquia_ativa_id: undefined,
@@ -107,17 +98,14 @@ async login(credentials: LoginCredentials) {
       try {
         await api.post('/logout')
       } catch {
-        // ignora erros
+        
       }
     }
 
-    // ✅ Usar tokenService para limpar tokens
     tokenService.clearTokens()
 
-    // Limpar dados do usuário
     setItem(STORAGE_KEYS.USER, null)
 
-    // Limpa contexto de suporte se existir
     setItem(STORAGE_KEYS.SUPPORT_CONTEXT, null)
     setItem(STORAGE_KEYS.ORIGINAL_USER_DATA, null)
 
@@ -156,7 +144,6 @@ async login(credentials: LoginCredentials) {
   }
 }
 
-// === EXPORTAÇÕES ===
 export const authService = new AuthService()
 export const login = (credentials: LoginCredentials) => authService.login(credentials)
 export const logout = () => authService.logout()

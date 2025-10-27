@@ -113,10 +113,8 @@ import { ErrorType } from '@/types/common/error.types'
 import type { Autarquia } from '@/types/support/autarquia.types'
 import type { Modulo } from '@/types/support/modulos.types'
 
-// Emits
 defineEmits<{ 'tab-change': [event: any] }>()
 
-// State
 const isLoading = ref(false)
 const isSaving = ref(false)
 const error = ref('')
@@ -134,7 +132,6 @@ const selectedAutarquiaId = ref<number | null>(null)
 const liberacoes = ref<Record<number, boolean>>({})
 const initialLiberacoes = ref<Record<number, boolean>>({})
 
-// Computed
 const autarquiaOptions = computed(() =>
   autarquias.value.filter(a => a.ativo).map(a => ({
     label: a.nome,
@@ -157,32 +154,26 @@ const columns = [
 ]
 
 
-// 🧩 Utilitário para processar erros padronizados
 function processError(err: any) {
   let errorType: ErrorType = ErrorType.UNKNOWN
 
-  // Erros HTTP
   if (err?.response?.status) {
     const status = err.response.status
     errorType = HTTP_ERROR_MAP[status] || ErrorType.SERVER
   }
 
-  // Erros de rede
   else if (err?.message?.includes('Network Error')) {
     errorType = ErrorType.NETWORK
   }
 
-  // Erros de negócio (mensagem vinda do backend)
   const businessKey = err?.response?.data?.error || err?.response?.data?.code
   if (businessKey && BUSINESS_ERROR_MESSAGES[businessKey]) {
     return BUSINESS_ERROR_MESSAGES[businessKey]
   }
 
-  // Fallback — erro genérico mapeado
   return ERROR_MESSAGES[errorType] || ERROR_MESSAGES[ErrorType.UNKNOWN]
 }
 
-// Métodos
 async function loadData() {
   isLoading.value = true
   error.value = ''
@@ -272,7 +263,6 @@ async function saveChanges() {
   }
 }
 
-// Lifecycle
 onMounted(loadData)
 watch(selectedAutarquiaId, newId => newId && loadAutarquiaModulos(newId))
 </script>

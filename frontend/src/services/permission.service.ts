@@ -1,4 +1,3 @@
-// src/services/permission.service.ts
 import api from './api'
 
 export interface UsuarioModuloPermissao {

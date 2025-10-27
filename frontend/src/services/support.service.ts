@@ -24,23 +24,19 @@ class SupportService {
       })
 
       if (data.success && data.token && data.context) {
-        // Salvar dados originais do usuário antes de modificar
         const originalUserData = getItem<User | null>(STORAGE_KEYS.USER, null)
         if (originalUserData) {
           setItem('original_user_data', originalUserData)
           console.log('💾 Dados originais do usuário salvos')
         }
 
-        // Atualizar o token de autenticação
         setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
         console.log('🔑 Novo token de suporte definido')
 
-        // ✅ Salvar contexto de suporte no localStorage
         setItem(this.STORAGE_KEY, data.context)
         console.log('💾 Contexto de suporte salvo no localStorage')
 
-        // ✅ Atualizar user_data com autarquia ativa e flag de support_mode
         const currentUser = getItem<User>(STORAGE_KEYS.USER, {} as User)
         const modifiedUser = {
           ...currentUser,
@@ -85,20 +81,16 @@ class SupportService {
       const { data } = await api.post<ExitContextResponse>('/support/exit-context')
 
       if (data.success && data.token && data.user) {
-        // Atualizar o token de autenticação
         setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
         console.log('🔑 Token original restaurado')
 
-        // Restaurar dados originais do usuário (se existir backup)
         const originalUserData = getItem<User | null>('original_user_data', null)
         if (originalUserData) {
           setItem(STORAGE_KEYS.USER, originalUserData)
           removeItem('original_user_data')
           console.log('✅ Dados originais do usuário restaurados')
         } else {
-          // Caso não tenha backup, usa os dados retornados pela API
-          // Mas remove flag _support_mode e autarquia_ativa
           const cleanUser = {
             ...data.user,
             _support_mode: undefined,
@@ -109,7 +101,6 @@ class SupportService {
           console.log('✅ Dados do usuário atualizados (sem modo suporte)')
         }
 
-        // Remover o contexto de suporte
         removeItem(this.STORAGE_KEY)
         console.log('🧹 Contexto de suporte removido')
 

@@ -1,4 +1,3 @@
-// src/services/modulo.service.ts
 import type { Autarquia } from '@/types/support/autarquia.types'
 import api from './api'
 import type { Modulo } from '@/types/support/modulos.types'

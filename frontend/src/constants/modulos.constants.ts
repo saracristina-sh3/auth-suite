@@ -1,4 +1,3 @@
-// src/constants/modulos.constants.ts
 import AlmoxarifadoIcon from '@/components/icons/IconAlmoxarifado.vue'
 import ComprasIcon from '@/components/icons/IconCompras.vue'
 import ContabilidadeIcon from '@/components/icons/IconContabilidade.vue'
@@ -38,12 +37,6 @@ export const iconMap: Record<string, any> = {
   'PatrimonioIcon': PatrimonioIcon,
   'DiariasIcon': DiariasIcon,
   'RequisicaoInternaIcon': RequisicaoInternaIcon,
-
-  // Também suporta ícones do PrimeIcons
-  'pi-home': 'pi pi-home',
-  'pi-box': 'pi pi-box',
-  'pi-users': 'pi pi-users',
-  'pi-car': 'pi pi-car'
 }
 
 // Mapa de rotas - mapeia nomes de módulos para rotas Vue Router

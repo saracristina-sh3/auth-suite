@@ -1,4 +1,3 @@
-// src/composables/useModuloTableConfig.ts
 import type { ColumnConfig, FieldConfig } from '@/types/common/table.types'
 import { useExtendedActions } from '@/composables/common/useTableAction'
 

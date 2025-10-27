@@ -1,5 +1,3 @@
-// Tipos compartilhados para configuração de tabelas e formulários genéricos
-
 /**
  * Interface básica para opções de select simples
  */
@@ -45,18 +43,15 @@ export interface FieldConfig<T = unknown> {
   autofocus?: boolean
   rows?: number
 
-  // Select / opções - aceita qualquer tipo de objeto
   options?: T[]
   optionLabel?: keyof T | string
   optionValue?: keyof T | string
   multiple?: boolean
   searchable?: boolean
 
-  // Valores padrão e máscaras
   defaultValue?: string | number | boolean | null
   mask?: string
 
-  // Validação e formatação
   validate?: (value: string) => true | string
   format?: (value: string) => string
 }
