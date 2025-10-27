@@ -112,11 +112,11 @@ usuario_modulo_permissao (user_id, modulo_id, autarquia_id, permissao_*) -- Gran
 O sistema inclui módulos para diferentes áreas:
 
 1. **Gestão de Frota** 🚛
-2. **Recursos Humanos** 👥
+2. **Departamento Pessoal** 👥
 3. **Almoxarifado** 📦
 4. **Contabilidade** 💰
 5. **Controle Interno** 🔍
-6. **Departamento Pessoal** 👤
+6. **Gestão de Usuários**  👤
 7. **Diárias** ✈️
 8. **Orçamento** 📊
 9. **Patrimônio** 🏢
