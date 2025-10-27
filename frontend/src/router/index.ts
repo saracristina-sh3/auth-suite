@@ -101,23 +101,31 @@ const router = createRouter({
 
 // ✅ Guard de navegação completo
 router.beforeEach(async (to, _from, next) => {
+  const isAuthenticated = authService.isAuthenticated()
   const user = authService.getUserFromStorage()
 
   console.log('🛡️ Router Guard:', {
     to: to.path,
+    isAuthenticated,
     user: user ? { id: user.id, email: user.email, is_superadmin: user.is_superadmin } : null,
     meta: to.meta
   })
 
+  // Se há dados do usuário mas o token é inválido, limpar tudo
+  if (user && !isAuthenticated) {
+    console.log('⚠️ Token inválido detectado, limpando dados do usuário')
+    await authService.logout()
+  }
+
   // Usuário não autenticado tentando acessar área protegida
-  if (to.meta.requiresAuth && !user) {
+  if (to.meta.requiresAuth && !isAuthenticated) {
     console.log('⛔ Usuário não autenticado, redirecionando para /login')
     next('/login')
     return
   }
 
   // Usuário logado tentando acessar /login
-  if (to.meta.requiresGuest && user) {
+  if (to.meta.requiresGuest && isAuthenticated && user) {
     // Redirect SuperAdmin to AdminManagementView
     if (user.is_superadmin) {
       console.log('✅ SuperAdmin detectado no guard, redirecionando para /suporteSH3')

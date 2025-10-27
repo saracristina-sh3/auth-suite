@@ -14,13 +14,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Campo para armazenar o hash do refresh token
             $table->string('refresh_token')->nullable()->after('remember_token');
 
-            // Campo para armazenar a data de expiração do refresh token
             $table->timestamp('refresh_token_expires_at')->nullable()->after('refresh_token');
 
-            // Índice para busca por refresh token
             $table->index('refresh_token_expires_at');
         });
     }

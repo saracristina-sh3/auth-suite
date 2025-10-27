@@ -318,9 +318,9 @@
   - [x] Substituir todos os usos diretos de localStorage
   - **Tempo estimado**: 3-4 horas
 
-- [ ] **Centralizar Lógica de Token**
-  - [ ] Backend: Trait `CreatesTokens`
-  - [ ] Frontend: Service `token.service.ts`
+- [x] **Centralizar Lógica de Token**
+  - [x] Backend: Trait `CreatesTokens`
+  - [x] Frontend: Service `token.service.ts`
   - **Tempo estimado**: 2-3 horas
 
 ### 10. Componentização

@@ -23,6 +23,16 @@
     <footer class="text-center text-muted-foreground text-sm py-4 border-t border-border">
       v0.1.2023
     </footer>
+
+    <!-- Indicador de Sessão -->
+    <Sh3SessionIndicator
+      :autoShow="true"
+      :warningThreshold="5"
+      :showRefreshButton="true"
+      :showDismissButton="true"
+      :showTimeRemaining="true"
+      :autoCloseOnRefresh="true"
+    />
   </div>
 </template>
 
@@ -30,6 +40,7 @@
 import Sh3Button from '@/components/common/Sh3Button.vue'
 import Sh3Card from '@/components/common/Sh3Card.vue'
 import Sh3Header from '@/components/layouts/HeaderLayout.vue'
+import Sh3SessionIndicator from '@/components/common/Sh3SessionIndicator.vue'
 import { getItem, STORAGE_KEYS } from '@/utils/storage'
 import type { User } from '@/types/common/user.types'
 

@@ -21,11 +21,17 @@ api.interceptors.request.use((config) => {
     data: config.data,
   })
 
-  // ✅ Usar tokenService para obter token
-  const token = tokenService.getAccessToken()
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  // ✅ NÃO adicionar token em rotas públicas
+  const publicRoutes = ['/login', '/register']
+  const isPublicRoute = publicRoutes.some(route => config.url?.includes(route))
+
+  if (!isPublicRoute) {
+    const token = tokenService.getAccessToken()
+    if (token && token !== 'null' && token !== 'undefined') {
+      config.headers.Authorization = `Bearer ${token}`
+    }
   }
+
   return config
 })
 
@@ -90,41 +96,41 @@ api.interceptors.response.use(
       originalRequest._retry = true
       isRefreshing = true
 
-      const refreshToken = localStorage.getItem('refresh_token')
+      // ✅ Usar tokenService para obter refresh token
+      const refreshToken = tokenService.getRefreshToken()
 
       if (!refreshToken) {
         console.warn('⚠️ Sem refresh token, redirecionando para login')
         isRefreshing = false
-        localStorage.clear()
-        window.location.href = '/login'
+        tokenService.clearTokens()
+
+        // Evitar loop: só redirecionar se não estiver já no login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login?expired=true'
+        }
         return Promise.reject(error)
       }
 
       try {
         // Tentar renovar o token
-        console.log('🔄 Tentando renovar token...')
+        console.log('🔄 [Interceptor] Tentando renovar token automaticamente...')
         const response = await axios.post(
           `${API_URL}/refresh`,
-          null,
+          { refresh_token: refreshToken },
           {
             headers: {
-              Authorization: `Bearer ${refreshToken}`
+              Authorization: `Bearer ${tokenService.getAccessToken()}`,
+              'Content-Type': 'application/json'
             }
           }
         )
 
         const { token, refresh_token, expires_in } = response.data
 
-        // Atualizar tokens
-        localStorage.setItem('auth_token', token)
-        localStorage.setItem('refresh_token', refresh_token)
+        // ✅ Usar tokenService para salvar novos tokens
+        tokenService.saveTokens(token, refresh_token, expires_in)
 
-        if (expires_in) {
-          const expiresAt = Date.now() + (expires_in * 1000)
-          localStorage.setItem('token_expires_at', expiresAt.toString())
-        }
-
-        console.log('✅ Token renovado com sucesso')
+        console.log('✅ [Interceptor] Token renovado automaticamente com sucesso')
 
         // Atualizar header da requisição original
         originalRequest.headers.Authorization = 'Bearer ' + token
@@ -138,20 +144,18 @@ api.interceptors.response.use(
         return api(originalRequest)
 
       } catch (refreshError) {
-        console.error('❌ Falha ao renovar token:', refreshError)
+        console.error('❌ [Interceptor] Falha ao renovar token:', refreshError)
 
-        // Limpar tokens e redirecionar para login
-        localStorage.removeItem('auth_token')
-        localStorage.removeItem('refresh_token')
-        localStorage.removeItem('token_expires_at')
-        localStorage.removeItem('user_data')
-        localStorage.removeItem('support_context')
-        localStorage.removeItem('original_user_data')
+        // ✅ Usar tokenService para limpar tokens
+        tokenService.clearTokens()
 
         processQueue(refreshError, null)
         isRefreshing = false
 
-        window.location.href = '/login'
+        // Evitar loop: só redirecionar se não estiver já no login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login?expired=true'
+        }
         return Promise.reject(refreshError)
       }
     }

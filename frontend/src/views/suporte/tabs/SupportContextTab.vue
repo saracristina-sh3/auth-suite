@@ -25,7 +25,7 @@
               options: autarquias,
             }" class="flex-1" />
 
-          <Sh3Button label="Acessar" icon="pi pi-sign-in" variant="primary" @click="handleAssumeClick"
+          <Sh3Button label="Acessar" icon="pi pi-sign-in" variant="outline" @click="handleAssumeClick"
             :disabled="!selectedAutarquiaId" />
         </div>
       </template>
