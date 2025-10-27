@@ -102,12 +102,18 @@ class ModulosSeeder extends Seeder
                 'icone' => 'controle_interno_button',
                 'ativo' => true
             ],
+              [
+                'id' => 12,
+                'nome' => 'Controle Usuários',
+                'descricao' => 'Gerenciamento e auditoria de usuários do sistema',
+                'icone' => 'controle_interno_button',
+                'ativo' => true
+            ],
         ];
 
         foreach ($modulos as $modulo) {
-            // Usar updateOrInsert para evitar duplicatas
             DB::table('modulos')->updateOrInsert(
-                ['id' => $modulo['id']], // Condição de busca
+                ['id' => $modulo['id']],
                 [
                     'nome' => $modulo['nome'],
                     'descricao' => $modulo['descricao'],
