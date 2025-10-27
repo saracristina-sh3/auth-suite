@@ -2,6 +2,7 @@ import api from './api'
 import type { LoginCredentials } from '@/types/common/auth.types'
 import type { User } from '@/types/common/user.types'
 import { sessionService } from './session.service'
+import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
 
 // === SERVIÇO DE AUTENTICAÇÃO ===
 class AuthService {
@@ -10,13 +11,13 @@ async login(credentials: LoginCredentials) {
     const { token, refresh_token, user, expires_in } = response.data
 
     // Armazenar tokens
-    localStorage.setItem('auth_token', token)
-    localStorage.setItem('refresh_token', refresh_token)
+    setItem(STORAGE_KEYS.AUTH_TOKEN, token)
+    setItem('refresh_token', refresh_token)
 
     // Armazenar timestamp de expiração
     if (expires_in) {
       const expiresAt = Date.now() + (expires_in * 1000)
-      localStorage.setItem('token_expires_at', expiresAt.toString())
+      setItem('token_expires_at', expiresAt)
     }
 
     // NÃO armazenar autarquia_ativa no localStorage
@@ -28,7 +29,7 @@ async login(credentials: LoginCredentials) {
       autarquia_ativa: undefined
     }
 
-    localStorage.setItem('user_data', JSON.stringify(userData))
+    setItem(STORAGE_KEYS.USER, userData)
 
     return { token, user }
   }
@@ -45,7 +46,7 @@ async login(credentials: LoginCredentials) {
       autarquia_ativa: storedUser?.autarquia_ativa || user.autarquia_ativa
     }
 
-    localStorage.setItem('user_data', JSON.stringify(userData))
+    setItem(STORAGE_KEYS.USER, userData)
 
     return userData
   }
@@ -63,7 +64,7 @@ async login(credentials: LoginCredentials) {
    */
   async refreshToken(): Promise<{ token: string; user: any } | null> {
     try {
-      const refreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = getItem<string>('refresh_token', '')
 
       if (!refreshToken) {
         console.warn('⚠️ Refresh token não encontrado')
@@ -80,13 +81,13 @@ async login(credentials: LoginCredentials) {
       const { token, refresh_token, user, expires_in } = response.data
 
       // Atualizar tokens no localStorage
-      localStorage.setItem('auth_token', token)
-      localStorage.setItem('refresh_token', refresh_token)
+      setItem(STORAGE_KEYS.AUTH_TOKEN, token)
+      setItem('refresh_token', refresh_token)
 
       // Atualizar timestamp de expiração
       if (expires_in) {
         const expiresAt = Date.now() + (expires_in * 1000)
-        localStorage.setItem('token_expires_at', expiresAt.toString())
+        setItem('token_expires_at', expiresAt)
       }
 
       // Atualizar dados do usuário
@@ -95,7 +96,7 @@ async login(credentials: LoginCredentials) {
         autarquia_ativa_id: undefined,
         autarquia_ativa: undefined
       }
-      localStorage.setItem('user_data', JSON.stringify(userData))
+      setItem(STORAGE_KEYS.USER, userData)
 
       console.log('✅ Token renovado com sucesso')
       return { token, user }
@@ -110,18 +111,17 @@ async login(credentials: LoginCredentials) {
    * Verifica se o token está próximo de expirar (menos de 5 minutos)
    */
   isTokenExpiringSoon(): boolean {
-    const expiresAt = localStorage.getItem('token_expires_at')
+    const expiresAt = getItem<number>('token_expires_at', 0)
     if (!expiresAt) return false
 
-    const expirationTime = parseInt(expiresAt, 10)
     const now = Date.now()
     const fiveMinutes = 5 * 60 * 1000
 
-    return (expirationTime - now) < fiveMinutes
+    return (expiresAt - now) < fiveMinutes
   }
 
   async logout(): Promise<void> {
-    const token = localStorage.getItem('auth_token')
+    const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
     if (token) {
       try {
         await api.post('/logout')
@@ -131,45 +131,27 @@ async login(credentials: LoginCredentials) {
     }
 
     // Limpa tokens de autenticação
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('refresh_token')
-    localStorage.removeItem('token_expires_at')
-    localStorage.removeItem('user_data')
+    removeItem(STORAGE_KEYS.AUTH_TOKEN)
+    removeItem('refresh_token')
+    removeItem('token_expires_at')
+    removeItem(STORAGE_KEYS.USER)
     // Limpa contexto de suporte se existir
-    localStorage.removeItem('support_context')
-    localStorage.removeItem('original_user_data')
+    removeItem('support_context')
+    removeItem('original_user_data')
     delete api.defaults.headers.common.Authorization
   }
 
   isAuthenticated(): boolean {
-    const token = localStorage.getItem('auth_token')
+    const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
     return !!token && token !== 'undefined' && token !== 'null'
   }
 
   getUserFromStorage(): User | null {
-    try {
-      const userData = localStorage.getItem('user_data')
-      if (
-        !userData ||
-        userData === 'undefined' ||
-        userData === 'null' ||
-        userData.trim() === ''
-      ) {
-        return null
-      }
-
-      const parsed = JSON.parse(userData)
-      if (parsed && typeof parsed === 'object' && parsed.id && parsed.email) {
-        return parsed as User
-      } else {
-        localStorage.removeItem('user_data')
-        return null
-      }
-    } catch (error) {
-      console.error('Erro ao fazer parse do user_data:', error)
-      localStorage.removeItem('user_data')
-      return null
+    const userData = getItem<User | null>(STORAGE_KEYS.USER, null)
+    if (userData && typeof userData === 'object' && userData.id && userData.email) {
+      return userData
     }
+    return null
   }
 
   hasRole(role: string): boolean {

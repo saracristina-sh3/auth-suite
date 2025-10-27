@@ -12,7 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BaseLayout: typeof import('./src/components/layouts/BaseLayout.vue')['default']
-    GlobalConfirmDialog: typeof import('./src/components/common/GlobalConfirmDialog.vue')['default']
+    Button: typeof import('primevue/button')['default']
     HeaderLayout: typeof import('./src/components/layouts/HeaderLayout.vue')['default']
     IconAlmoxarifado: typeof import('./src/components/icons/IconAlmoxarifado.vue')['default']
     IconCompras: typeof import('./src/components/icons/IconCompras.vue')['default']
@@ -25,6 +25,7 @@ declare module 'vue' {
     IconPatrimonio: typeof import('./src/components/icons/IconPatrimonio.vue')['default']
     IconRequisicaoInterna: typeof import('./src/components/icons/IconRequisicaoInterna.vue')['default']
     IconTesouraria: typeof import('./src/components/icons/IconTesouraria.vue')['default']
+    PanelMenu: typeof import('primevue/panelmenu')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sh3Banner: typeof import('./src/components/common/Sh3Banner.vue')['default']
@@ -34,6 +35,7 @@ declare module 'vue' {
     Sh3EmptyState: typeof import('./src/components/common/state/Sh3EmptyState.vue')['default']
     Sh3ErrorState: typeof import('./src/components/common/state/Sh3ErrorState.vue')['default']
     Sh3Form: typeof import('./src/components/common/Sh3Form.vue')['default']
+    Sh3GlobalConfirmDialog: typeof import('./src/components/common/Sh3GlobalConfirmDialog.vue')['default']
     Sh3GridList: typeof import('./src/components/common/Sh3GridList.vue')['default']
     Sh3LoadingState: typeof import('./src/components/common/state/Sh3LoadingState.vue')['default']
     Sh3Message: typeof import('./src/components/common/Sh3Message.vue')['default']

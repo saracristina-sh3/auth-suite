@@ -6,7 +6,6 @@
       class="cursor-pointer transition-all duration-300 hover:shadow-lg border border-border hover:-translate-y-1"
       @click="$emit('select', item)"
     >
-      <!-- HEADER -->
       <template #content>
         <div class="flex items-start justify-between mb-3">
           <div class="flex items-center gap-3">
@@ -27,7 +26,6 @@
             </div>
           </div>
 
-          <!-- Badge (status opcional) -->
           <span
             v-if="item.status"
             class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
@@ -43,7 +41,6 @@
           {{ item.description }}
         </p>
 
-        <!-- Detalhes adicionais -->
         <div v-if="item.details" class="space-y-2 pt-3 border-t border-border">
           <div
             v-for="(detail, i) in item.details"

@@ -2,10 +2,8 @@
   <div
     class="flex flex-col items-center justify-center text-center py-12 px-6"
   >
-    <!-- Spinner -->
     <Sh3ProgressSpinner :size="size" />
 
-    <!-- Mensagem -->
     <p v-if="message" class="text-muted-foreground mt-4">
       {{ message }}
     </p>

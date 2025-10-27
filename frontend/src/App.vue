@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import GlobalConfirmDialog from '@/components/common/GlobalConfirmDialog.vue'
+import GlobalConfirmDialog from '@/components/common/Sh3GlobalConfirmDialog.vue'
 </script>
 
 <template>

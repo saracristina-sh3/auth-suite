@@ -16,14 +16,12 @@
         </tr>
       </thead>
       <tbody class="bg-card divide-y divide-border">
-        <!-- Loading State -->
         <tr v-if="loading">
           <td :colspan="columns.length + (actions?.length ? 1 : 0)">
             <Sh3LoadingState message="Carregando dados..." />
           </td>
         </tr>
 
-        <!-- Error State -->
         <tr v-else-if="error">
           <td :colspan="columns.length + (actions?.length ? 1 : 0)">
             <Sh3ErrorState
@@ -34,7 +32,6 @@
           </td>
         </tr>
 
-        <!-- Data Rows -->
         <template v-else>
           <tr
             v-for="item in paginatedItems"
@@ -65,7 +62,6 @@
               </slot>
             </td>
 
-            <!-- Coluna de ações -->
             <td v-if="actions?.length" class="px-4 py-2 text-sm text-right whitespace-nowrap">
               <div class="flex justify-end gap-2">
                 <Sh3Button
@@ -81,7 +77,6 @@
             </td>
           </tr>
 
-          <!-- Empty State -->
           <tr v-if="!paginatedItems.length">
             <td :colspan="columns.length + (actions?.length ? 1 : 0)">
               <Sh3EmptyState
@@ -97,7 +92,6 @@
       </tbody>
     </table>
 
-    <!-- Paginação -->
     <div
       v-if="paginated && !loading && !error"
       class="flex justify-between items-center px-4 py-3 border-t border-border bg-muted"
@@ -106,7 +100,6 @@
         Mostrando {{ displayStart }}–{{ displayEnd }} de {{ displayTotal }}
       </div>
       <div class="flex gap-1">
-        <!-- Botão Anterior -->
         <button
           @click="goToPage(displayCurrentPage - 1)"
           :disabled="displayCurrentPage === 1"
@@ -120,7 +113,6 @@
           <i class="pi pi-chevron-left text-xs"></i>
         </button>
 
-        <!-- Páginas -->
         <button
           v-for="page in visiblePages"
           :key="page"
@@ -135,7 +127,6 @@
           {{ page }}
         </button>
 
-        <!-- Botão Próximo -->
         <button
           @click="goToPage(displayCurrentPage + 1)"
           :disabled="displayCurrentPage === displayLastPage"
@@ -178,7 +169,6 @@ const props = withDefaults(
     emptyIcon?: string
     emptyTitle?: string
     emptyDescription?: string
-    // Props para paginação server-side
     serverSide?: boolean
     paginationMeta?: PaginationMeta | null
   }>(),

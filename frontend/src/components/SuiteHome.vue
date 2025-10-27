@@ -117,9 +117,7 @@
         <Sh3Button label="Recarregar Módulos" icon="pi pi-refresh" @click="reload" />
       </Sh3EmptyState>
 
-      <!-- Modules Grid - Cards com ícones e espaçamentos reduzidos -->
       <div v-else class="w-full max-w-6xl mt-6">
-        <!-- Header com título e botão de refresh -->
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <h2 class="text-xl font-semibold text-foreground">Módulos Disponíveis</h2>
@@ -142,7 +140,6 @@
             class="cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full"
             @click="handleItemClick(modulo.route)">
             
-            <!-- Header com ícone -->
             <template #header>
               <div class="flex flex-col items-center text-center p-3 h-full">
                 <div class="text-primary text-xl mb-1">
@@ -152,21 +149,18 @@
               </div>
             </template>
             
-            <!-- Título -->
             <template #title>
               <h3 class="text-base font-semibold text-foreground line-clamp-2 leading-tight text-center">
                 {{ modulo.nome }}
               </h3>
             </template>
             
-            <!-- Subtítulo/Descrição -->
             <template #subtitle>
               <p class="text-muted-foreground text-sm leading-relaxed line-clamp-3 text-center">
                 {{ modulo.descricao }}
               </p>
             </template>
             
-            <!-- Footer com Acessar -->
             <template #footer>
               <div class="text-center">
                 <span class="text-primary text-sm font-medium flex items-center justify-center gap-1">
@@ -204,6 +198,7 @@ import Sh3EmptyState from './common/state/Sh3EmptyState.vue'
 import Sh3ErrorState from './common/state/Sh3ErrorState.vue'
 import { sessionService } from '@/services/session.service'
 import { getErrorMessage } from '@/utils/error.utils'
+import { setItem, STORAGE_KEYS } from '@/utils/storage'
 
 const errorMessage = '';
 
@@ -224,12 +219,10 @@ const autarquiaAtiva = computed(() => {
   return autarquias.value.find(a => a.id === autarquiaAtivaId.value) || null
 })
 
-// ✅ Verificar se está em modo suporte
 const isInSupportMode = computed(() => {
   return supportService.isInSupportMode()
 })
 
-// ✅ Obter autarquia do contexto de suporte
 const supportContextAutarquia = computed(() => {
   const context = supportService.getSupportContext()
   return context?.autarquia || null
@@ -246,7 +239,6 @@ async function loadUserAutarquias() {
       return
     }
 
-    // Buscar autarquias do usuário e session ativa em paralelo
     const [userAutarquiasData, sessionData] = await Promise.all([
       userService.getUserAutarquias(user.id),
       sessionService.getActiveAutarquia()
@@ -255,26 +247,24 @@ async function loadUserAutarquias() {
     autarquias.value = userAutarquiasData
 
     if (sessionData.data.autarquia_ativa_id) {
-      // Usar da session
       autarquiaAtivaId.value = sessionData.data.autarquia_ativa_id
-    } else if (user.autarquia_preferida_id) {  // ✅ Usar preferida
-      // Usar preferida do usuário
+    } else if (user.autarquia_preferida_id) {  
+
       await updateActiveAutarquia(user.autarquia_preferida_id)
     } else if (autarquias.value.length === 1) {
-      // Auto-selecionar se só tem uma
+
       const firstAutarquia = autarquias.value[0]
       if (firstAutarquia) {
         await updateActiveAutarquia(firstAutarquia.id)
       }
     } else if (autarquias.value.length > 0) {
-      // Buscar autarquia padrão
+
       const defaultAutarquia = autarquias.value.find(a => a.pivot.is_default)
       if (defaultAutarquia) {
         await updateActiveAutarquia(defaultAutarquia.id)
       }
     }
 
-    // Carregar módulos da autarquia ativa
     if (autarquiaAtivaId.value) {
       await reload()
     }
@@ -307,7 +297,7 @@ async function updateActiveAutarquia(autarquiaId: number) {
         nome: autarquiaAtualizada.nome,
         ativo: autarquiaAtualizada.ativo
       } : null
-      localStorage.setItem('user_data', JSON.stringify(user))
+      setItem(STORAGE_KEYS.USER, user)
       console.log('📦 localStorage atualizado com autarquia_ativa_id:', autarquiaId)
     }
 
@@ -331,7 +321,7 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
 
   try {
     await updateActiveAutarquia(id)
-    await reload() // Recarrega módulos
+    await reload()
 
     const autarquiaNome = autarquias.value.find(a => a.id === id)?.nome || 'Autarquia'
     showMessage('success', `Autarquia alterada para: ${autarquiaNome}`)
@@ -339,7 +329,6 @@ async function handleAutarquiaChange(newAutarquiaId: number | string) {
     console.error('Erro ao alterar autarquia:', err)
     showMessage('error', 'Erro ao alterar autarquia. Tente novamente.')
 
-    // Não precisa reverter nada no localStorage - a session não mudou
   } finally {
     changingAutarquia.value = false
   }
@@ -362,7 +351,6 @@ async function exitSupportMode() {
     showMessage('success', 'Retornado ao contexto original. Redirecionando...')
     console.log('✅ Modo suporte desativado')
 
-    // Redirecionar de volta para AdminManagementView
     setTimeout(() => {
       console.log('🚀 Redirecionando para /suporteSH3')
       router.push({ path: '/suporteSH3' })

@@ -13,7 +13,6 @@
             :key="field.name"
             :class="['field', field.type === 'checkbox' ? 'field-checkbox' : '']"
           >
-            <!-- Campos de texto, email, password -->
             <template v-if="['text', 'email', 'password'].includes(field.type)">
               <label :for="field.name" class="block font-medium mb-1 text-foreground">
                 {{ field.label }}
@@ -28,7 +27,6 @@
               />
             </template>
 
-            <!-- Campo textarea -->
             <template v-else-if="field.type === 'textarea'">
               <label :for="field.name" class="block font-medium mb-1 text-foreground">
                 {{ field.label }}
@@ -41,7 +39,6 @@
               ></textarea>
             </template>
 
-            <!-- Campo checkbox -->
             <template v-else-if="field.type === 'checkbox'">
               <label class="flex items-center gap-2">
                 <input type="checkbox" v-model="formData[field.name]" />
@@ -49,7 +46,6 @@
               </label>
             </template>
 
-            <!-- Campo select - CORRIGIDO -->
             <template v-else-if="field.type === 'select'">
               <Sh3Select
                 :field="field"
@@ -290,7 +286,6 @@ async function save() {
     }
   }
 
-  // Se não há mudança de status ou não está editando, salva diretamente
   executeSave(data)
 }
 
@@ -304,7 +299,6 @@ defineExpose({
 </script>
 
 <style scoped>
-/* Transições Vue necessárias */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.2s ease;
 }

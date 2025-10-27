@@ -5,13 +5,11 @@
         class="rounded-xl p-5 shadow-lg border-2 flex items-start justify-between gap-4 text-white"
         :style="bannerStyle"
       >
-        <!-- Ícone principal -->
         <div class="flex items-start gap-4 flex-1">
           <div class="bg-white/20 rounded-lg p-3 shrink-0">
             <i :class="[icon, 'text-white text-3xl']"></i>
           </div>
 
-          <!-- Conteúdo -->
           <div class="flex-1">
             <h3 class="text-lg font-bold mb-1 flex items-center gap-2">
               <i v-if="showWarningIcon" class="pi pi-exclamation-triangle text-sm"></i>
@@ -22,7 +20,6 @@
               <slot name="message">{{ message }}</slot>
             </p>
 
-            <!-- Destaque -->
             <div
               v-if="highlight"
               class="bg-white/20 rounded-lg px-4 py-2 inline-flex items-center gap-2 backdrop-blur-sm"
@@ -31,7 +28,6 @@
               <span class="font-bold text-base">{{ highlight }}</span>
             </div>
 
-            <!-- Rodapé -->
             <p v-if="footer" class="text-white/80 text-xs mt-3">
               <i v-if="footerIcon" :class="[footerIcon, 'mr-1']"></i>
               {{ footer }}
@@ -92,7 +88,6 @@ const props = withDefaults(
 defineEmits(['action'])
 
 const bannerStyle = computed(() => {
-  // Paletas personalizadas que não usam CSS variables
   const customPalettes: Record<string, { start: string; end: string; border: string }> = {
     'orange': {
       start: '#f97316',
@@ -116,7 +111,6 @@ const bannerStyle = computed(() => {
     }
   }
 
-  // Paletas padrão usando CSS variables
   const startColor = `var(--${paletteName}-500)`
   const endColor = `var(--${paletteName}-700)`
   const border = `var(--${paletteName}-800)`

@@ -2,7 +2,8 @@ import api from './api'
 import type { Autarquia } from '@/types/support/autarquia.types'
 import type { Modulo } from '@/types/support/modulos.types'
 import type { SupportContext, AssumeContextResponse, ExitContextResponse } from '@/types/support/support.types'
-
+import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
+import type { User } from '@/types/common/user.types'
 
 class SupportService {
   private readonly STORAGE_KEY = 'support_context'
@@ -13,7 +14,7 @@ class SupportService {
    */
   async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
     try {
-      const token = localStorage.getItem('auth_token')
+      const token = getItem<string>(STORAGE_KEYS.AUTH_TOKEN, '')
       console.log('🔄 Assumindo contexto de autarquia:', autarquiaId)
       console.log('🔑 Token disponível:', token ? 'Sim' : 'Não')
 
@@ -23,23 +24,23 @@ class SupportService {
 
       if (data.success && data.token && data.context) {
         // Salvar dados originais do usuário antes de modificar
-        const originalUserData = localStorage.getItem('user_data')
+        const originalUserData = getItem<User | null>(STORAGE_KEYS.USER, null)
         if (originalUserData) {
-          localStorage.setItem('original_user_data', originalUserData)
+          setItem('original_user_data', originalUserData)
           console.log('💾 Dados originais do usuário salvos')
         }
 
         // Atualizar o token de autenticação
-        localStorage.setItem('auth_token', data.token)
+        setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
         console.log('🔑 Novo token de suporte definido')
 
         // ✅ Salvar contexto de suporte no localStorage
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data.context))
+        setItem(this.STORAGE_KEY, data.context)
         console.log('💾 Contexto de suporte salvo no localStorage')
 
         // ✅ Atualizar user_data com autarquia ativa e flag de support_mode
-        const currentUser = JSON.parse(localStorage.getItem('user_data') || '{}')
+        const currentUser = getItem<User>(STORAGE_KEYS.USER, {} as User)
         const modifiedUser = {
           ...currentUser,
           _support_mode: true,
@@ -50,7 +51,7 @@ class SupportService {
             ativo: data.context.autarquia.ativo
           }
         }
-        localStorage.setItem('user_data', JSON.stringify(modifiedUser))
+        setItem(STORAGE_KEYS.USER, modifiedUser)
         console.log('💾 user_data atualizado com autarquia ativa:', data.context.autarquia.nome)
 
         console.log('✅ Contexto assumido com sucesso:', data.context.autarquia.nome)
@@ -84,15 +85,15 @@ class SupportService {
 
       if (data.success && data.token && data.user) {
         // Atualizar o token de autenticação
-        localStorage.setItem('auth_token', data.token)
+        setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
         api.defaults.headers.common.Authorization = `Bearer ${data.token}`
         console.log('🔑 Token original restaurado')
 
         // Restaurar dados originais do usuário (se existir backup)
-        const originalUserData = localStorage.getItem('original_user_data')
+        const originalUserData = getItem<User | null>('original_user_data', null)
         if (originalUserData) {
-          localStorage.setItem('user_data', originalUserData)
-          localStorage.removeItem('original_user_data')
+          setItem(STORAGE_KEYS.USER, originalUserData)
+          removeItem('original_user_data')
           console.log('✅ Dados originais do usuário restaurados')
         } else {
           // Caso não tenha backup, usa os dados retornados pela API
@@ -103,12 +104,12 @@ class SupportService {
             autarquia_ativa_id: data.user.autarquia_preferida_id || undefined,
             autarquia_ativa: data.user.autarquia_ativa || undefined
           }
-          localStorage.setItem('user_data', JSON.stringify(cleanUser))
+          setItem(STORAGE_KEYS.USER, cleanUser)
           console.log('✅ Dados do usuário atualizados (sem modo suporte)')
         }
 
         // Remover o contexto de suporte
-        localStorage.removeItem(this.STORAGE_KEY)
+        removeItem(this.STORAGE_KEY)
         console.log('🧹 Contexto de suporte removido')
 
         console.log('✅ Retornado ao contexto original')
@@ -140,24 +141,11 @@ class SupportService {
    * Obtém o contexto de suporte atual do localStorage
    */
   getSupportContext(): SupportContext | null {
-    try {
-      const contextData = localStorage.getItem(this.STORAGE_KEY)
-      if (!contextData || contextData === 'undefined' || contextData === 'null') {
-        return null
-      }
-
-      const parsed = JSON.parse(contextData)
-      if (parsed && typeof parsed === 'object' && parsed.support_mode) {
-        return parsed as SupportContext
-      } else {
-        localStorage.removeItem(this.STORAGE_KEY)
-        return null
-      }
-    } catch (error) {
-      console.error('Erro ao fazer parse do support_context:', error)
-      localStorage.removeItem(this.STORAGE_KEY)
-      return null
+    const contextData = getItem<SupportContext | null>(this.STORAGE_KEY, null)
+    if (contextData && typeof contextData === 'object' && contextData.support_mode) {
+      return contextData
     }
+    return null
   }
 
   /**
@@ -189,8 +177,8 @@ class SupportService {
    * Limpa o contexto de suporte (útil em caso de erro ou logout)
    */
   clearSupportContext(): void {
-    localStorage.removeItem(this.STORAGE_KEY)
-    localStorage.removeItem('original_user_data')
+    removeItem(this.STORAGE_KEY)
+    removeItem('original_user_data')
     console.log('🧹 Contexto de suporte limpo (support_context e original_user_data removidos)')
   }
 }

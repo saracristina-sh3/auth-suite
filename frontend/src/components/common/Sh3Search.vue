@@ -1,5 +1,4 @@
 <template>
-  <!-- Search Filter Component -->
   <div class="flex items-center gap-2 max-w-md">
     <span class="pi pi-search text-muted-foreground"></span>
     <input
@@ -10,7 +9,6 @@
       @keyup.enter="$emit('search', internalValue)"
     />
     
-    <!-- Clear button -->
     <button
       v-if="showClear && internalValue"
       @click="clearSearch"

@@ -6,7 +6,6 @@
     role="alert"
   >
     <div class="flex items-center justify-between gap-4">
-      <!-- Ícone (automático conforme o tipo) -->
       <div class="flex items-center gap-3">
         <i :class="iconClass" class="text-2xl"></i>
         <div>
@@ -14,7 +13,6 @@
         </div>
       </div>
 
-      <!-- Botão de fechar (opcional) -->
       <button
         v-if="closable"
         class="bg-transparent border-none text-inherit text-xl cursor-pointer px-2 py-1 transition-opacity duration-200 hover:opacity-70"
@@ -55,7 +53,6 @@ function closeMessage() {
   emit('update:modelValue', false)
 }
 
-// Ícones automáticos baseados no tipo
 const iconClass = computed(() => {
   switch (props.type) {
     case 'success':
@@ -69,7 +66,6 @@ const iconClass = computed(() => {
   }
 })
 
-// Classes de estilo baseadas no tipo usando Tailwind
 const messageClasses = computed(() => {
   switch (props.type) {
     case 'success':

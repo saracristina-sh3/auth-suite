@@ -15,7 +15,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import Avatar from 'primevue/avatar'
-const user = JSON.parse(localStorage.getItem('user_data') || '{}')
+import { getItem, STORAGE_KEYS } from '@/utils/storage'
+import type { User } from '@/types/common/user.types'
+
+const user = getItem<User | null>(STORAGE_KEYS.USER, null) || {} as User
 
 const userInitials = computed(() => {
   if (!user?.name) return '?'

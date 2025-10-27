@@ -47,7 +47,7 @@ interface Props {
   strokeWidth?: number;
   inline?: boolean;
   text?: string;
-  progress?: number; // 0 a 100 para modo determinístico
+  progress?: number; 
   indeterminate?: boolean;
 }
 
@@ -67,7 +67,7 @@ const circumference = computed(() => 2 * Math.PI * radius)
 // Calcula o dashoffset baseado no progresso
 const dashOffset = computed(() => {
   if (props.indeterminate || props.progress === undefined) {
-    return circumference.value * 0.25 // Valor padrão para modo indeterminado
+    return circumference.value * 0.25 
   }
   const progress = Math.max(0, Math.min(100, props.progress))
   return circumference.value * (1 - progress / 100)

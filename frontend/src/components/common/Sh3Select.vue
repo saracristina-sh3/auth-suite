@@ -5,7 +5,6 @@
       <span v-if="field.required" class="text-destructive">*</span>
     </label>
 
-    <!-- Multi-Select com Checkboxes -->
     <div v-if="field.multiple" class="relative multi-select-container">
       <div
         class="flex items-center justify-between min-h-[42px] px-3 py-2 border border-input rounded bg-background text-foreground cursor-pointer transition-all duration-200 hover:border-border focus-within:border-ring focus-within:shadow-[0_0_0_2px] focus-within:shadow-ring/20"
@@ -86,7 +85,6 @@
       </div>
     </div>
 
-    <!-- Select Simples (Single Select) -->
     <select
       v-else
       :id="field.name"
@@ -95,12 +93,10 @@
       :required="field.required"
       class="w-full px-3 py-2 border border-input rounded bg-background text-foreground focus:outline-none focus:border-ring focus:shadow-[0_0_0_2px] focus:shadow-ring/20 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"
     >
-      <!-- Placeholder -->
       <option disabled :value="null">
         {{ field.placeholder || 'Selecione uma opção' }}
       </option>
 
-      <!-- Opções -->
       <option
         v-for="option in field.options || []"
         :key="String(getOptionValue(option))"
@@ -126,7 +122,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue'])
 
-// Estado do dropdown
 const isOpen = ref(false)
 const searchQuery = ref('')
 
@@ -157,7 +152,7 @@ const selectedLabels = computed((): string[] => {
       return option ? getOptionLabel(option) : null
     })
     .filter((label): label is string => label !== null)
-    .slice(0, 3) // Mostra apenas os primeiros 3
+    .slice(0, 3) 
 })
 
 // Computed: Opções filtradas pela busca
@@ -171,7 +166,6 @@ const filteredOptions = computed(() => {
   )
 })
 
-// Funções auxiliares para obter label e value das opções
 function getOptionLabel(option: unknown): string {
   if (typeof option === 'string' || typeof option === 'number') {
     return String(option)
@@ -196,13 +190,11 @@ function getOptionValue(option: unknown): unknown {
   return option
 }
 
-// Função para tratar mudanças no select simples
 function onChange(event: Event) {
   const target = event.target as HTMLSelectElement
   emit('update:modelValue', target.value)
 }
 
-// Funções do multi-select
 function toggleDropdown() {
   isOpen.value = !isOpen.value
   if (!isOpen.value) {
@@ -236,7 +228,6 @@ function clearAll() {
   emit('update:modelValue', [])
 }
 
-// Fechar dropdown ao clicar fora
 function handleClickOutside(event: MouseEvent) {
   const target = event.target as HTMLElement
   if (!target.closest('.multi-select-container')) {
@@ -255,7 +246,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Scrollbar customizado para a lista de opções */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }

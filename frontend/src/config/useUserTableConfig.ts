@@ -76,8 +76,8 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       label: 'Autarquias',
       type: 'select',
       required: true,
-      multiple: true,         // Habilita multi-seleção
-      searchable: true,       // Habilita busca no dropdown
+      multiple: true,         
+      searchable: true,       
       placeholder: 'Selecione uma ou mais autarquias',
       options: autarquias.value,
       optionLabel: 'nome',

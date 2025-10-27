@@ -104,10 +104,10 @@
     - ✅ `backend/app/Http/Controllers/Api/AutarquiaModuloController.php`
   - **Tempo gasto**: ~30 minutos
 
-- [ ] **Adicionar Confirmação de Ações Destrutivas**
-  - [ ] Criar componente `ConfirmDialog.vue`
-  - [ ] Integrar em `Sh3Table.vue` antes de delete
-  - [ ] Adicionar confirmação em delete de usuários, autarquias, módulos
+- [x] **Adicionar Confirmação de Ações Destrutivas**
+  - [x] Criar componente `ConfirmDialog.vue`
+  - [x] Integrar em `Sh3Table.vue` antes de delete
+  - [x] Adicionar confirmação em delete de usuários, autarquias, módulos
   - **Arquivos**: Novo componente + `Sh3Table.vue`
   - **Tempo estimado**: 3-4 horas
 
@@ -156,10 +156,10 @@
 
 ### 3. Padronizar Resposta da API
 
-- [ ] **Padronizar Formato de Resposta**
-  - [ ] Backend: Criar trait `ApiResponses` para padronizar respostas
-  - [ ] Backend: Aplicar em todos os controllers
-  - [ ] Decidir formato padrão:
+- [x] **Padronizar Formato de Resposta**
+  - [x] Backend: Criar trait `ApiResponses` para padronizar respostas
+  - [x] Backend: Aplicar em todos os controllers
+  - [x] Decidir formato padrão:
     ```json
     {
       "success": boolean,
@@ -169,7 +169,7 @@
       "errors"?: { field: [string] }
     }
     ```
-  - [ ] Frontend: Atualizar todos os services para novo padrão
+  - [x] Frontend: Atualizar todos os services para novo padrão
   - **Arquivos**: Todos os controllers + todos os services
   - **Tempo estimado**: 8-12 horas
   - **Nota**: Mudança grande, fazer em branch separada
@@ -218,12 +218,12 @@
 
 ### 5. Refatoração de Composables
 
-- [ ] **Separar useSaveHandler**
-  - [ ] Criar `useSaveUser.ts` com lógica específica de usuário
-  - [ ] Criar `useSaveAutarquia.ts` com lógica específica de autarquia
-  - [ ] Criar `useSaveModulo.ts` com lógica específica de módulo
-  - [ ] Remover `useSaveHandler.ts`
-  - [ ] Atualizar `AdminManagementView.vue` para usar novos composables
+- [x] **Separar useSaveHandler**
+  - [x] Criar `useSaveUser.ts` com lógica específica de usuário
+  - [x] Criar `useSaveAutarquia.ts` com lógica específica de autarquia
+  - [x] Criar `useSaveModulo.ts` com lógica específica de módulo
+  - [x] Remover `useSaveHandler.ts`
+  - [x] Atualizar `AdminManagementView.vue` para usar novos composables
   - **Arquivos**: Novos composables + `AdminManagementView.vue`
   - **Tempo estimado**: 4-6 horas
 
@@ -258,16 +258,16 @@
 
 ### 7. UX - Loading States e Feedback
 
-- [ ] **Adicionar Loading States**
-  - [ ] `Sh3Table.vue`: Adicionar spinner durante carregamento
-  - [ ] `Sh3Form.vue`: Desabilitar botão submit durante salvamento
-  - [ ] `AdminManagementView.vue`: Loading indicator global
+- [x] **Adicionar Loading States**
+  - [x] `Sh3Table.vue`: Adicionar spinner durante carregamento
+  - [x] `Sh3Form.vue`: Desabilitar botão submit durante salvamento
+  - [x] `AdminManagementView.vue`: Loading indicator global
   - **Tempo estimado**: 3-4 horas
 
-- [ ] **Adicionar Estados Vazios Diferenciados**
-  - [ ] Usar `Sh3EmptyState.vue` em todas as tabelas
-  - [ ] Diferenciar: "Carregando", "Vazio", "Erro"
-  - [ ] Adicionar ilustrações ou ícones
+- [x] **Adicionar Estados Vazios Diferenciados**
+  - [x] Usar `Sh3EmptyState.vue` em todas as tabelas
+  - [x] Diferenciar: "Carregando", "Vazio", "Erro"
+  - [x] Adicionar ilustrações ou ícones
   - **Tempo estimado**: 2-3 horas
 
 - [ ] **Melhorar Mensagens de Erro**
@@ -282,32 +282,32 @@
 
 ### 8. Performance e Cache
 
-- [ ] **Implementar Cache de Módulos**
-  - [ ] `useModulos.ts`: Verificar se módulos já carregados antes de buscar API
-  - [ ] Adicionar TTL de 5 minutos
-  - [ ] Implementar invalidação manual
+- [x] **Implementar Cache de Módulos**
+  - [x] `useModulos.ts`: Verificar se módulos já carregados antes de buscar API
+  - [x] Adicionar TTL de 5 minutos
+  - [x] Implementar invalidação manual
   - **Tempo estimado**: 3-4 horas
 
-- [ ] **Implementar Cache de Autarquias**
-  - [ ] Similar ao cache de módulos
-  - [ ] Cache no backend (Redis ou Laravel Cache)
+- [x] **Implementar Cache de Autarquias**
+  - [x] Similar ao cache de módulos
+  - [x] Cache no backend (Redis ou Laravel Cache)
   - **Tempo estimado**: 4-6 horas
 
-- [ ] **Otimizar Chamadas Paralelas**
-  - [ ] `AdminManagementView.vue`: Usar `Promise.all()` para carregar dados
-  - [ ] Evitar await sequencial desnecessário
+- [x] **Otimizar Chamadas Paralelas**
+  - [x] `AdminManagementView.vue`: Usar `Promise.all()` para carregar dados
+  - [x] Evitar await sequencial desnecessário
   - **Tempo estimado**: 2 horas
 
-- [ ] **Implementar Paginação Server-side**
-  - [ ] Backend: Já tem paginação em users
-  - [ ] Frontend: Adicionar em autarquias e módulos
-  - [ ] `Sh3Table.vue`: Suportar paginação server-side
+- [x] **Implementar Paginação Server-side**
+  - [x] Backend: Já tem paginação em users
+  - [x] Frontend: Adicionar em autarquias e módulos
+  - [x] `Sh3Table.vue`: Suportar paginação server-side
   - **Tempo estimado**: 6-8 horas
 
-- [ ] **Otimizar N+1 Queries (Backend)**
-  - [ ] Revisar todos os controllers
-  - [ ] Usar eager loading onde necessário
-  - [ ] Adicionar índices em migrations
+- [x] **Otimizar N+1 Queries (Backend)**
+  - [x] Revisar todos os controllers
+  - [x] Usar eager loading onde necessário
+  - [x] Adicionar índices em migrations
   - **Tempo estimado**: 4-6 horas
 
 ### 9. Código Duplicado

@@ -8,7 +8,6 @@
       <div
         class="bg-card text-card-foreground rounded-lg w-full max-w-5xl mx-4 shadow-2xl max-h-[90vh] flex flex-col"
       >
-        <!-- Header -->
         <header
           class="flex justify-between items-center border-b border-border px-6 py-4"
         >
@@ -34,12 +33,10 @@
           </button>
         </header>
 
-        <!-- Body -->
         <div class="flex-1 overflow-y-auto p-6">
           <slot />
         </div>
 
-        <!-- Footer -->
         <footer
           v-if="$slots.footer"
           class="flex justify-between items-center gap-3 px-6 py-4 border-t border-border"

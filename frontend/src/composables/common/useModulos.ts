@@ -1,4 +1,3 @@
-// src/composables/useModulos.ts
 import { ref, onMounted, computed } from 'vue'
 import { moduloService } from '@/services/modulos.service'
 import { authService } from '@/services/auth.service'
@@ -12,10 +11,9 @@ const modulos = ref<ModuloWithUI[]>([])
 const loadingModulos = ref(true)
 const error = ref<string | null>(null)
 
-// Cache com TTL de 5 minutos
 const modulosCache = useCache<ModuloWithUI[]>({
   key: 'modulos',
-  ttl: 5 * 60 * 1000 // 5 minutos
+  ttl: 5 * 60 * 1000 
 })
 
 export function useModulos() {
@@ -24,7 +22,6 @@ export function useModulos() {
       loadingModulos.value = true
       error.value = null
 
-      // 🔍 Verificar se está em modo suporte PRIMEIRO
       const supportContext = supportService.getSupportContext()
 
       if (supportContext && supportContext.support_mode) {
@@ -33,9 +30,8 @@ export function useModulos() {
 
         const data = supportContext.modulos || []
 
-        // Mapeia os módulos com ícones e rotas
         modulos.value = data
-          .filter(modulo => modulo.ativo !== false) // Apenas módulos ativos
+          .filter(modulo => modulo.ativo !== false) 
           .map(modulo => ({
             ...modulo,
             icon: iconMap[modulo.icone || ''] || iconMap[modulo.nome] || 'pi pi-box',
@@ -49,7 +45,6 @@ export function useModulos() {
         return
       }
 
-      // 👤 MODO NORMAL: Buscar módulos pela autarquia do usuário
       const user = authService.getUserFromStorage()
 
       if (!user) {
@@ -76,16 +71,12 @@ export function useModulos() {
 
       console.log('👤 Carregando módulos da autarquia:', user.autarquia_ativa?.nome || user.autarquia_ativa_id)
 
-      // Chave de cache específica por autarquia
       const cacheKey = `modulos-autarquia-${user.autarquia_ativa_id}`
 
-      // Buscar com cache
       const data = await modulosCache.fetch(
         async () => {
-          // Buscar módulos da API
           const response = await moduloService.list(user.autarquia_ativa_id!)
 
-          // Mapear com ícones e rotas
           return response.data
             .filter(modulo => modulo.ativo)
             .map(modulo => ({
@@ -133,7 +124,6 @@ export function useModulos() {
     loadModulos()
   })
 
-  // Computed para informações do cache
   const cacheInfo = computed(() => ({
     hasCache: modulosCache.hasValidCache.value,
     timeToExpire: modulosCache.timeToExpire.value,

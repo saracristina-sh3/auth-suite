@@ -1,12 +1,10 @@
 <template>
-  <!-- Overlay -->
   <transition name="fade">
     <div
       v-if="isVisible"
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
       @click.self="handleCancel"
     >
-      <!-- Dialog -->
       <transition name="scale">
         <div
           v-if="isVisible"
@@ -14,7 +12,6 @@
           tabindex="0"
           ref="dialogRef"
         >
-          <!-- Header -->
           <div class="flex items-center gap-3 p-4 border-b border-gray-200 dark:border-gray-700">
             <i
               :class="severityConfig.icon"
@@ -30,11 +27,9 @@
             </button>
           </div>
 
-          <!-- Body -->
           <div class="p-4">
             <p class="text-foreground mb-4">{{ message }}</p>
 
-            <!-- Detalhes -->
             <div
               v-if="itemDetails"
               class="bg-muted/30 p-3 rounded-md mb-4"
@@ -48,7 +43,6 @@
               </p>
             </div>
 
-            <!-- Aviso -->
             <div
               v-if="warning"
               class="flex items-start gap-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md"
@@ -60,7 +54,6 @@
             </div>
           </div>
 
-          <!-- Footer -->
           <div class="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
             <Sh3Button
               label="Cancelar"
@@ -153,7 +146,6 @@ const severityConfig = computed(() => {
   }
 })
 
-// Eventos de teclado globais
 const handleKeydown = (event: KeyboardEvent) => {
   if (!isVisible.value) return
   if (event.key === 'Escape') {
@@ -171,7 +163,6 @@ onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown)
 })
 
-// Ações
 const handleConfirm = () => emit('confirm')
 const handleCancel = () => {
   isVisible.value = false
@@ -180,7 +171,6 @@ const handleCancel = () => {
 </script>
 
 <style scoped>
-/* Animações */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.25s ease;

@@ -2,13 +2,11 @@
   <div
     class="flex flex-col items-center justify-center text-center py-10 px-6"
   >
-    <!-- Ícone -->
     <i
       v-if="icon"
       :class="[icon, 'text-6xl mb-4', iconClass]"
     ></i>
 
-    <!-- Título -->
     <h3
       v-if="title"
       class="text-lg font-semibold text-foreground mb-2"
@@ -16,7 +14,6 @@
       {{ title }}
     </h3>
 
-    <!-- Descrição -->
     <p
       v-if="description"
       class="text-muted-foreground text-center max-w-md"
