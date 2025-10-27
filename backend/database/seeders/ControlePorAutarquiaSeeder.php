@@ -56,7 +56,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'Teste User',
                 'email' => 'teste@empresa.com',
-                'cpf' => '12345678901',
+                'cpf' => '12345678701',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[0], // Prefeitura X
                 'role' => 'gestor',

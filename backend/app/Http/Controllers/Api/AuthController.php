@@ -9,10 +9,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Services\AutarquiaSessionService;
+use App\Traits\CreatesTokens;
 
 class AuthController extends Controller
 {
-     protected AutarquiaSessionService $autarquiaSession;
+    use CreatesTokens;
+
+    protected AutarquiaSessionService $autarquiaSession;
 
     public function __construct(AutarquiaSessionService $autarquiaSession)
     {
@@ -34,20 +37,15 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Criar access token (expira em 1 hora)
-        $accessToken = $user->createToken('auth-token', ['*'], now()->addHour())->plainTextToken;
-
-        // Criar refresh token (expira em 7 dias)
-        $refreshToken = $user->createToken('refresh-token', ['refresh'], now()->addDays(7))->plainTextToken;
-
-        // Load autarquia ativa e autarquias vinculadas
+        // ✅ Usar trait para criar tokens
+        $tokens = $this->createTokenPair($user);
 
         return response()->json([
             'success' => true,
             'message' => 'Login realizado com sucesso',
-            'token' => $accessToken,
-            'refresh_token' => $refreshToken,
-            'expires_in' => 3600, // 1 hora em segundos
+            'token' => $tokens['token'],
+            'refresh_token' => $tokens['refresh_token'],
+            'expires_in' => $tokens['expires_in'],
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -115,64 +113,67 @@ class AuthController extends Controller
      */
     public function refresh(Request $request)
     {
+        $request->validate([
+            'refresh_token' => 'required|string'
+        ]);
+
         $user = $request->user();
 
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Refresh token inválido ou expirado.'
+                'message' => 'Não autenticado.'
             ], 401);
         }
 
-        // Verificar se o token atual tem a habilidade 'refresh'
-        $currentToken = $user->currentAccessToken();
-        if (!$currentToken || !$currentToken->can('refresh')) {
+        try {
+            // ✅ Usar trait para renovar tokens
+            $tokens = $this->refreshAccessToken($user, $request->refresh_token);
+
+            \Log::info('🔄 Token renovado com sucesso', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Token renovado com sucesso',
+                'token' => $tokens['token'],
+                'refresh_token' => $tokens['refresh_token'],
+                'expires_in' => $tokens['expires_in'],
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'cpf' => $user->cpf,
+                    'role' => $user->role,
+                    'is_superadmin' => $user->is_superadmin,
+                    'is_active' => $user->is_active,
+                    'autarquia_preferida_id' => $user->autarquia_preferida_id,
+                    'autarquia_preferida' => $user->autarquiaPreferida,
+                    'autarquia_ativa_id' => session('autarquia_ativa_id'),
+                    'autarquia_ativa' => session('autarquia_ativa'),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('❌ Erro ao renovar token', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Token não é um refresh token válido.'
+                'message' => $e->getMessage()
             ], 401);
         }
-
-        // Revogar o refresh token antigo
-        $currentToken->delete();
-
-        // Criar novo access token (expira em 1 hora)
-        $newAccessToken = $user->createToken('auth-token', ['*'], now()->addHour())->plainTextToken;
-
-        // Criar novo refresh token (expira em 7 dias)
-        $newRefreshToken = $user->createToken('refresh-token', ['refresh'], now()->addDays(7))->plainTextToken;
-
-        \Log::info('🔄 Token renovado com sucesso', [
-            'user_id' => $user->id,
-            'email' => $user->email
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Token renovado com sucesso',
-            'token' => $newAccessToken,
-            'refresh_token' => $newRefreshToken,
-            'expires_in' => 3600, // 1 hora em segundos
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'cpf' => $user->cpf,
-                'role' => $user->role,
-                'is_superadmin' => $user->is_superadmin,
-                'is_active' => $user->is_active,
-                'autarquia_preferida_id' => $user->autarquia_preferida_id,
-                'autarquia_preferida' => $user->autarquiaPreferida,
-                'autarquia_ativa_id' => session('autarquia_ativa_id'),
-                'autarquia_ativa' => session('autarquia_ativa'),
-            ]
-        ]);
     }
 
     public function logout(Request $request)
     {
-        // Revogar o token atual e todos os outros tokens do usuário
-        $request->user()->tokens()->delete();
+        $user = $request->user();
+
+        // ✅ Usar trait para revogar todos os tokens
+        $this->revokeAllTokens($user);
 
         return response()->json([
             'success' => true,
@@ -252,11 +253,8 @@ public function assumeAutarquiaContext(Request $request)
         ]
     ]);
 
-    // Criar novo token para a sessão de suporte
-    $token = $user->createToken('support-context-token', [
-        'support_mode' => true,
-        'context_autarquia_id' => $autarquia->id
-    ])->plainTextToken;
+    // ✅ Criar token temporário para suporte (expira em 8 horas)
+    $token = $this->createTemporaryToken($user, ['*'], 480);
 
     \Log::info('✅ Contexto de autarquia assumido com sucesso', [
         'user_id' => $user->id,
@@ -323,8 +321,9 @@ public function exitAutarquiaContext(Request $request)
     // Limpar flags de modo suporte
     session()->forget(['support_mode', 'support_context']);
 
-    // Criar novo token normal
-    $token = $user->createToken('auth-token')->plainTextToken;
+    // ✅ Criar novo par de tokens normais
+    $tokens = $this->createTokenPair($user);
+    $token = $tokens['token'];
 
     \Log::info('✅ Retornado ao contexto original', [
         'user_id' => $user->id,
