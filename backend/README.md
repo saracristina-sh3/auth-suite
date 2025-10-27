@@ -83,9 +83,14 @@ backend/
 │   │   └── UsuarioModuloPermissao.php
 │   ├── Services/                 # Serviços de negócio
 │   │   └── AutarquiaSessionService.php
+│   │   └── PermissionService.php 
 │   ├── Traits/                   # Traits reutilizáveis
 │   │   ├── ApiResponses.php      # Respostas padronizadas
 │   │   └── CreatesTokens.php     # Geração de tokens
+│   │   └── HandleAutarquias.php  # 
+│   │   └── HasCompositePrimaryKey.php # 
+│   │   └── PermissionChecks.php # 
+│   │   └──PermissionSconpes.php # 
 │   └── Providers/
 ├── config/                       # Arquivos de configuração
 │   ├── database.php
@@ -169,7 +174,7 @@ APP_URL=http://localhost:8000
 
 # Banco de Dados
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=db
 DB_PORT=3306
 DB_DATABASE=auth_suite
 DB_USERNAME=root
@@ -190,8 +195,12 @@ REFRESH_TOKEN_EXPIRATION=10080    # Refresh token: 7 dias
 Configure no arquivo `config/cors.php`:
 
 ```php
-'paths' => ['api/*'],
-'allowed_origins' => ['http://localhost:5173'],
+'paths' => ['api/*', 'sanctum/csrf-cookie', '/login', '/logout', '/me', '/users'],
+'allowed_origins' => ['http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'https://localhost:3000',
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',],
 'allowed_methods' => ['*'],
 'allowed_headers' => ['*'],
 'supports_credentials' => true,
@@ -289,7 +298,7 @@ sessions
 ### Base URL
 
 ```
-http://localhost:8000/api
+http://localhost:3000/api
 ```
 
 ### Rotas Públicas
