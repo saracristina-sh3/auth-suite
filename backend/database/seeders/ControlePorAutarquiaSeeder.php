@@ -21,8 +21,9 @@ class ControlePorAutarquiaSeeder extends Seeder
         // Nota: A autarquia ID 1 (SH3 - Suporte) é criada automaticamente pelo SuperAdminSeeder
         $autarquias = [
             ['nome' => 'Prefeitura Municipal X', 'ativo' => true],
-            ['nome' => 'Prefeitura Municipal Y', 'ativo' => true],
-            ['nome' => 'Prefeitura Municipal Z', 'ativo' => true],
+            ['nome' => 'Câmara Municipal x', 'ativo' => true],
+            ['nome' => 'Água e Esgoto x', 'ativo' => true],
+            ['nome' => 'Fundo Municipal de Saúde X', 'ativo' => true],
         ];
 
         $autarquiaIds = [];
