@@ -6,12 +6,50 @@ import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
 import type { User } from '@/types/common/user.types'
 import { tokenService } from './token.service'
 
+/**
+ * Serviço de gerenciamento do modo suporte
+ *
+ * @description Permite que superadmins (Sh3) assumam o contexto de uma autarquia
+ * para realizar operações administrativas. Gerencia a troca de contexto, tokens
+ * temporários e restauração do contexto original.
+ *
+ * @example
+ * // Assumir contexto de uma autarquia
+ * const context = await supportService.assumeAutarquiaContext(1)
+ * console.log('Modo suporte ativo:', context.autarquia.nome)
+ *
+ * // Verificar se está em modo suporte
+ * if (supportService.isInSupportMode()) {
+ *   console.log('Trabalhando como:', supportService.getCurrentAutarquia()?.nome)
+ * }
+ *
+ * // Sair do modo suporte
+ * await supportService.exitAutarquiaContext()
+ */
 class SupportService {
   private readonly STORAGE_KEY = 'support_context'
 
   /**
    * Assume o contexto de uma autarquia específica
-   * Apenas para usuários superadmin (Sh3)
+   *
+   * @description Apenas para usuários superadmin (Sh3). Cria um token temporário
+   * e salva o contexto da autarquia, permitindo que o superadmin trabalhe como
+   * se fosse dessa autarquia.
+   *
+   * @param {number} autarquiaId - ID da autarquia a assumir
+   *
+   * @returns {Promise<SupportContext>} Contexto de suporte com autarquia e módulos
+   *
+   * @throws {Error} Se o usuário não for superadmin ou autarquia não existir
+   *
+   * @example
+   * try {
+   *   const context = await supportService.assumeAutarquiaContext(1)
+   *   console.log('Assumindo autarquia:', context.autarquia.nome)
+   *   console.log('Módulos disponíveis:', context.modulos.length)
+   * } catch (error) {
+   *   console.error('Erro ao assumir contexto:', error.message)
+   * }
    */
   async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
     try {
@@ -73,6 +111,21 @@ class SupportService {
 
   /**
    * Sai do modo suporte e retorna ao contexto original do usuário
+   *
+   * @description Restaura o token original do superadmin, limpa o contexto de
+   * suporte e restaura os dados originais do usuário.
+   *
+   * @returns {Promise<void>}
+   *
+   * @throws {Error} Se a requisição falhar
+   *
+   * @example
+   * try {
+   *   await supportService.exitAutarquiaContext()
+   *   console.log('Retornado ao contexto original')
+   * } catch (error) {
+   *   console.error('Erro ao sair do contexto:', error.message)
+   * }
    */
   async exitAutarquiaContext(): Promise<void> {
     try {
@@ -123,6 +176,13 @@ class SupportService {
 
   /**
    * Verifica se está em modo suporte
+   *
+   * @returns {boolean} true se está trabalhando em modo suporte
+   *
+   * @example
+   * if (supportService.isInSupportMode()) {
+   *   console.log('Em modo suporte')
+   * }
    */
   isInSupportMode(): boolean {
     const context = this.getSupportContext()
@@ -131,6 +191,15 @@ class SupportService {
 
   /**
    * Obtém o contexto de suporte atual do localStorage
+   *
+   * @returns {SupportContext|null} Contexto de suporte ou null se não estiver ativo
+   *
+   * @example
+   * const context = supportService.getSupportContext()
+   * if (context) {
+   *   console.log('Autarquia:', context.autarquia.nome)
+   *   console.log('Permissões:', context.permissions)
+   * }
    */
   getSupportContext(): SupportContext | null {
     const contextData = getItem<SupportContext | null>(this.STORAGE_KEY, null)
@@ -142,6 +211,14 @@ class SupportService {
 
   /**
    * Obtém a autarquia do contexto de suporte atual
+   *
+   * @returns {Autarquia|null} Autarquia atual ou null se não estiver em modo suporte
+   *
+   * @example
+   * const autarquia = supportService.getCurrentAutarquia()
+   * if (autarquia) {
+   *   console.log('Trabalhando na autarquia:', autarquia.nome)
+   * }
    */
   getCurrentAutarquia(): Autarquia | null {
     const context = this.getSupportContext()
@@ -150,6 +227,12 @@ class SupportService {
 
   /**
    * Obtém os módulos disponíveis no contexto de suporte atual
+   *
+   * @returns {Modulo[]} Array de módulos disponíveis (vazio se não estiver em modo suporte)
+   *
+   * @example
+   * const modulos = supportService.getCurrentModulos()
+   * console.log('Módulos disponíveis:', modulos.length)
    */
   getCurrentModulos(): Modulo[] {
     const context = this.getSupportContext()
@@ -158,6 +241,15 @@ class SupportService {
 
   /**
    * Verifica se tem permissão específica no contexto de suporte
+   *
+   * @param {string} permission - Nome da permissão a verificar
+   *
+   * @returns {boolean} true se possui a permissão
+   *
+   * @example
+   * if (supportService.hasPermission('manage_users')) {
+   *   console.log('Pode gerenciar usuários nesta autarquia')
+   * }
    */
   hasPermission(permission: keyof SupportContext['permissions']): boolean {
     const context = this.getSupportContext()
@@ -166,7 +258,17 @@ class SupportService {
   }
 
   /**
-   * Limpa o contexto de suporte (útil em caso de erro ou logout)
+   * Limpa o contexto de suporte
+   *
+   * @description Útil em caso de erro ou logout. Remove todos os dados de suporte
+   * do localStorage incluindo contexto e backup dos dados originais.
+   *
+   * @returns {void}
+   *
+   * @example
+   * // Em caso de erro
+   * supportService.clearSupportContext()
+   * console.log('Contexto limpo')
    */
   clearSupportContext(): void {
     removeItem(this.STORAGE_KEY)
@@ -175,5 +277,9 @@ class SupportService {
   }
 }
 
+/**
+ * Instância singleton do serviço de suporte
+ */
 export const supportService = new SupportService()
+
 export default supportService

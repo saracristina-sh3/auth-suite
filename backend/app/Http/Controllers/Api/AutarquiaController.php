@@ -124,7 +124,6 @@ class AutarquiaController extends Controller
      */
     public function destroy(Autarquia $autarquia): JsonResponse
     {
-        // Verifica se a autarquia tem usuários
         if ($autarquia->users()->exists()) {
             return response()->json([
                 'success' => false,
@@ -132,7 +131,6 @@ class AutarquiaController extends Controller
             ], 422);
         }
 
-        // Verifica se a autarquia tem módulos liberados
         if ($autarquia->modulos()->exists()) {
             return response()->json([
                 'success' => false,

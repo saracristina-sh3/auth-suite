@@ -19,7 +19,7 @@ class SuperAdminSeeder extends Seeder
         );
 
         // 🔹 Lê variáveis do .env (com valores padrão)
-        $email = env('SUPERADMIN_EMAIL', 'admin@empresa.com');
+        $email = env('SUPERADMIN_EMAIL', 'admin@sh3.com');
         $password = env('SUPERADMIN_PASSWORD', 'admin123');
         $name = env('SUPERADMIN_NAME', 'Super Admin');
         $cpf = env('SUPERADMIN_CPF', '00000000000');

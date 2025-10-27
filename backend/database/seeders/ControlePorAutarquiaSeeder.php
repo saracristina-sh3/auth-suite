@@ -56,7 +56,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'Teste User',
                 'email' => 'teste@empresa.com',
-                'cpf' => '12345678701',
+                'cpf' => '02790912068',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[0], // Prefeitura X
                 'role' => 'gestor',
@@ -65,7 +65,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'João Silva',
                 'email' => 'joao.silva@prefeiturax.gov.br',
-                'cpf' => '12345678901',
+                'cpf' => '18777621050',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[0], // Prefeitura X
                 'role' => 'gestor',
@@ -74,7 +74,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'Maria Oliveira',
                 'email' => 'maria.oliveira@prefeiturax.gov.br',
-                'cpf' => '23456789012',
+                'cpf' => '21025819004',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[0], // Prefeitura X
                 'role' => 'gestor',
@@ -83,7 +83,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'Pedro Santos',
                 'email' => 'pedro.santos@prefeituray.gov.br',
-                'cpf' => '34567890123',
+                'cpf' => '10219053057',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[1], // Prefeitura Y
                 'role' => 'gestor',
@@ -92,7 +92,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'Ana Costa',
                 'email' => 'ana.costa@prefeituray.gov.br',
-                'cpf' => '45678901234',
+                'cpf' => '4567853243990009901234',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[1], // Prefeitura Y
                 'role' => 'user',
@@ -101,7 +101,7 @@ class ControlePorAutarquiaSeeder extends Seeder
             [
                 'name' => 'Carlos Ferreira',
                 'email' => 'carlos.ferreira@prefeituraz.gov.br',
-                'cpf' => '56789012345',
+                'cpf' => '39946586088',
                 'password' => Hash::make('senha123'),
                 'autarquia_preferida_id' => $autarquiaIds[2], // Prefeitura Z
                 'role' => 'admin',

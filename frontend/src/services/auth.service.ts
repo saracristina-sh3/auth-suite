@@ -5,8 +5,53 @@ import { sessionService } from './session.service'
 import { getItem, setItem, STORAGE_KEYS } from '@/utils/storage'
 import { tokenService } from './token.service'
 
+/**
+ * Serviço de autenticação e gerenciamento de sessão
+ *
+ * @description Fornece funcionalidades completas de autenticação incluindo login,
+ * logout, renovação de token, verificação de permissões e gerenciamento de usuário.
+ *
+ * @example
+ * // Login
+ * const { token, user } = await authService.login({
+ *   email: 'user@example.com',
+ *   password: 'senha123'
+ * })
+ *
+ * // Verificar autenticação
+ * if (authService.isAuthenticated()) {
+ *   const user = authService.getUserFromStorage()
+ * }
+ *
+ * // Logout
+ * await authService.logout()
+ */
 class AuthService {
-async login(credentials: LoginCredentials) {
+  /**
+   * Realiza o login do usuário
+   *
+   * @param {LoginCredentials} credentials - Credenciais de login
+   * @param {string} credentials.email - Email do usuário
+   * @param {string} credentials.password - Senha do usuário
+   *
+   * @returns {Promise<Object>} Dados do login
+   * @returns {string} return.token - Access token JWT
+   * @returns {User} return.user - Dados do usuário autenticado
+   *
+   * @throws {Error} Se as credenciais forem inválidas ou requisição falhar
+   *
+   * @example
+   * try {
+   *   const { token, user } = await authService.login({
+   *     email: 'user@example.com',
+   *     password: 'senha123'
+   *   })
+   *   console.log('Login bem-sucedido:', user.name)
+   * } catch (error) {
+   *   console.error('Erro no login:', error.message)
+   * }
+   */
+  async login(credentials: LoginCredentials) {
     const response = await api.post('/login', credentials)
     const { token, refresh_token, user, expires_in } = response.data
 
@@ -23,6 +68,17 @@ async login(credentials: LoginCredentials) {
     return { token, user }
   }
 
+  /**
+   * Busca os dados atualizados do usuário autenticado
+   *
+   * @returns {Promise<User>} Dados atualizados do usuário
+   *
+   * @throws {Error} Se o usuário não estiver autenticado ou requisição falhar
+   *
+   * @example
+   * const user = await authService.getCurrentUser()
+   * console.log('Dados atualizados:', user.name)
+   */
   async getCurrentUser() {
     const response = await api.get('/user')
     const { user } = response.data
@@ -39,8 +95,16 @@ async login(credentials: LoginCredentials) {
     return userData
   }
 
-    /**
-   * Obtém autarquia ativa da session
+  /**
+   * Obtém a autarquia ativa da sessão Laravel
+   *
+   * @returns {Promise<any>} Dados da autarquia ativa
+   *
+   * @throws {Error} Se a requisição falhar
+   *
+   * @example
+   * const autarquia = await authService.getActiveAutarquiaFromSession()
+   * console.log('Autarquia ativa:', autarquia.nome)
    */
   async getActiveAutarquiaFromSession() {
     const response = await sessionService.getActiveAutarquia()
@@ -49,6 +113,18 @@ async login(credentials: LoginCredentials) {
 
   /**
    * Renova o access token usando o refresh token
+   *
+   * @returns {Promise<Object|null>} Novos dados de autenticação ou null se falhar
+   * @returns {string} return.token - Novo access token
+   * @returns {User} return.user - Dados atualizados do usuário
+   *
+   * @example
+   * const result = await authService.refreshToken()
+   * if (result) {
+   *   console.log('Token renovado com sucesso')
+   * } else {
+   *   console.log('Falha ao renovar token - redirecionando para login')
+   * }
    */
   async refreshToken(): Promise<{ token: string; user: any } | null> {
     try {
@@ -86,12 +162,33 @@ async login(credentials: LoginCredentials) {
   }
 
   /**
-   * Verifica se o token está próximo de expirar (menos de 5 minutos)
+   * Verifica se o token está próximo de expirar
+   *
+   * @returns {boolean} true se o token expira em menos de 5 minutos
+   *
+   * @example
+   * if (authService.isTokenExpiringSoon()) {
+   *   console.log('Token expirando em breve, renovando...')
+   *   await authService.refreshToken()
+   * }
    */
   isTokenExpiringSoon(): boolean {
     return tokenService.isTokenExpiringSoon(5)
   }
 
+  /**
+   * Realiza o logout do usuário
+   *
+   * @description Limpa todos os dados de autenticação (tokens, dados do usuário,
+   * contexto de suporte) do localStorage e notifica o backend.
+   *
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await authService.logout()
+   * console.log('Logout realizado com sucesso')
+   * // Redirecionar para página de login
+   */
   async logout(): Promise<void> {
     const token = tokenService.getAccessToken()
     if (token) {
@@ -112,10 +209,34 @@ async login(credentials: LoginCredentials) {
     delete api.defaults.headers.common.Authorization
   }
 
+  /**
+   * Verifica se o usuário está autenticado
+   *
+   * @returns {boolean} true se possui token válido e não expirado
+   *
+   * @example
+   * if (authService.isAuthenticated()) {
+   *   console.log('Usuário autenticado')
+   * } else {
+   *   console.log('Redirecionar para login')
+   * }
+   */
   isAuthenticated(): boolean {
     return tokenService.hasValidToken()
   }
 
+  /**
+   * Obtém os dados do usuário armazenados no localStorage
+   *
+   * @returns {User|null} Dados do usuário ou null se não estiver autenticado
+   *
+   * @example
+   * const user = authService.getUserFromStorage()
+   * if (user) {
+   *   console.log('Usuário:', user.name)
+   *   console.log('Role:', user.role)
+   * }
+   */
   getUserFromStorage(): User | null {
     const userData = getItem<User | null>(STORAGE_KEYS.USER, null)
     if (userData && typeof userData === 'object' && userData.id && userData.email) {
@@ -124,11 +245,40 @@ async login(credentials: LoginCredentials) {
     return null
   }
 
+  /**
+   * Verifica se o usuário possui uma role específica
+   *
+   * @param {string} role - Role a verificar (user, admin, superadmin, etc)
+   *
+   * @returns {boolean} true se o usuário possui a role ou é superadmin
+   *
+   * @example
+   * if (authService.hasRole('admin')) {
+   *   console.log('Usuário é admin')
+   * }
+   */
   hasRole(role: string): boolean {
     const user = this.getUserFromStorage()
     return user ? user.role === role || user.is_superadmin : false
   }
 
+  /**
+   * Verifica se o usuário tem permissão para acessar um recurso
+   *
+   * @param {string} permission - Permissão a verificar
+   *
+   * @returns {boolean} true se o usuário tem a permissão
+   *
+   * @description Superadmins têm acesso a tudo. Outras roles têm permissões específicas:
+   * - user: view_dashboard
+   * - manager: view_dashboard, manage_users, view_reports
+   * - admin: view_dashboard, manage_users, manage_system, view_reports
+   *
+   * @example
+   * if (authService.canAccess('manage_users')) {
+   *   console.log('Pode gerenciar usuários')
+   * }
+   */
   canAccess(permission: string): boolean {
     const user = this.getUserFromStorage()
     if (!user) return false
@@ -144,9 +294,33 @@ async login(credentials: LoginCredentials) {
   }
 }
 
+/**
+ * Instância singleton do serviço de autenticação
+ */
 export const authService = new AuthService()
+
+/**
+ * Função de atalho para login
+ * @see AuthService.login
+ */
 export const login = (credentials: LoginCredentials) => authService.login(credentials)
+
+/**
+ * Função de atalho para logout
+ * @see AuthService.logout
+ */
 export const logout = () => authService.logout()
+
+/**
+ * Função de atalho para obter usuário atual
+ * @see AuthService.getCurrentUser
+ */
 export const getUser = () => authService.getCurrentUser()
+
+/**
+ * Função de atalho para verificar autenticação
+ * @see AuthService.isAuthenticated
+ */
 export const isAuthenticated = () => authService.isAuthenticated()
+
 export default api

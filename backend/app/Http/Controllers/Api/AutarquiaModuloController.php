@@ -59,7 +59,7 @@ class AutarquiaModuloController extends Controller
             ],
             [
                 'ativo' => $validated['ativo'],
-                'data_liberacao' => now(), // Sempre atualiza a data de liberação
+                'data_liberacao' => now(),
             ]
         );
 
@@ -120,7 +120,7 @@ public function bulkUpdate(Request $request): JsonResponse
                     ],
                     [
                         'ativo' => $ativo,
-                        'data_liberacao' => now(), // Sempre atualiza a data de liberação
+                        'data_liberacao' => now(),
                     ]
                 );
 

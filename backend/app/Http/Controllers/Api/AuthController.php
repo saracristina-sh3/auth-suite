@@ -54,10 +54,8 @@ class AuthController extends Controller
                 'role' => $user->role,
                 'is_superadmin' => $user->is_superadmin,
                 'is_active' => $user->is_active,
-                // Retornar apenas a preferida, não a ativa
                 'autarquia_preferida_id' => $user->autarquia_preferida_id,
                 'autarquia_preferida' => $user->autarquiaPreferida,
-                // A ativa virá da session
                 'autarquia_ativa_id' => session('autarquia_ativa_id'),
                 'autarquia_ativa' => session('autarquia_ativa'),
             ]
@@ -79,7 +77,6 @@ class AuthController extends Controller
                 'is_active' => $user->is_active,
                 'autarquia_preferida_id' => $user->autarquia_preferida_id,
                 'autarquia_preferida' => $user->autarquiaPreferida,
-                // Da session
                 'autarquia_ativa_id' => session('autarquia_ativa_id'),
                 'autarquia_ativa' => session('autarquia_ativa'),
             ]
@@ -217,7 +214,7 @@ public function assumeAutarquiaContext(Request $request)
     }
 
     $request->validate([
-        'autarquia_id' => 'required|exists:autarquias,id'  // ✅ Renomear parâmetro
+        'autarquia_id' => 'required|exists:autarquias,id'
     ]);
 
     $autarquia = \App\Models\Autarquia::with('modulos')->findOrFail($request->autarquia_id);
@@ -303,14 +300,12 @@ public function exitAutarquiaContext(Request $request)
     $supportContext = session('support_context');
 
     if ($supportContext && isset($supportContext['original_autarquia_preferida_id'])) {
-        // Definir a autarquia preferida de volta na session
         if ($supportContext['original_autarquia_preferida_id']) {
             $this->autarquiaSession->setAutarquiaAtiva(
                 $supportContext['original_autarquia_preferida_id'],
                 $user
             );
         } else {
-            // Limpar completamente se não tinha autarquia preferida
             $this->autarquiaSession->clearAutarquiaAtiva();
         }
     } else {
@@ -420,7 +415,6 @@ public function exitAutarquiaContext(Request $request)
             'autarquia_nova' => $request->autarquia_ativa_id
         ]);
 
-        // Tenta trocar a autarquia
         $sucesso = $user->trocarAutarquia($request->autarquia_ativa_id);
 
         if (!$sucesso) {

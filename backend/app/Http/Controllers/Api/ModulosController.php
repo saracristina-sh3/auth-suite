@@ -120,7 +120,6 @@ class ModulosController extends Controller
      */
     public function destroy(Modulo $modulo): JsonResponse
     {
-        // Verifica se o módulo tem autarquias vinculadas
         if ($modulo->autarquias()->exists()) {
             return response()->json([
                 'success' => false,

@@ -5,9 +5,49 @@ import type { User } from '@/types/common/user.types'
 import type { AutarquiaWithPivot, UserAutarquiaPivot, SyncAutarquiasPayload } from '@/types/common/use-autarquia-pivot.types'
 
 
+/**
+ * Serviço de gerenciamento de usuários
+ *
+ * @description Fornece operações CRUD completas para usuários, incluindo
+ * gerenciamento de autarquias vinculadas e autarquia ativa.
+ *
+ * @example
+ * // Listar usuários
+ * const users = await userService.list({ page: 1, per_page: 10 })
+ *
+ * // Criar usuário
+ * const newUser = await userService.create({
+ *   name: 'João Silva',
+ *   email: 'joao@example.com',
+ *   cpf: '12345678900',
+ *   password: 'senha123',
+ *   role: 'user'
+ * })
+ */
 export const userService = {
   /**
    * Lista todos os usuários com paginação
+   *
+   * @param {Object} params - Parâmetros de paginação e filtros
+   * @param {number} params.page - Número da página (padrão: 1)
+   * @param {number} params.per_page - Itens por página (padrão: 15)
+   * @param {string} params.search - Termo de busca (nome ou email)
+   * @param {string} params.role - Filtrar por role (user, admin, superadmin, etc)
+   * @param {boolean} params.is_active - Filtrar por status ativo
+   *
+   * @returns {Promise<PaginatedResponse<User>>} Resposta paginada com usuários
+   *
+   * @throws {Error} Se a requisição falhar
+   *
+   * @example
+   * const response = await userService.list({
+   *   page: 1,
+   *   per_page: 10,
+   *   search: 'joão',
+   *   role: 'admin'
+   * })
+   * console.log(response.data) // Array de usuários
+   * console.log(response.meta) // Metadados de paginação
    */
   async list(params = {}): Promise<PaginatedResponse<User>> {
     try {
@@ -26,6 +66,16 @@ export const userService = {
 
   /**
    * Busca um usuário específico por ID
+   *
+   * @param {number} id - ID do usuário
+   *
+   * @returns {Promise<User>} Usuário encontrado
+   *
+   * @throws {Error} Se o usuário não for encontrado (404) ou requisição falhar
+   *
+   * @example
+   * const user = await userService.get(1)
+   * console.log(user.name) // 'João Silva'
    */
   async get(id: number): Promise<User> {
     const response = await api.get(`/users/${id}`)
@@ -34,6 +84,32 @@ export const userService = {
 
   /**
    * Cria um novo usuário
+   *
+   * @param {Partial<User>} payload - Dados do novo usuário
+   * @param {string} payload.name - Nome completo (obrigatório)
+   * @param {string} payload.email - Email único (obrigatório)
+   * @param {string} payload.cpf - CPF único, apenas números (obrigatório)
+   * @param {string} payload.password - Senha, mínimo 6 caracteres (obrigatório)
+   * @param {string} payload.role - Role do usuário (user, admin, superadmin, etc)
+   * @param {number[]} payload.autarquias - IDs das autarquias vinculadas
+   * @param {number} payload.autarquia_preferida_id - ID da autarquia padrão
+   * @param {boolean} payload.is_active - Status ativo (padrão: true)
+   *
+   * @returns {Promise<User>} Usuário criado
+   *
+   * @throws {Error} Se validação falhar ou requisição falhar
+   *
+   * @example
+   * const newUser = await userService.create({
+   *   name: 'João Silva',
+   *   email: 'joao@example.com',
+   *   cpf: '12345678900',
+   *   password: 'senha123',
+   *   role: 'user',
+   *   autarquias: [1, 2],
+   *   autarquia_preferida_id: 1,
+   *   is_active: true
+   * })
    */
   async create(payload: Partial<User>): Promise<User> {
     const response = await api.post('/users', payload)
@@ -42,6 +118,27 @@ export const userService = {
 
   /**
    * Atualiza um usuário existente
+   *
+   * @param {number} id - ID do usuário a ser atualizado
+   * @param {Partial<User>} payload - Dados a serem atualizados
+   * @param {string} payload.name - Nome completo
+   * @param {string} payload.email - Email único
+   * @param {string} payload.cpf - CPF único, apenas números
+   * @param {string} payload.password - Nova senha (opcional, só atualiza se fornecida)
+   * @param {string} payload.role - Role do usuário
+   * @param {number[]} payload.autarquias - IDs das autarquias vinculadas
+   * @param {number} payload.autarquia_preferida_id - ID da autarquia padrão
+   * @param {boolean} payload.is_active - Status ativo
+   *
+   * @returns {Promise<User>} Usuário atualizado
+   *
+   * @throws {Error} Se o usuário não for encontrado ou validação falhar
+   *
+   * @example
+   * const updatedUser = await userService.update(1, {
+   *   name: 'João Silva Atualizado',
+   *   email: 'joao.novo@example.com'
+   * })
    */
   async update(id: number, payload: Partial<User>): Promise<User> {
     const response = await api.put(`/users/${id}`, payload)
@@ -50,6 +147,15 @@ export const userService = {
 
   /**
    * Remove um usuário
+   *
+   * @param {number} id - ID do usuário a ser removido
+   *
+   * @returns {Promise<void>}
+   *
+   * @throws {Error} Se o usuário não for encontrado ou não puder ser removido
+   *
+   * @example
+   * await userService.remove(1)
    */
   async remove(id: number): Promise<void> {
     await api.delete(`/users/${id}`)
@@ -223,6 +329,18 @@ export const userService = {
 
   /**
    * Retorna estatísticas dos usuários
+   *
+   * @returns {Promise<Object>} Estatísticas dos usuários
+   * @returns {number} return.total - Total de usuários
+   * @returns {number} return.ativos - Usuários ativos
+   * @returns {number} return.inativos - Usuários inativos
+   * @returns {number} return.superadmins - Usuários superadmin
+   *
+   * @throws {Error} Se a requisição falhar
+   *
+   * @example
+   * const stats = await userService.getStats()
+   * console.log(`Total: ${stats.total}, Ativos: ${stats.ativos}`)
    */
   async getStats(): Promise<{ total: number; ativos: number; inativos: number; superadmins: number }> {
     const response = await api.get<{ data: { total: number; ativos: number; inativos: number; superadmins: number } }>('/users/stats')
