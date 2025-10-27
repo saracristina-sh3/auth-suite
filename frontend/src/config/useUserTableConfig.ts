@@ -72,6 +72,19 @@ export function useUserTableConfig(roles: Ref<Role[]>, autarquias: Ref<Autarquia
       optionValue: 'value'
     },
     {
+      name: 'autarquias',
+      label: 'Autarquias',
+      type: 'select',
+      required: true,
+      multiple: true,         // Habilita multi-seleção
+      searchable: true,       // Habilita busca no dropdown
+      placeholder: 'Selecione uma ou mais autarquias',
+      options: autarquias.value,
+      optionLabel: 'nome',
+      optionValue: 'id',
+      defaultValue: [] as any
+    },
+    {
       name: 'autarquia_preferida_id',
       label: 'Autarquia Preferida',
       type: 'select',
