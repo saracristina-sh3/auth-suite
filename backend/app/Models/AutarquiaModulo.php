@@ -12,10 +12,6 @@ class AutarquiaModulo extends Model
 
     protected $table = 'autarquia_modulo';
 
-    // Usar chave primária padrão (id) - Eloquent gerencia automaticamente
-    // protected $primaryKey = 'id'; // Não é necessário declarar, é o padrão
-    // public $incrementing = true; // Não é necessário declarar, é o padrão
-
     protected $fillable = [
         'autarquia_id',
         'modulo_id',

@@ -21,11 +21,9 @@ class AuthenticateWithCookie
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Se não há Authorization header, tentar pegar do cookie
         if (!$request->bearerToken() && $request->hasCookie('auth_token')) {
             $token = $request->cookie('auth_token');
 
-            // Adicionar token no header Authorization para o Sanctum processar
             $request->headers->set('Authorization', 'Bearer ' . $token);
         }
 

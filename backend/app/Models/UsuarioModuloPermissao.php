@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Traits\HasCompositePrimaryKey;
+use App\Traits\PermissionScopes;
+use App\Traits\PermissionChecks;
 
 class UsuarioModuloPermissao extends Model
 {
-    use HasFactory;
+    use HasFactory, HasCompositePrimaryKey, PermissionScopes, PermissionChecks;
 
     protected $table = 'usuario_modulo_permissao';
 
@@ -61,110 +64,5 @@ class UsuarioModuloPermissao extends Model
     public function autarquia(): BelongsTo
     {
         return $this->belongsTo(Autarquia::class, 'autarquia_id');
-    }
-
-    /**
-     * Scope: Apenas permissões ativas
-     */
-    public function scopeAtivas($query)
-    {
-        return $query->where('ativo', true);
-    }
-
-    /**
-     * Scope: Permissões de um usuário específico
-     */
-    public function scopeDoUsuario($query, int $userId)
-    {
-        return $query->where('user_id', $userId);
-    }
-
-    /**
-     * Scope: Permissões de uma autarquia específica
-     */
-    public function scopeDaAutarquia($query, int $autarquiaId)
-    {
-        return $query->where('autarquia_id', $autarquiaId);
-    }
-
-    /**
-     * Scope: Permissões de um módulo específico
-     */
-    public function scopeDoModulo($query, int $moduloId)
-    {
-        return $query->where('modulo_id', $moduloId);
-    }
-
-    /**
-     * Verifica se o usuário tem permissão de leitura
-     */
-    public function podeLer(): bool
-    {
-        return $this->ativo && $this->permissao_leitura;
-    }
-
-    /**
-     * Verifica se o usuário tem permissão de escrita
-     */
-    public function podeEscrever(): bool
-    {
-        return $this->ativo && $this->permissao_escrita;
-    }
-
-    /**
-     * Verifica se o usuário tem permissão de exclusão
-     */
-    public function podeExcluir(): bool
-    {
-        return $this->ativo && $this->permissao_exclusao;
-    }
-
-    /**
-     * Verifica se o usuário é admin do módulo
-     */
-    public function eAdmin(): bool
-    {
-        return $this->ativo && $this->permissao_admin;
-    }
-
-    /**
-     * Override do método getKeyName para chave composta
-     */
-    public function getKeyName()
-    {
-        return $this->primaryKey;
-    }
-
-    /**
-     * Override do método setKeysForSaveQuery para chave composta
-     */
-    protected function setKeysForSaveQuery($query)
-    {
-        $keys = $this->getKeyName();
-        if (!is_array($keys)) {
-            return parent::setKeysForSaveQuery($query);
-        }
-
-        foreach ($keys as $keyName) {
-            $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
-        }
-
-        return $query;
-    }
-
-    /**
-     * Override do método getKeyForSaveQuery para chave composta
-     */
-    protected function getKeyForSaveQuery($keyName = null)
-    {
-        if (is_null($keyName)) {
-            $keyName = $this->getKeyName();
-        }
-
-        if (isset($this->original[$keyName])) {
-            return $this->original[$keyName];
-        }
-
-        return $this->getAttribute($keyName);
     }
 }

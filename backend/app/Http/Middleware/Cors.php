@@ -9,12 +9,10 @@ class Cors
 {
     public function handle(Request $request, Closure $next)
     {
-        // Handle preflight OPTIONS request
         $response = $request->isMethod('OPTIONS')
             ? response('', 200)
             : $next($request);
 
-        // Permitir múltiplas origens (frontend em diferentes portas)
         $allowedOrigins = [
             'http://localhost:5173',
             'http://localhost:3000',

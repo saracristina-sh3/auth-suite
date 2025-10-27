@@ -10,7 +10,6 @@ class SuperAdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Verifica se o usuário autenticado é superadmin
         if (!$request->user()?->is_superadmin) {
             return response()->json(['message' => 'Acesso negado.'], 403);
         }
