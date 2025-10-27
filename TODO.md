@@ -182,12 +182,19 @@
    - Parâmetros, retornos, exemplos e exceções documentados
    - Interfaces e types documentados
 
+9. **Documentação de Tipos Complexos** (27/10/2025)
+   - 3 arquivos de tipos documentados (user, pivot, support)
+   - 6 interfaces principais documentadas
+   - ~30 propriedades com explicações detalhadas
+   - Diferenciação clara entre autarquia_preferida_id e autarquia_ativa_id
+   - Documentação completa do sistema de pivot
+
 ### 📊 Progresso Geral
 - **Segurança**: ✅ Error handler + ✅ Refresh token + ✅ Auto-refresh = Excelente
 - **Validações**: ✅ CPF + ✅ Email + ✅ Inline = Completo
 - **Bugs Críticos**: ✅ Todos corrigidos
 - **Arquitetura**: ✅ Componentes refatorados + ✅ Formulários específicos
-- **Documentação Services**: ✅ JSDoc completo em 7 services principais
+- **Documentação**: ✅ Services + ✅ Tipos Complexos = Completa
 - **Próxima Prioridade**: Testes Unitários
 
 ---
@@ -427,11 +434,21 @@
     - ✅ Documentação de interfaces e types
   - **Tempo gasto**: ~4 horas
 
-- [ ] **Documentar Tipos Complexos**
-  - [ ] `user.types.ts`: Explicar `autarquia_preferida_id` vs `autarquia_ativa_id`
-  - [ ] `use-autarquia-pivot.types.ts`: Documentar pivot data
-  - [ ] `support.types.ts`: Documentar SupportContext
-  - **Tempo estimado**: 2-3 horas
+- [x] **Documentar Tipos Complexos** ✅ **CONCLUÍDO - 27/10/2025**
+  - [x] `user.types.ts`: Explicar `autarquia_preferida_id` vs `autarquia_ativa_id`
+  - [x] `use-autarquia-pivot.types.ts`: Documentar pivot data
+  - [x] `support.types.ts`: Documentar SupportContext
+  - **Arquivos documentados**: 3 arquivos de tipos
+  - **Interfaces documentadas**: 6 interfaces principais
+  - **Propriedades documentadas**: ~30 propriedades com explicações detalhadas
+  - **Recursos adicionados**:
+    - ✅ Diferenciação clara entre `autarquia_preferida_id` e `autarquia_ativa_id`
+    - ✅ Documentação completa da tabela pivot `usuario_autarquia`
+    - ✅ Explicação do fluxo de modo suporte
+    - ✅ Exemplos práticos de uso
+    - ✅ Descrição de regras de negócio
+    - ✅ Warnings e notas importantes
+  - **Tempo gasto**: ~2 horas
 
 - [ ] **Criar Guias de Desenvolvimento**
   - [ ] `docs/DEVELOPMENT.md`: Como adicionar novo service
@@ -621,8 +638,8 @@ AdminManagementView
 10. ✅ Refatorar AdminManagementView (FEITO - 27/10/2025)
 11. ✅ Refatorar Sh3Form (FEITO - 27/10/2025)
 12. ✅ Adicionar JSDoc em Services (FEITO - 27/10/2025)
-13. ⏳ **PRÓXIMO**: Implementar Testes Unitários
-14. ⏳ Documentar Tipos Complexos
+13. ✅ Documentar Tipos Complexos (FEITO - 27/10/2025)
+14. ⏳ **PRÓXIMO**: Implementar Testes Unitários
 15. ⏳ Remover tipos `any` restantes
 
 ---
@@ -661,6 +678,7 @@ AdminManagementView
 - ✅ Indicador visual de sessão
 - ✅ Proteção anti-loop no login
 - ✅ JSDoc completo em 7 services (40+ métodos)
+- ✅ Documentação de tipos complexos (3 arquivos, 6 interfaces)
 
 ### Tempo Total Investido
 - **Error Handler**: ~3h
@@ -672,8 +690,9 @@ AdminManagementView
 - **Token Service**: ~3h
 - **Refatoração AdminManagement**: ~6h
 - **Refatoração Formulários**: ~8h
-- **Documentação JSDoc**: ~4h
-- **Total**: ~39h de desenvolvimento focado
+- **Documentação JSDoc Services**: ~4h
+- **Documentação Tipos Complexos**: ~2h
+- **Total**: ~41h de desenvolvimento focado
 
 ### Resultados Quantitativos
 - **Linhas de código refatoradas**: ~1500
@@ -686,7 +705,9 @@ AdminManagementView
 - **Redução de complexidade**: ~40%
 - **Services documentados**: 7 (user, autarquia, modulos, auth, support, session, role)
 - **Métodos documentados**: ~40 com JSDoc completo
-- **Interfaces documentadas**: ~10
+- **Arquivos de tipos documentados**: 3 (user.types, pivot.types, support.types)
+- **Interfaces documentadas**: ~16 (10 em services + 6 em tipos)
+- **Propriedades documentadas**: ~70 (40 em services + 30 em tipos)
 
 ---
 
