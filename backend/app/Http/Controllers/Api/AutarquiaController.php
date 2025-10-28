@@ -4,215 +4,176 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Autarquia;
-use App\Models\AutarquiaModulo;
-use App\Models\Modulo;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Services\Autarquia\AutarquiaService;
+use App\Repositories\AutarquiaRepository;
+use App\Traits\ApiResponses;
+use Illuminate\Validation\ValidationException;
 
 class AutarquiaController extends Controller
 {
-    use \App\Traits\ApiResponses;
+    use ApiResponses;
+
+    public function __construct(
+        private AutarquiaService $autarquiaService,
+        private AutarquiaRepository $autarquiaRepository
+    ) {}
 
     /**
      * Lista todas as autarquias (com paginação)
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        try {
+            $autarquias = $this->autarquiaRepository->getAutarquiasPaginated($request->all());
 
-        $query = Autarquia::query();
-
-        // Filtrar por status ativo se solicitado
-        if ($request->has('ativo')) {
-            $query->where('ativo', $request->boolean('ativo'));
+            return $this->successPaginatedResponse(
+                $autarquias,
+                'Lista de autarquias recuperada com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar lista de autarquias.');
         }
-
-        // ✅ Eager loading para evitar N+1
-        // Sempre carregar contagem de usuários e módulos para melhor performance
-        $query->withCount(['users', 'modulos']);
-
-        // Incluir módulos se solicitado
-        if ($request->boolean('with_modulos')) {
-            $query->with('modulosAtivos');
-        }
-
-        // Incluir usuários se solicitado
-        if ($request->boolean('with_users')) {
-            $query->with('users:id,name,email');
-        }
-
-        // Busca por nome
-        if ($request->has('search')) {
-            $query->where('nome', 'like', '%' . $request->get('search') . '%');
-        }
-
-        $autarquias = $query->orderBy('nome')->paginate($perPage);
-
-        return $this->successPaginatedResponse(
-            $autarquias,
-            'Lista de autarquias recuperada com sucesso.'
-        );
     }
 
     /**
      * Exibe uma autarquia específica
      */
-    public function show(Autarquia $autarquia): JsonResponse
+    public function show(Autarquia $autarquia)
     {
-        $autarquia->load(['modulosAtivos', 'users']);
-        $autarquia->loadCount('users');
+        try {
+            $autarquiaWithRelations = $this->autarquiaRepository->getAutarquiaWithRelations($autarquia->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Autarquia recuperada com sucesso.',
-            'data' => $autarquia,
-        ]);
+            if (!$autarquiaWithRelations) {
+                return $this->notFoundResponse('Autarquia não encontrada.');
+            }
+
+            return $this->successResponse(
+                $autarquiaWithRelations,
+                'Autarquia recuperada com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar autarquia.');
+        }
     }
 
     /**
      * Cria uma nova autarquia
      */
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255|unique:autarquias',
-            'ativo' => 'boolean',
-        ]);
+        try {
+            $autarquia = $this->autarquiaService->createAutarquia($request->all());
 
-        $autarquia = Autarquia::create($validated);
-
-        // Criar vínculos automáticos com todos os módulos (inativos)
-        $modulos = Modulo::all();
-        foreach ($modulos as $modulo) {
-            AutarquiaModulo::firstOrCreate([
-                'autarquia_id' => $autarquia->id,
-                'modulo_id' => $modulo->id,
-            ], [
-                'ativo' => false,
-                'data_liberacao' => now(),
-            ]);
+            return $this->createdResponse(
+                $autarquia,
+                'Autarquia criada com sucesso.'
+            );
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse($e->errors());
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao criar autarquia.');
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Autarquia criada com sucesso.',
-            'data' => $autarquia,
-        ], 201);
     }
 
     /**
      * Atualiza uma autarquia existente
      */
-    public function update(Request $request, Autarquia $autarquia): JsonResponse
+    public function update(Request $request, Autarquia $autarquia)
     {
-        $validated = $request->validate([
-            'nome' => "sometimes|string|max:255|unique:autarquias,nome,{$autarquia->id}",
-            'ativo' => 'sometimes|boolean',
-        ]);
+        try {
+            $updatedAutarquia = $this->autarquiaService->updateAutarquia($autarquia, $request->all());
 
-        $autarquia->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Autarquia atualizada com sucesso.',
-            'data' => $autarquia,
-        ]);
+            return $this->updatedResponse(
+                $updatedAutarquia,
+                'Autarquia atualizada com sucesso.'
+            );
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse($e->errors());
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao atualizar autarquia.');
+        }
     }
 
     /**
-     * Remove uma autarquia (soft delete ou validação)
+     * Remove uma autarquia
      */
-    public function destroy(Autarquia $autarquia): JsonResponse
+    public function destroy(Autarquia $autarquia)
     {
-        if ($autarquia->users()->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não é possível excluir a autarquia pois existem usuários vinculados.',
-            ], 422);
+        try {
+            $this->autarquiaService->deleteAutarquia($autarquia);
+
+            return $this->deletedResponse('Autarquia excluída com sucesso.');
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 422);
         }
-
-        if ($autarquia->modulos()->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não é possível excluir a autarquia pois existem módulos vinculados.',
-            ], 422);
-        }
-
-        $autarquia->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Autarquia excluída com sucesso.',
-        ]);
     }
 
     /**
      * Lista os módulos da autarquia
      */
-    public function modulos(Autarquia $autarquia): JsonResponse
+    public function modulos(Autarquia $autarquia)
     {
-        $modulos = $autarquia->modulos()->get();
+        try {
+            $modulos = $this->autarquiaRepository->getModulosByAutarquia($autarquia->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulos da autarquia recuperados com sucesso.',
-            'data' => $modulos,
-        ]);
+            return $this->successResponse(
+                $modulos,
+                'Módulos da autarquia recuperados com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar módulos da autarquia.');
+        }
     }
 
     /**
      * Retorna estatísticas dos módulos da autarquia
      */
-    public function modulosStats(Autarquia $autarquia): JsonResponse
+    public function modulosStats(Autarquia $autarquia)
     {
-        $total = $autarquia->modulos()->count();
-        $ativos = $autarquia->modulos()->wherePivot('ativo', true)->count();
-        $inativos = $autarquia->modulos()->wherePivot('ativo', false)->count();
+        try {
+            $stats = $this->autarquiaService->getModuleStats($autarquia);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estatísticas dos módulos da autarquia recuperadas com sucesso.',
-            'data' => [
-                'total' => $total,
-                'ativos' => $ativos,
-                'inativos' => $inativos,
-            ],
-        ]);
+            return $this->successResponse(
+                $stats,
+                'Estatísticas dos módulos da autarquia recuperadas com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar estatísticas dos módulos.');
+        }
     }
 
     /**
      * Lista os usuários da autarquia
      */
-    public function usuarios(Autarquia $autarquia): JsonResponse
+    public function usuarios(Autarquia $autarquia)
     {
-        $usuarios = $autarquia->users()
-            ->select('users.id', 'users.name', 'users.email', 'users.cpf', 'users.role', 'users.is_active')
-            ->get();
+        try {
+            $usuarios = $this->autarquiaRepository->getUsuariosByAutarquia($autarquia->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuários da autarquia recuperados com sucesso.',
-            'data' => $usuarios,
-        ]);
+            return $this->successResponse(
+                $usuarios,
+                'Usuários da autarquia recuperados com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar usuários da autarquia.');
+        }
     }
 
     /**
      * Retorna estatísticas das autarquias
      */
-    public function stats(): JsonResponse
+    public function stats()
     {
-        $total = Autarquia::count();
-        $ativas = Autarquia::where('ativo', true)->count();
-        $inativas = Autarquia::where('ativo', false)->count();
+        try {
+            $stats = $this->autarquiaService->getGlobalStats();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estatísticas de autarquias recuperadas com sucesso.',
-            'data' => [
-                'total' => $total,
-                'ativas' => $ativas,
-                'inativas' => $inativas,
-            ],
-        ]);
+            return $this->successResponse(
+                $stats,
+                'Estatísticas de autarquias recuperadas com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar estatísticas.');
+        }
     }
 }

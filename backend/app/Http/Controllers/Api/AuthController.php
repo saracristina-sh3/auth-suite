@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Services\AutarquiaSessionService;
 use App\Traits\CreatesTokens;
+use \App\Traits\ApiResponses;
 
 class AuthController extends Controller
 {
-    use CreatesTokens;
+    use CreatesTokens, ApiResponses;
 
     protected AutarquiaSessionService $autarquiaSession;
 

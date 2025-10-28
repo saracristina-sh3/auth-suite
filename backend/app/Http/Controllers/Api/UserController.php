@@ -4,167 +4,109 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use App\Rules\CpfValidation;
+use App\Services\UserService;
+use App\Repositories\UserRepository;
 use App\Traits\ApiResponses;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
     use ApiResponses;
-    public function index(Request $request): JsonResponse
+
+    public function __construct(
+        private UserService $userService,
+        private UserRepository $userRepository
+    ) {}
+
+    public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        try {
+            $users = $this->userRepository->getUsersPaginated($request->all());
 
-        $query = User::query()
-            ->select('id', 'name', 'email', 'role', 'cpf', 'autarquia_preferida_id', 'is_active', 'is_superadmin')
-            // ✅ Eager loading para evitar N+1
-            ->with([
-                'autarquiaPreferida:id,nome',
-                'autarquias:id,nome,ativo' // Carregar todas as autarquias do usuário
-            ]);
-
-        // Filtrar por autarquia se solicitado
-        if ($request->has('autarquia_preferida_id')) {
-            $query->where('autarquia_preferida_id', $request->get('autarquia_preferida_id'));
+            return $this->successPaginatedResponse(
+                $users,
+                'Lista de usuários recuperada com sucesso.'
+            );
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar lista de usuários.');
         }
-
-        // Filtrar por status ativo se solicitado
-        if ($request->has('is_active')) {
-            $query->where('is_active', $request->boolean('is_active'));
-        }
-
-        $users = $query->orderBy('id', 'desc')->paginate($perPage);
-
-        return $this->successPaginatedResponse(
-            $users,
-            'Lista de usuários recuperada com sucesso.'
-        );
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'role' => 'required|string|in:user,gestor,admin,superadmin,clientAdmin',
-            'cpf' => ['required', 'string', new CpfValidation, 'unique:users'],
-            'autarquia_preferida_id' => 'required|exists:autarquias,id',
-            'is_active' => 'boolean',
-        ]);
+        try {
+            $user = $this->userService->createUser($request->all());
 
-        // Se for superadmin, marcar is_superadmin como true
-        $isSuperadmin = $validated['role'] === 'superadmin';
-
-        // Remover formatação do CPF (manter apenas números)
-        $cpfLimpo = preg_replace('/\D/', '', $validated['cpf']);
-
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'cpf' => $cpfLimpo,
-            'role' => $validated['role'],
-            'autarquia_preferida_id' => $validated['autarquia_preferida_id'],
-            'is_active' => $validated['is_active'] ?? true,
-            'is_superadmin' => $isSuperadmin,
-        ]);
-
-        // Criar vínculo na tabela pivot usuario_autarquia
-        $user->autarquias()->attach($validated['autarquia_preferida_id'], [
-            'role' => $validated['role'],
-            'is_admin' => $validated['role'] === 'clientAdmin',
-            'is_default' => true,
-            'ativo' => true,
-            'data_vinculo' => now(),
-        ]);
-
-        // Carregar relacionamentos
-        $user->load(['autarquiaPreferida:id,nome', 'autarquias']);
-
-        return $this->createdResponse($user, 'Usuário criado com sucesso.');
+            return $this->createdResponse($user, 'Usuário criado com sucesso.');
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse($e->errors());
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao criar usuário.');
+        }
     }
 
-    public function update(Request $request, User $user): JsonResponse
+    public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            "email" => "sometimes|email|unique:users,email,{$user->id}",
-            "cpf" => ['sometimes', 'string', new CpfValidation, "unique:users,cpf,{$user->id}"],
-            'role' => 'sometimes|string|in:user,gestor,admin,superadmin,clientAdmin',
-            'is_active' => 'sometimes|boolean',
-        ]);
+        try {
+            $updatedUser = $this->userService->updateUser($user, $request->all());
 
-        // Remover formatação do CPF se fornecido (manter apenas números)
-        if (isset($validated['cpf'])) {
-            $validated['cpf'] = preg_replace('/\D/', '', $validated['cpf']);
+            return $this->updatedResponse($updatedUser, 'Usuário atualizado com sucesso.');
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse($e->errors());
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao atualizar usuário.');
         }
-
-        // Se mudou para superadmin, atualizar is_superadmin
-        if (isset($validated['role'])) {
-            $validated['is_superadmin'] = $validated['role'] === 'superadmin';
-        }
-
-        $user->update($validated);
-
-        // Carregar relacionamentos
-        $user->load(['autarquiaPreferida:id,nome', 'autarquias']);
-
-        return $this->updatedResponse($user, 'Usuário atualizado com sucesso.');
     }
 
-    public function destroy(User $user): JsonResponse
+    public function destroy(User $user)
     {
-        // Verificar se o usuário tem permissões vinculadas
-        if ($user->permissoes()->exists()) {
+        try {
+            $this->userService->deleteUser($user);
+
+            return $this->deletedResponse('Usuário excluído com sucesso.');
+        } catch (\Exception $e) {
             return $this->validationErrorResponse(
-                ['user' => ['Não é possível excluir o usuário pois existem permissões vinculadas.']],
-                'Não é possível excluir o usuário pois existem permissões vinculadas.'
+                ['user' => [$e->getMessage()]],
+                $e->getMessage()
             );
         }
-
-        $user->delete();
-
-        return $this->deletedResponse('Usuário excluído com sucesso.');
     }
 
-    /**
-     * Exibe um usuário específico com suas permissões
-     */
-    public function show(User $user): JsonResponse
+    public function show(User $user)
     {
-        $user->load(['autarquiaPreferida:id,nome', 'autarquias', 'permissoesAtivas.modulo:id,nome', 'permissoesAtivas.autarquia:id,nome']);
+        try {
+            $userWithPermissions = $this->userRepository->getUserWithPermissions($user->id);
 
-        return $this->successResponse($user, 'Usuário recuperado com sucesso.');
+            if (!$userWithPermissions) {
+                return $this->notFoundResponse('Usuário não encontrado.');
+            }
+
+            return $this->successResponse($userWithPermissions, 'Usuário recuperado com sucesso.');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar usuário.');
+        }
     }
 
-    /**
-     * Retorna os módulos disponíveis para o usuário
-     */
-    public function modulos(User $user): JsonResponse
+    public function modulos(User $user)
     {
-        $modulos = $user->getModulosDisponiveis();
+        try {
+            $modulos = $user->getModulosDisponiveis();
 
-        return $this->successResponse($modulos, 'Módulos do usuário recuperados com sucesso.');
+            return $this->successResponse($modulos, 'Módulos do usuário recuperados com sucesso.');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar módulos do usuário.');
+        }
     }
 
-    /**
-     * Retorna estatísticas dos usuários
-     */
-    public function stats(): JsonResponse
+    public function stats()
     {
-        $total = User::count();
-        $ativos = User::where('is_active', true)->count();
-        $inativos = User::where('is_active', false)->count();
-        $superadmins = User::where('is_superadmin', true)->count();
+        try {
+            $stats = $this->userRepository->getUserStats();
 
-        return $this->successResponse([
-            'total' => $total,
-            'ativos' => $ativos,
-            'inativos' => $inativos,
-            'superadmins' => $superadmins,
-        ], 'Estatísticas de usuários recuperadas com sucesso.');
+            return $this->successResponse($stats, 'Estatísticas de usuários recuperadas com sucesso.');
+        } catch (\Exception $e) {
+            return $this->serverErrorResponse('Erro ao recuperar estatísticas.');
+        }
     }
 }

@@ -6,11 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Modulo;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use \App\Traits\ApiResponses;
+
 
 class ModulosController extends Controller
 {
-    use \App\Traits\ApiResponses;
-
+    use ApiResponses;
     /**
      * Lista todos os módulos (com paginação)
      */
