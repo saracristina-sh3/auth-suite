@@ -6,38 +6,40 @@ use App\Http\Controllers\Controller;
 use App\Models\UsuarioModuloPermissao;
 use App\Models\User;
 use App\Models\Modulo;
-use App\Models\Autarquia;
+use App\Services\PermissionService;
+use App\Services\AutarquiaSessionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioModuloPermissaoController extends Controller
 {
+    public function __construct(
+        private PermissionService $permissionService,
+        private AutarquiaSessionService $autarquiaSessionService
+    ) {}
+
     /**
      * Lista todas as permissões
      */
     public function index(Request $request): JsonResponse
     {
-        $query = UsuarioModuloPermissao::query()
-            ->with(['user:id,name,email', 'modulo:id,nome,icone', 'autarquia:id,nome']);
+        $query = UsuarioModuloPermissao::with(['user:id,name,email', 'modulo:id,nome,icone', 'autarquia:id,nome']);
 
-        // Filtrar por usuário
+        // Aplicar filtros usando scopes
         if ($request->has('user_id')) {
-            $query->where('user_id', $request->get('user_id'));
+            $query->doUsuario($request->get('user_id'));
         }
 
-        // Filtrar por módulo
         if ($request->has('modulo_id')) {
-            $query->where('modulo_id', $request->get('modulo_id'));
+            $query->doModulo($request->get('modulo_id'));
         }
 
-        // Filtrar por autarquia
         if ($request->has('autarquia_ativa_id')) {
-            $query->where('autarquia_ativa_id', $request->get('autarquia_ativa_id'));
+            $query->daAutarquia($request->get('autarquia_ativa_id'));
         }
 
-        // Filtrar por status ativo
         if ($request->has('ativo')) {
             $query->where('ativo', $request->boolean('ativo'));
         }
@@ -56,9 +58,7 @@ class UsuarioModuloPermissaoController extends Controller
      */
     public function show(int $userId, int $moduloId, int $autarquiaId): JsonResponse
     {
-        $permissao = UsuarioModuloPermissao::where('user_id', $userId)
-            ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+        $permissao = UsuarioModuloPermissao::filtroCompleto($userId, $moduloId, $autarquiaId)
             ->with(['user:id,name,email', 'modulo:id,nome,icone', 'autarquia:id,nome'])
             ->firstOrFail();
 
@@ -85,52 +85,16 @@ class UsuarioModuloPermissaoController extends Controller
             'ativo' => 'boolean',
         ]);
 
-        // Verificar se o usuário pertence à autarquia
-        $user = User::find($validated['user_id']);
-        if ($user->autarquia_ativa_id != $validated['autarquia_ativa_id']) {
-            throw ValidationException::withMessages([
-                'autarquia_ativa_id' => ['O usuário não pertence a esta autarquia.']
-            ]);
-        }
+        $this->validarPermissao($validated);
 
-        // Verificar se o módulo está liberado para a autarquia
-        $moduloLiberado = DB::table('autarquia_modulo')
-            ->where('autarquia_ativa_id', $validated['autarquia_ativa_id'])
-            ->where('modulo_id', $validated['modulo_id'])
-            ->where('ativo', true)
-            ->exists();
-
-        if (!$moduloLiberado) {
-            throw ValidationException::withMessages([
-                'modulo_id' => ['O módulo não está liberado para esta autarquia.']
-            ]);
-        }
-
-        // Verificar se a permissão já existe
-        $existe = UsuarioModuloPermissao::where('user_id', $validated['user_id'])
-            ->where('modulo_id', $validated['modulo_id'])
-            ->where('autarquia_ativa_id', $validated['autarquia_ativa_id'])
-            ->first();
-
-        if ($existe) {
+        if ($this->permissaoExiste($validated['user_id'], $validated['modulo_id'], $validated['autarquia_ativa_id'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Esta permissão já existe para este usuário.',
             ], 422);
         }
 
-        $permissao = UsuarioModuloPermissao::create([
-            'user_id' => $validated['user_id'],
-            'modulo_id' => $validated['modulo_id'],
-            'autarquia_ativa_id' => $validated['autarquia_ativa_id'],
-            'permissao_leitura' => $validated['permissao_leitura'] ?? false,
-            'permissao_escrita' => $validated['permissao_escrita'] ?? false,
-            'permissao_exclusao' => $validated['permissao_exclusao'] ?? false,
-            'permissao_admin' => $validated['permissao_admin'] ?? false,
-            'data_concessao' => now(),
-            'ativo' => $validated['ativo'] ?? true,
-        ]);
-
+        $permissao = $this->criarPermissao($validated);
         $permissao->load(['user:id,name,email', 'modulo:id,nome,icone', 'autarquia:id,nome']);
 
         return response()->json([
@@ -153,9 +117,7 @@ class UsuarioModuloPermissaoController extends Controller
             'ativo' => 'sometimes|boolean',
         ]);
 
-        $permissao = UsuarioModuloPermissao::where('user_id', $userId)
-            ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+        $permissao = UsuarioModuloPermissao::filtroCompleto($userId, $moduloId, $autarquiaId)
             ->firstOrFail();
 
         $permissao->update($validated);
@@ -173,9 +135,7 @@ class UsuarioModuloPermissaoController extends Controller
      */
     public function destroy(int $userId, int $moduloId, int $autarquiaId): JsonResponse
     {
-        $permissao = UsuarioModuloPermissao::where('user_id', $userId)
-            ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $autarquiaId)
+        $permissao = UsuarioModuloPermissao::filtroCompleto($userId, $moduloId, $autarquiaId)
             ->firstOrFail();
 
         $permissao->delete();
@@ -205,80 +165,15 @@ class UsuarioModuloPermissaoController extends Controller
         $userId = $validated['user_id'];
         $autarquiaId = $validated['autarquia_ativa_id'];
 
-        // Verificar se o usuário pertence à autarquia
-        $user = User::find($userId);
-        if ($user->autarquia_ativa_id != $autarquiaId) {
-            throw ValidationException::withMessages([
-                'autarquia_ativa_id' => ['O usuário não pertence a esta autarquia.']
-            ]);
-        }
+        $this->validarUsuarioAutarquia($userId, $autarquiaId);
 
-        $permissoesCriadas = [];
-        $erros = [];
+        $resultado = $this->processarPermissoesEmLote($userId, $autarquiaId, $validated['modulos']);
 
-        DB::beginTransaction();
-        try {
-            foreach ($validated['modulos'] as $moduloData) {
-                $moduloId = $moduloData['modulo_id'];
-
-                // Verificar se o módulo está liberado para a autarquia
-                $moduloLiberado = DB::table('autarquia_modulo')
-                    ->where('autarquia_ativa_id', $autarquiaId)
-                    ->where('modulo_id', $moduloId)
-                    ->where('ativo', true)
-                    ->exists();
-
-                if (!$moduloLiberado) {
-                    $modulo = Modulo::find($moduloId);
-                    $erros[] = "Módulo '{$modulo->nome}' não liberado para autarquia";
-                    continue;
-                }
-
-                // Verificar se já existe
-                $existe = UsuarioModuloPermissao::where('user_id', $userId)
-                    ->where('modulo_id', $moduloId)
-                    ->where('autarquia_ativa_id', $autarquiaId)
-                    ->first();
-
-                if ($existe) {
-                    $modulo = Modulo::find($moduloId);
-                    $erros[] = "Permissão para módulo '{$modulo->nome}' já existe";
-                    continue;
-                }
-
-                $permissao = UsuarioModuloPermissao::create([
-                    'user_id' => $userId,
-                    'modulo_id' => $moduloId,
-                    'autarquia_ativa_id' => $autarquiaId,
-                    'permissao_leitura' => $moduloData['permissao_leitura'] ?? false,
-                    'permissao_escrita' => $moduloData['permissao_escrita'] ?? false,
-                    'permissao_exclusao' => $moduloData['permissao_exclusao'] ?? false,
-                    'permissao_admin' => $moduloData['permissao_admin'] ?? false,
-                    'data_concessao' => now(),
-                    'ativo' => true,
-                ]);
-
-                $permissao->load(['modulo:id,nome,icone']);
-                $permissoesCriadas[] = $permissao;
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Permissões criadas com sucesso.',
-                'data' => [
-                    'permissoes' => $permissoesCriadas,
-                    'erros' => $erros,
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao criar permissões: ' . $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Permissões processadas com sucesso.',
+            'data' => $resultado,
+        ], 201);
     }
 
     /**
@@ -287,39 +182,154 @@ class UsuarioModuloPermissaoController extends Controller
     public function checkPermission(int $userId, int $moduloId): JsonResponse
     {
         $user = User::findOrFail($userId);
-        $modulo = Modulo::findOrFail($moduloId);
+        $autarquiaId = $user->autarquia_ativa_id;
 
-        $permissao = UsuarioModuloPermissao::where('user_id', $userId)
-            ->where('modulo_id', $moduloId)
-            ->where('autarquia_ativa_id', $user->autarquia_ativa_id)
-            ->where('ativo', true)
+        $permissao = UsuarioModuloPermissao::filtroCompleto($userId, $moduloId, $autarquiaId)
+            ->ativas()
             ->first();
 
         if (!$permissao) {
             return response()->json([
                 'success' => false,
                 'message' => 'Usuário não possui permissão para este módulo.',
-                'data' => [
-                    'tem_acesso' => false,
-                    'pode_ler' => false,
-                    'pode_escrever' => false,
-                    'pode_excluir' => false,
-                    'e_admin' => false,
-                ],
+                'data' => $this->formatarPermissaoVazia(),
             ]);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Permissões do usuário recuperadas com sucesso.',
-            'data' => [
-                'tem_acesso' => true,
-                'pode_ler' => $permissao->permissao_leitura,
-                'pode_escrever' => $permissao->permissao_escrita,
-                'pode_excluir' => $permissao->permissao_exclusao,
-                'e_admin' => $permissao->permissao_admin,
-                'permissao' => $permissao,
-            ],
+            'data' => $this->formatarPermissao($permissao),
         ]);
+    }
+
+    /**
+     * Métodos privados para extrair lógica complexa
+     */
+    private function validarPermissao(array $dados): void
+    {
+        $this->validarUsuarioAutarquia($dados['user_id'], $dados['autarquia_ativa_id']);
+        $this->validarModuloAutarquia($dados['autarquia_ativa_id'], $dados['modulo_id']);
+    }
+
+    private function validarUsuarioAutarquia(int $userId, int $autarquiaId): void
+    {
+        $user = User::find($userId);
+        if ($user->autarquia_ativa_id != $autarquiaId) {
+            throw ValidationException::withMessages([
+                'autarquia_ativa_id' => ['O usuário não pertence a esta autarquia.']
+            ]);
+        }
+    }
+
+    private function validarModuloAutarquia(int $autarquiaId, int $moduloId): void
+    {
+        $moduloLiberado = DB::table('autarquia_modulo')
+            ->where('autarquia_ativa_id', $autarquiaId)
+            ->where('modulo_id', $moduloId)
+            ->where('ativo', true)
+            ->exists();
+
+        if (!$moduloLiberado) {
+            throw ValidationException::withMessages([
+                'modulo_id' => ['O módulo não está liberado para esta autarquia.']
+            ]);
+        }
+    }
+
+    private function permissaoExiste(int $userId, int $moduloId, int $autarquiaId): bool
+    {
+        return UsuarioModuloPermissao::filtroCompleto($userId, $moduloId, $autarquiaId)
+            ->exists();
+    }
+
+    private function criarPermissao(array $dados): UsuarioModuloPermissao
+    {
+        return UsuarioModuloPermissao::create([
+            'user_id' => $dados['user_id'],
+            'modulo_id' => $dados['modulo_id'],
+            'autarquia_ativa_id' => $dados['autarquia_ativa_id'],
+            'permissao_leitura' => $dados['permissao_leitura'] ?? false,
+            'permissao_escrita' => $dados['permissao_escrita'] ?? false,
+            'permissao_exclusao' => $dados['permissao_exclusao'] ?? false,
+            'permissao_admin' => $dados['permissao_admin'] ?? false,
+            'data_concessao' => now(),
+            'ativo' => $dados['ativo'] ?? true,
+        ]);
+    }
+
+    private function processarPermissoesEmLote(int $userId, int $autarquiaId, array $modulos): array
+    {
+        $permissoesCriadas = [];
+        $erros = [];
+
+        DB::beginTransaction();
+        try {
+            foreach ($modulos as $moduloData) {
+                $moduloId = $moduloData['modulo_id'];
+
+                try {
+                    $this->validarModuloAutarquia($autarquiaId, $moduloId);
+
+                    if ($this->permissaoExiste($userId, $moduloId, $autarquiaId)) {
+                        $modulo = Modulo::find($moduloId);
+                        $erros[] = "Permissão para módulo '{$modulo->nome}' já existe";
+                        continue;
+                    }
+
+                    $permissao = $this->criarPermissao([
+                        'user_id' => $userId,
+                        'modulo_id' => $moduloId,
+                        'autarquia_ativa_id' => $autarquiaId,
+                        'permissao_leitura' => $moduloData['permissao_leitura'] ?? false,
+                        'permissao_escrita' => $moduloData['permissao_escrita'] ?? false,
+                        'permissao_exclusao' => $moduloData['permissao_exclusao'] ?? false,
+                        'permissao_admin' => $moduloData['permissao_admin'] ?? false,
+                        'ativo' => true,
+                    ]);
+
+                    $permissao->load(['modulo:id,nome,icone']);
+                    $permissoesCriadas[] = $permissao;
+
+                } catch (ValidationException $e) {
+                    $modulo = Modulo::find($moduloId);
+                    $erros[] = "Módulo '{$modulo->nome}' não liberado para autarquia";
+                }
+            }
+
+            DB::commit();
+
+            return [
+                'permissoes' => $permissoesCriadas,
+                'erros' => $erros,
+            ];
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+    }
+
+    private function formatarPermissao(UsuarioModuloPermissao $permissao): array
+    {
+        return [
+            'tem_acesso' => true,
+            'pode_ler' => $permissao->podeLer(),
+            'pode_escrever' => $permissao->podeEscrever(),
+            'pode_excluir' => $permissao->podeExcluir(),
+            'e_admin' => $permissao->eAdmin(),
+            'permissao' => $permissao,
+        ];
+    }
+
+    private function formatarPermissaoVazia(): array
+    {
+        return [
+            'tem_acesso' => false,
+            'pode_ler' => false,
+            'pode_escrever' => false,
+            'pode_excluir' => false,
+            'e_admin' => false,
+        ];
     }
 }
