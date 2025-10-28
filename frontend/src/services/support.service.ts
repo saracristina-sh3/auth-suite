@@ -51,7 +51,7 @@ class SupportService {
    *   console.error('Erro ao assumir contexto:', error.message)
    * }
    */
-  async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
+async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
     try {
       const token = tokenService.getAccessToken()
       console.log('🔄 Assumindo contexto de autarquia:', autarquiaId)
@@ -61,50 +61,73 @@ class SupportService {
         autarquia_id: autarquiaId,
       })
 
-      if (data.success && data.token && data.context) {
-        const originalUserData = getItem<User | null>(STORAGE_KEYS.USER, null)
-        if (originalUserData) {
-          setItem('original_user_data', originalUserData)
-          console.log('💾 Dados originais do usuário salvos')
-        }
+      console.log('📥 Resposta recebida:', data)
 
-        setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
-        api.defaults.headers.common.Authorization = `Bearer ${data.token}`
-        console.log('🔑 Novo token de suporte definido')
-
-        setItem(this.STORAGE_KEY, data.context)
-        console.log('💾 Contexto de suporte salvo no localStorage')
-
-        const currentUser = getItem<User>(STORAGE_KEYS.USER, {} as User)
-        const modifiedUser = {
-          ...currentUser,
-          _support_mode: true,
-          autarquia_ativa_id: data.context.autarquia.id,
-          autarquia_ativa: {
-            id: data.context.autarquia.id,
-            nome: data.context.autarquia.nome,
-            ativo: data.context.autarquia.ativo
+      // CORREÇÃO: Verificar se a resposta é bem-sucedida
+      if (data.success) {
+        // CORREÇÃO: Verificar se temos token e contexto
+        if (data.token && data.data) {
+          const originalUserData = getItem<User | null>(STORAGE_KEYS.USER, null)
+          if (originalUserData) {
+            setItem('original_user_data', originalUserData)
+            console.log('💾 Dados originais do usuário salvos')
           }
+
+          // Atualizar token
+          setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
+          api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+          console.log('🔑 Novo token de suporte definido')
+
+          // Salvar contexto
+          setItem(this.STORAGE_KEY, data.data)
+          console.log('💾 Contexto de suporte salvo no localStorage')
+
+          // Atualizar dados do usuário
+          const currentUser = getItem<User>(STORAGE_KEYS.USER, {} as User)
+          const modifiedUser = {
+            ...currentUser,
+            _support_mode: true,
+            autarquia_ativa_id: data.data.autarquia.id,
+            autarquia_ativa: {
+              id: data.data.autarquia.id,
+              nome: data.data.autarquia.nome,
+              ativo: data.data.autarquia.ativo
+            }
+          }
+          setItem(STORAGE_KEYS.USER, modifiedUser)
+          console.log('💾 user_data atualizado com autarquia ativa:', data.data.autarquia.nome)
+
+          console.log('✅ Contexto assumido com sucesso:', data.data.autarquia.nome)
+          console.log('📋 Módulos disponíveis:', data.data.modulos?.length || 0)
+
+          return data.data
+        } else {
+          // CORREÇÃO: Se não tem token ou data, lançar erro específico
+          throw new Error('Resposta da API incompleta: token ou contexto ausentes')
         }
-        setItem(STORAGE_KEYS.USER, modifiedUser)
-        console.log('💾 user_data atualizado com autarquia ativa:', data.context.autarquia.nome)
-
-        console.log('✅ Contexto assumido com sucesso:', data.context.autarquia.nome)
-        console.log('📋 Módulos disponíveis:', data.context.modulos?.length || 0)
-
-        return data.context
       } else {
+        // CORREÇÃO: Se success é false, usar a mensagem do servidor
         throw new Error(data.message || 'Falha ao assumir contexto')
       }
     } catch (error: unknown) {
       console.error('❌ Erro ao assumir contexto:', error)
+      
+      // CORREÇÃO: Melhor tratamento de erro
       let message = 'Erro ao assumir contexto da autarquia. Tente novamente.'
-      if (typeof error === 'object' && error !== null) {
-        const maybeMessage = (error as any)?.response?.data?.message
-        if (typeof maybeMessage === 'string' && maybeMessage.length) {
-          message = maybeMessage
+      
+      if (error instanceof Error) {
+        // Se já é uma Error, usar a mensagem original
+        message = error.message
+      } else if (typeof error === 'object' && error !== null) {
+        // Tentar extrair mensagem da resposta da API
+        const apiError = error as any
+        if (apiError?.response?.data?.message) {
+          message = apiError.response.data.message
+        } else if (apiError?.message) {
+          message = apiError.message
         }
       }
+      
       throw new Error(message)
     }
   }
@@ -127,49 +150,63 @@ class SupportService {
    *   console.error('Erro ao sair do contexto:', error.message)
    * }
    */
-  async exitAutarquiaContext(): Promise<void> {
+ async exitAutarquiaContext(): Promise<void> {
     try {
       console.log('🔙 Saindo do modo suporte...')
 
       const { data } = await api.post<ExitContextResponse>('/support/exit-context')
 
-      if (data.success && data.token && data.user) {
-        setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
-        api.defaults.headers.common.Authorization = `Bearer ${data.token}`
-        console.log('🔑 Token original restaurado')
+      console.log('📥 Resposta recebida:', data)
 
-        const originalUserData = getItem<User | null>('original_user_data', null)
-        if (originalUserData) {
-          setItem(STORAGE_KEYS.USER, originalUserData)
-          removeItem('original_user_data')
-          console.log('✅ Dados originais do usuário restaurados')
-        } else {
-          const cleanUser = {
-            ...data.user,
-            _support_mode: undefined,
-            autarquia_ativa_id: data.user.autarquia_preferida_id || undefined,
-            autarquia_ativa: data.user.autarquia_ativa || undefined
+      // CORREÇÃO: Verificar se a resposta é bem-sucedida
+      if (data.success) {
+        if (data.token && data.user) {
+          setItem(STORAGE_KEYS.AUTH_TOKEN, data.token)
+          api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+          console.log('🔑 Token original restaurado')
+
+          const originalUserData = getItem<User | null>('original_user_data', null)
+          if (originalUserData) {
+            setItem(STORAGE_KEYS.USER, originalUserData)
+            removeItem('original_user_data')
+            console.log('✅ Dados originais do usuário restaurados')
+          } else {
+            const cleanUser = {
+              ...data.user,
+              _support_mode: undefined,
+              autarquia_ativa_id: data.user.autarquia_preferida_id || undefined,
+              autarquia_ativa: data.user.autarquia_ativa || undefined
+            }
+            setItem(STORAGE_KEYS.USER, cleanUser)
+            console.log('✅ Dados do usuário atualizados (sem modo suporte)')
           }
-          setItem(STORAGE_KEYS.USER, cleanUser)
-          console.log('✅ Dados do usuário atualizados (sem modo suporte)')
+
+          removeItem(this.STORAGE_KEY)
+          console.log('🧹 Contexto de suporte removido')
+
+          console.log('✅ Retornado ao contexto original')
+        } else {
+          throw new Error('Resposta da API incompleta: token ou usuário ausentes')
         }
-
-        removeItem(this.STORAGE_KEY)
-        console.log('🧹 Contexto de suporte removido')
-
-        console.log('✅ Retornado ao contexto original')
       } else {
         throw new Error(data.message || 'Falha ao sair do contexto')
       }
     } catch (error: unknown) {
       console.error('❌ Erro ao sair do contexto:', error)
+      
       let message = 'Erro ao sair do modo suporte. Tente novamente.'
-      if (typeof error === 'object' && error !== null) {
-        const maybeMessage = (error as any)?.response?.data?.message
-        if (typeof maybeMessage === 'string' && maybeMessage.length) {
-          message = maybeMessage
+      
+      if (error instanceof Error) {
+        message = error.message
+      } else if (typeof error === 'object' && error !== null) {
+        const apiError = error as any
+        if (apiError?.response?.data?.message) {
+          message = apiError.response.data.message
+        } else if (apiError?.message) {
+          message = apiError.message
         }
       }
+      
       throw new Error(message)
     }
   }

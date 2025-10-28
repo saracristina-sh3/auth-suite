@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\AutarquiaService;
+use App\Services\Autarquia\AutarquiaService;
 use App\Repositories\AutarquiaRepository;
 
 class AutarquiaServiceProvider extends ServiceProvider
