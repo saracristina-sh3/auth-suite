@@ -155,4 +155,34 @@ class PermissionService
             })
             ->toArray();
     }
+
+    public function verificarPermissaoUsuario(int $userId, int $moduloId): array
+{
+    $user = User::findOrFail($userId);
+
+    $permissao = UsuarioModuloPermissao::where('user_id', $userId)
+        ->where('modulo_id', $moduloId)
+        ->where('autarquia_ativa_id', $user->autarquia_ativa_id)
+        ->where('ativo', true)
+        ->first();
+
+    if (!$permissao) {
+        return [
+            'tem_acesso' => false,
+            'pode_ler' => false,
+            'pode_escrever' => false,
+            'pode_excluir' => false,
+            'e_admin' => false,
+        ];
+    }
+
+    return [
+        'tem_acesso' => true,
+        'pode_ler' => $permissao->podeLer(),
+        'pode_escrever' => $permissao->podeEscrever(),
+        'pode_excluir' => $permissao->podeExcluir(),
+        'e_admin' => $permissao->eAdmin(),
+        'permissao' => $permissao,
+    ];
+}
 }

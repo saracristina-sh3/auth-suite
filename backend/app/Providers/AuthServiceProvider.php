@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\AuthService;
+use App\Services\Auth\AuthService;
 use App\Services\UserAutarquiaService;
 
 class AuthServiceProvider extends ServiceProvider

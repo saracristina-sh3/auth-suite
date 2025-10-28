@@ -9,6 +9,7 @@ import OrcamentoIcon from '@/components/icons/IconOrcamento.vue'
 import PatrimonioIcon from '@/components/icons/IconPatrimonio.vue'
 import RequisicaoInternaIcon from '@/components/icons/IconRequisicaoInterna.vue'
 import TesourariaIcon from '@/components/icons/IconTesouraria.vue'
+import ControleUsuarioIcon from '@/components/icons/IconControleUsuarios.vue'
 
 // Mapa de ícones - mapeia nomes de ícones para componentes Vue
 export const iconMap: Record<string, any> = {
@@ -24,6 +25,7 @@ export const iconMap: Record<string, any> = {
   'patrimonio_button': PatrimonioIcon,
   'diarias_button': DiariasIcon,
   'requisicao_interna_button': RequisicaoInternaIcon,
+  'controle_usuarios_button': ControleUsuarioIcon, 
 
   // Mantém nomes antigos para compatibilidade (caso existam dados legados)
   'FrotaIcon': FrotaIcon,
@@ -37,6 +39,7 @@ export const iconMap: Record<string, any> = {
   'PatrimonioIcon': PatrimonioIcon,
   'DiariasIcon': DiariasIcon,
   'RequisicaoInternaIcon': RequisicaoInternaIcon,
+  'ControleUsuariosIcon': ControleUsuarioIcon
 }
 
 // Mapa de rotas - mapeia nomes de módulos para rotas Vue Router
@@ -51,5 +54,6 @@ export const routeMap: Record<string, string> = {
   'Orçamento': '/orcamento',
   'Patrimônio': '/patrimonio',
   'Diárias': '/diarias',
-  'Requisição Interna': '/requisicao-interna'
+  'Requisição Interna': '/requisicao-interna',
+  'Controle de Usuários': '/controle-usuarios'
 }
