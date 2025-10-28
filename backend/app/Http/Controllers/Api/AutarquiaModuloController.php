@@ -7,9 +7,11 @@ use App\Models\AutarquiaModulo;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\Traits\ApiResponses;
 
 class AutarquiaModuloController extends Controller
 {
+    use ApiResponses;
     /**
      * Lista todas as liberações de módulos para autarquias
      */
@@ -35,11 +37,10 @@ class AutarquiaModuloController extends Controller
 
         $liberacoes = $query->orderBy('data_liberacao', 'desc')->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Liberações recuperadas com sucesso.',
-            'data' => $liberacoes,
-        ]);
+        return $this->successResponse(
+            $liberacoes,
+            'Liberações recuperadas com sucesso.'
+        );
     }
 
     /**
@@ -65,11 +66,10 @@ class AutarquiaModuloController extends Controller
 
         $liberacao->load(['autarquia:id,nome', 'modulo:id,nome,icone']);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Status de liberação atualizado com sucesso.',
-            'data' => $liberacao,
-        ]);
+        return $this->successResponse(
+            $liberacao,
+            'Status de liberação atualizado com sucesso.'
+        );
     }
 
     /**
@@ -148,18 +148,16 @@ public function bulkUpdate(Request $request): JsonResponse
 
         DB::commit();
 
+        $mensagem = count($erros)
+            ? 'Alguns módulos não puderam ser atualizados.'
+            : 'Módulos atualizados com sucesso.';
+
         $status = count($erros) ? 207 : 200;
 
-        return response()->json([
-            'success' => count($erros) === 0,
-            'message' => count($erros)
-                ? 'Alguns módulos não puderam ser atualizados.'
-                : 'Módulos atualizados com sucesso.',
-            'data' => [
-                'atualizados' => $atualizados,
-                'erros' => $erros,
-            ],
-        ], $status);
+        return $this->successResponse([
+            'atualizados' => $atualizados,
+            'erros' => $erros,
+        ], $mensagem, $status);
     } catch (\Throwable $e) {
         DB::rollBack();
 
@@ -169,10 +167,9 @@ public function bulkUpdate(Request $request): JsonResponse
             'trace' => $e->getTraceAsString(),
         ]);
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Erro interno ao atualizar liberações: ' . $e->getMessage(),
-        ], 500);
+        return $this->serverErrorResponse(
+            'Erro interno ao atualizar liberações: ' . $e->getMessage()
+        );
     }
 }
 

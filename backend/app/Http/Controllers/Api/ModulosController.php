@@ -67,11 +67,10 @@ class ModulosController extends Controller
         $modulo->load(['autarquiasAtivas']);
         $modulo->loadCount('autarquias');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulo recuperado com sucesso.',
-            'data' => $modulo,
-        ]);
+        return $this->successResponse(
+            $modulo,
+            'Módulo recuperado com sucesso.'
+        );
     }
 
     /**
@@ -88,11 +87,10 @@ class ModulosController extends Controller
 
         $modulo = Modulo::create($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulo criado com sucesso.',
-            'data' => $modulo,
-        ], 201);
+        return $this->createdResponse(
+            $modulo,
+            'Módulo criado com sucesso.'
+        );
     }
 
     /**
@@ -109,11 +107,10 @@ class ModulosController extends Controller
 
         $modulo->update($validated);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulo atualizado com sucesso.',
-            'data' => $modulo,
-        ]);
+        return $this->updatedResponse(
+            $modulo,
+            'Módulo atualizado com sucesso.'
+        );
     }
 
     /**
@@ -122,18 +119,15 @@ class ModulosController extends Controller
     public function destroy(Modulo $modulo): JsonResponse
     {
         if ($modulo->autarquias()->exists()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não é possível excluir o módulo pois existem autarquias vinculadas.',
-            ], 422);
+            return $this->errorResponse(
+                'Não é possível excluir o módulo pois existem autarquias vinculadas.',
+                422
+            );
         }
 
         $modulo->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Módulo excluído com sucesso.',
-        ]);
+        return $this->deletedResponse('Módulo excluído com sucesso.');
     }
 
     /**
@@ -143,11 +137,10 @@ class ModulosController extends Controller
     {
         $autarquias = $modulo->autarquiasAtivas()->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Autarquias do módulo recuperadas com sucesso.',
-            'data' => $autarquias,
-        ]);
+        return $this->successResponse(
+            $autarquias,
+            'Autarquias do módulo recuperadas com sucesso.'
+        );
     }
 
     /**
@@ -159,14 +152,10 @@ class ModulosController extends Controller
         $ativos = Modulo::where('ativo', true)->count();
         $inativos = Modulo::where('ativo', false)->count();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Estatísticas de módulos recuperadas com sucesso.',
-            'data' => [
-                'total' => $total,
-                'ativos' => $ativos,
-                'inativos' => $inativos,
-            ],
-        ]);
+        return $this->successResponse([
+            'total' => $total,
+            'ativos' => $ativos,
+            'inativos' => $inativos,
+        ], 'Estatísticas de módulos recuperadas com sucesso.');
     }
 }

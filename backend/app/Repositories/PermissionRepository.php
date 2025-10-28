@@ -56,4 +56,67 @@ class PermissionRepository
 
         return $permissao;
     }
+
+    /**
+     * Verifica se permissão já existe
+     */
+    public function permissaoExiste(int $userId, int $moduloId, int $autarquiaId): bool
+    {
+        return UsuarioModuloPermissao::where('user_id', $userId)
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_ativa_id', $autarquiaId)
+            ->exists();
+    }
+
+    /**
+     * Cria uma nova permissão
+     */
+    public function criarPermissao(array $dados): UsuarioModuloPermissao
+    {
+        return UsuarioModuloPermissao::create([
+            'user_id' => $dados['user_id'],
+            'modulo_id' => $dados['modulo_id'],
+            'autarquia_ativa_id' => $dados['autarquia_ativa_id'],
+            'permissao_leitura' => $dados['permissao_leitura'] ?? false,
+            'permissao_escrita' => $dados['permissao_escrita'] ?? false,
+            'permissao_exclusao' => $dados['permissao_exclusao'] ?? false,
+            'permissao_admin' => $dados['permissao_admin'] ?? false,
+            'data_concessao' => now(),
+            'ativo' => $dados['ativo'] ?? true,
+        ]);
+    }
+
+    /**
+     * Atualiza uma permissão existente
+     */
+    public function atualizarPermissao(int $userId, int $moduloId, int $autarquiaId, array $dados): bool
+    {
+        return UsuarioModuloPermissao::where('user_id', $userId)
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_ativa_id', $autarquiaId)
+            ->update($dados);
+    }
+
+    /**
+     * Remove uma permissão
+     */
+    public function deletarPermissao(int $userId, int $moduloId, int $autarquiaId): bool
+    {
+        return UsuarioModuloPermissao::where('user_id', $userId)
+            ->where('modulo_id', $moduloId)
+            ->where('autarquia_ativa_id', $autarquiaId)
+            ->delete();
+    }
+
+    /**
+     * Busca permissões ativas de um usuário
+     */
+    public function getPermissoesAtivasUsuario(int $userId, int $autarquiaId): Collection
+    {
+        return UsuarioModuloPermissao::with('modulo')
+            ->ativas()
+            ->daAutarquia($autarquiaId)
+            ->doUsuario($userId)
+            ->get();
+    }
 }
