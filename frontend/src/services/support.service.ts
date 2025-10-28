@@ -5,6 +5,7 @@ import type { SupportContext, AssumeContextResponse, ExitContextResponse } from 
 import { getItem, setItem, removeItem, STORAGE_KEYS } from '@/utils/storage'
 import type { User } from '@/types/common/user.types'
 import { tokenService } from './token.service'
+import type { ApiError } from '@/utils/error-handler'
 
 /**
  * Serviço de gerenciamento do modo suporte
@@ -120,12 +121,10 @@ async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
         message = error.message
       } else if (typeof error === 'object' && error !== null) {
         // Tentar extrair mensagem da resposta da API
-        const apiError = error as any
-        if (apiError?.response?.data?.message) {
-          message = apiError.response.data.message
-        } else if (apiError?.message) {
+        const apiError = error as ApiError
+        if (apiError?.message) {
           message = apiError.message
-        }
+        } 
       }
       
       throw new Error(message)
@@ -199,12 +198,10 @@ async assumeAutarquiaContext(autarquiaId: number): Promise<SupportContext> {
       if (error instanceof Error) {
         message = error.message
       } else if (typeof error === 'object' && error !== null) {
-        const apiError = error as any
-        if (apiError?.response?.data?.message) {
-          message = apiError.response.data.message
-        } else if (apiError?.message) {
+        const apiError = error as ApiError
+        if (apiError?.message) {
           message = apiError.message
-        }
+        } 
       }
       
       throw new Error(message)
